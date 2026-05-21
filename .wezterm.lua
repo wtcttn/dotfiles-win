@@ -26,6 +26,7 @@ config.font = wezterm.font_with_fallback({
 	{ family = "Consolas", weight = "Regular" },
 })
 config.font_size = 11.0
+--config.line_height = 1.2
 config.line_height = 1.2
 
 -- ウィンドウ設定
