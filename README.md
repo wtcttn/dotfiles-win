@@ -73,6 +73,9 @@ git pull && ./archlinux/install.sh install
 
 # WezTerm config reinstall
 ./windows/install-powershell.ps1 wezterm
+
+# Mutagen (Windows と WSLc ボリュームの同期) のインストール・設定
+./windows/install-powershell.ps1 mutagen
 ```
 
 ## カスタマイズ

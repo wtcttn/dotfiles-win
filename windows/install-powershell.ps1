@@ -6,6 +6,7 @@
 # - Auto-installs Terminal-Icons and posh-git modules
 # - Auto-installs Moralerspace HWJPDOC font (Japanese programming font)
 # - Installs Neovim (winget Neovim.Neovim) and links windows/nvim
+# - Installs Mutagen (scoop), pins MUTAGEN_SSH_PATH to Windows OpenSSH, registers the daemon
 # - Backups existing profile
 # - Validates PowerShell installation
 # - Syntax checking
@@ -215,6 +216,52 @@ function Install-Neovim {
         Write-ColorOutput "Failed to install Neovim config: $($_.Exception.Message)" "Red"
         return $false
     }
+}
+
+function Install-Mutagen {
+    # Mutagen syncs Windows directories with WSLc volumes (see docs/MUTAGEN_SETUP.md).
+    # It is not on winget or Chocolatey; Scoop's main bucket has it.
+    Write-ColorOutput "Installing Mutagen..." "Green"
+
+    if (!(Get-Command scoop -ErrorAction SilentlyContinue)) {
+        Write-ColorOutput "Scoop is not installed. Install it first: https://scoop.sh" "Red"
+        return $false
+    }
+
+    if (Get-Command mutagen -ErrorAction SilentlyContinue) {
+        Write-ColorOutput "Mutagen is already installed ($(& mutagen version))" "Yellow"
+    } else {
+        & scoop install mutagen
+        if ($LASTEXITCODE -ne 0 -or !(Get-Command mutagen -ErrorAction SilentlyContinue)) {
+            Write-ColorOutput "scoop install mutagen failed (exit $LASTEXITCODE)" "Red"
+            return $false
+        }
+    }
+
+    # Pin the ssh Mutagen uses to Windows OpenSSH. If Git for Windows' ssh (MSYS) is picked up,
+    # it cannot read Windows-style paths in ~/.ssh/config Include lines and connections fail.
+    $sshDir = @(
+        (Join-Path $env:ProgramFiles "OpenSSH"),
+        (Join-Path $env:SystemRoot "System32\OpenSSH")
+    ) | Where-Object { Test-Path (Join-Path $_ "ssh.exe") } | Select-Object -First 1
+    if ($sshDir) {
+        [Environment]::SetEnvironmentVariable("MUTAGEN_SSH_PATH", $sshDir, "User")
+        $env:MUTAGEN_SSH_PATH = $sshDir
+        Write-ColorOutput "MUTAGEN_SSH_PATH = $sshDir (user environment variable)" "Green"
+    } else {
+        Write-ColorOutput "Windows OpenSSH (ssh.exe) not found; MUTAGEN_SSH_PATH was not set" "Yellow"
+    }
+
+    # Start the daemon at logon, and restart it now so it picks up MUTAGEN_SSH_PATH.
+    & mutagen daemon register
+    & mutagen daemon stop 2>$null
+    & mutagen daemon start
+    if ($LASTEXITCODE -ne 0) {
+        Write-ColorOutput "mutagen daemon start failed (exit $LASTEXITCODE)" "Red"
+        return $false
+    }
+    Write-ColorOutput "Mutagen daemon registered and started" "Green"
+    return $true
 }
 
 function Install-WslConfig {
@@ -520,6 +567,12 @@ function Install-PowerShellProfile {
         Write-ColorOutput "Warning: Neovim installation failed, but continuing..." "Yellow"
     }
     
+    # Install Mutagen (Windows <-> WSLc volume sync)
+    Write-ColorOutput "" "White"
+    if (!(Install-Mutagen)) {
+        Write-ColorOutput "Warning: Mutagen installation failed, but continuing..." "Yellow"
+    }
+
     # Install WSL config
     Write-ColorOutput "" "White"
     if (!(Install-WslConfig)) {
@@ -604,14 +657,14 @@ function Show-Help {
     Write-ColorOutput "PowerShell Profile Installer" "Cyan"
     Write-ColorOutput "=============================" "Cyan"
     Write-ColorOutput "" "White"
-    Write-ColorOutput "Usage: .\install-powershell.ps1 [install|uninstall|test|check|font|wezterm|wsl|nvim|help]" "White"
+    Write-ColorOutput "Usage: .\install-powershell.ps1 [install|uninstall|test|check|font|wezterm|wsl|nvim|mutagen|help]" "White"
     Write-ColorOutput "       .\install-powershell.ps1 install -GlazewmProfile thinkpad" "DarkGray"
     Write-ColorOutput "" "White"
     Write-ColorOutput "Options:" "Yellow"
     Write-ColorOutput "  -GlazewmProfile <name>  - Apply glazewm profile from glzr\glazewm\profiles (default: sugimoto-pc)" "White"
     Write-ColorOutput "" "White"
     Write-ColorOutput "Commands:" "Yellow"
-    Write-ColorOutput "  install   - Install PowerShell profile + modules + Moralerspace font + WezTerm + WSL config + Neovim" "White"
+    Write-ColorOutput "  install   - Install PowerShell profile + modules + Moralerspace font + WezTerm + Neovim + Mutagen + WSL config" "White"
     Write-ColorOutput "  uninstall - Remove PowerShell profile" "White"
     Write-ColorOutput "  test      - Test PowerShell profile syntax" "White"
     Write-ColorOutput "  check     - Check PowerShell installation" "White"
@@ -619,6 +672,7 @@ function Show-Help {
     Write-ColorOutput "  wezterm   - Install WezTerm config only" "White"
     Write-ColorOutput "  wsl       - Install WSL config only" "White"
     Write-ColorOutput "  nvim      - Install Neovim and link windows/nvim only" "White"
+    Write-ColorOutput "  mutagen   - Install Mutagen (scoop), pin MUTAGEN_SSH_PATH, register the daemon only" "White"
     Write-ColorOutput "  help      - Show this help message" "White"
     Write-ColorOutput "" "White"
     Write-ColorOutput "Prerequisites (manual installation):" "Yellow"
@@ -632,6 +686,7 @@ function Show-Help {
     Write-ColorOutput "  • WezTerm config       - Cool terminal emulator config with transparency" "White"
     Write-ColorOutput "  • WSL config          - WSL GUI optimization for Ghostty/GTK apps" "White"
     Write-ColorOutput "  • Neovim              - winget Neovim.Neovim, config at %LOCALAPPDATA%\nvim" "White"
+    Write-ColorOutput "  • Mutagen             - scoop mutagen, MUTAGEN_SSH_PATH, daemon autostart (requires Scoop)" "White"
     Write-ColorOutput "" "White"
     Write-ColorOutput "Recommended font setting:" "Yellow"
     Write-ColorOutput "  'Moralerspace Argon HWJPDOC', 'Consolas', monospace" "Cyan"
@@ -669,6 +724,9 @@ switch ($Action.ToLower()) {
     }
     "nvim" {
         Install-Neovim
+    }
+    "mutagen" {
+        Install-Mutagen
     }
     "help" {
         Show-Help

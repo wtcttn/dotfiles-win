@@ -5,7 +5,13 @@ Windows 側のファイルを VirtioFS でコンテナに見せると小さい�
 
 ## インストール
 
-winget と Chocolatey には無い（2026-10 時点）。Scoop の main バケットから入れる。
+`install-powershell.ps1` に組み込んである（`install` 全体でも入る）。下の「使う ssh を固定する」「デーモン」まで一度に行う。
+
+```powershell
+.\windows\install-powershell.ps1 mutagen
+```
+
+手動で行う場合: winget と Chocolatey には無い（2026-10 時点）ので、Scoop の main バケットから入れる。
 
 ```powershell
 scoop install mutagen
