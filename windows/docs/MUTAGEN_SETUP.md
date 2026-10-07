@@ -16,6 +16,18 @@ mutagen version          # 0.18.1 で確認
 - 更新: `scoop update mutagen`（更新後は `mutagen daemon stop; mutagen daemon start`）
 - アンインストール: `mutagen sync terminate --all; mutagen daemon stop; scoop uninstall mutagen`
 
+## 使う ssh を固定する
+
+Mutagen は SSH の接続先に `ssh` コマンドを使う。PATH の状況によっては Git for Windows の ssh（MSYS）が使われ、
+`~/.ssh/config` の `Include` に書いた `C:/...` 形式のパスを読めずに接続に失敗する。Windows の OpenSSH に固定する。
+
+```powershell
+[Environment]::SetEnvironmentVariable('MUTAGEN_SSH_PATH', 'C:\Program Files\OpenSSH', 'User')
+mutagen daemon stop; mutagen daemon start   # 新しい環境変数で起動し直す（新しいターミナルから）
+```
+
+`~/.ssh/config` に書くパスは、どちらの ssh でも同じ場所になるよう `~/...` の形にしておくと安全。
+
 ## デーモン
 
 同期はバックグラウンドのデーモンが行う。ログオン時に自動で起動させる。
