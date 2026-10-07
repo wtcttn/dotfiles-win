@@ -54,6 +54,17 @@ function Invoke-Wslc {
     }
 }
 
+function Invoke-DevScript {
+    param([Parameter(Mandatory = $true)][string]$Script)
+    # コンテナの中で zsh のスクリプトを実行する。標準入力で渡すと、Windows PowerShell 5.1 は $OutputEncoding に
+    # 関係なく先頭に BOM を付け（zsh が 1 行目を「<BOM>set」というコマンドとして読み、set -e が効かなくなる）、
+    # 末尾に CRLF も付ける。5.1 は引数の " も正しく渡せないので、スクリプトを base64（" も空白も含まない）にして
+    # 引数で渡し、コンテナの中で戻す
+    $bytes = [System.Text.Encoding]::UTF8.GetBytes(($Script -replace "`r", ""))
+    $encoded = [System.Convert]::ToBase64String($bytes)
+    & wslc exec -u kento $Container zsh -c "echo $encoded | base64 -d | zsh -s"
+}
+
 function Read-WslcJsonLines {
     param([string[]]$Lines)
     foreach ($line in $Lines) {
@@ -207,10 +218,7 @@ sort -o "$dir/proto.txt" "$dir/proto.txt"
 cp "$HOME/.proto/.prototools" "$dir/prototools.toml" 2>/dev/null || true
 wc -l "$dir"/*.txt
 '@
-        # Windows PowerShell 5.1 は引数の " を正しく渡せないので、スクリプトは標準入力で渡す（CRLF は LF にする）
-        # 5.1 の既定 $OutputEncoding は ASCII で、パイプの末尾に CRLF が付く。BOM 無し UTF-8 にし、最後の行をコメントにして CR を無害にする
-        $OutputEncoding = New-Object System.Text.UTF8Encoding $false
-        (($script -replace "`r", "") + "`n# end") | & wslc exec -i -u kento $Container zsh -s
+        Invoke-DevScript $script
         exit $LASTEXITCODE
     }
     "packages-restore" {
@@ -218,8 +226,9 @@ wc -l "$dir"/*.txt
         $script = @'
 set -e
 dir=/opt/wslc-dev/home/packages
-[ -f "$dir/pacman.txt" ] && sudo pacman -S --needed --noconfirm - < "$dir/pacman.txt"
-[ -s "$dir/aur.txt" ] && paru -S --needed --noconfirm - < "$dir/aur.txt"
+# 一覧は引数で渡す（- で標準入力から読ませると、pacman が端末を開き直せず "failed to reopen stdin" になる）
+[ -s "$dir/pacman.txt" ] && sudo pacman -S --needed --noconfirm $(cat "$dir/pacman.txt")
+[ -s "$dir/aur.txt" ] && paru -S --needed --noconfirm $(cat "$dir/aur.txt")
 [ -f "$dir/prototools.toml" ] && cp "$dir/prototools.toml" "$HOME/.proto/.prototools"
 if [ -f "$dir/proto.txt" ]; then
   # pnpm 等は node が要るので node を先に入れる
@@ -227,10 +236,7 @@ if [ -f "$dir/proto.txt" ]; then
   grep -v '^node ' "$dir/proto.txt" | while read -r tool ver; do proto install "$tool" "$ver"; done
 fi
 '@
-        # Windows PowerShell 5.1 は引数の " を正しく渡せないので、スクリプトは標準入力で渡す（CRLF は LF にする）
-        # 5.1 の既定 $OutputEncoding は ASCII で、パイプの末尾に CRLF が付く。BOM 無し UTF-8 にし、最後の行をコメントにして CR を無害にする
-        $OutputEncoding = New-Object System.Text.UTF8Encoding $false
-        (($script -replace "`r", "") + "`n# end") | & wslc exec -i -u kento $Container zsh -s
+        Invoke-DevScript $script
         exit $LASTEXITCODE
     }
     "status" {
