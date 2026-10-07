@@ -127,6 +127,63 @@ config.launch_menu = {
 -- キーバインド (Key Bindings)
 -- ============================================================================
 
+local shell_names = {
+	["cmd.exe"] = true,
+	["pwsh.exe"] = true,
+	["powershell.exe"] = true,
+	["wsl.exe"] = true,
+	["wslc.exe"] = true,
+}
+
+local function basename(path)
+	local name = path:gsub("\\", "/"):match("([^/]+)$") or path
+	return name:lower()
+end
+
+local function current_shell_argv(pane)
+	local ok, info = pcall(function()
+		return pane:get_foreground_process_info()
+	end)
+	if not ok or not info then
+		return nil
+	end
+
+	local seen = {}
+	local current = info
+	while current and current.pid and not seen[current.pid] do
+		seen[current.pid] = true
+		local name = basename(current.executable or current.name or "")
+		if shell_names[name] and current.argv and #current.argv > 0 then
+			return current.argv
+		end
+		if not current.ppid or current.ppid <= 0 then
+			break
+		end
+		local parent_ok, parent = pcall(wezterm.procinfo.get_info_for_pid, current.ppid)
+		if not parent_ok then
+			break
+		end
+		current = parent
+	end
+
+	if info.argv and #info.argv > 0 then
+		return info.argv
+	end
+	return nil
+end
+
+local function split_like_current(direction)
+	return wezterm.action_callback(function(window, pane)
+		local opts = { domain = "CurrentPaneDomain" }
+		local args = current_shell_argv(pane)
+		if args then
+			opts.args = args
+		end
+		local split = direction == "horizontal" and wezterm.action.SplitHorizontal or wezterm.action.SplitVertical
+		window:perform_action(split(opts), pane)
+	end)
+end
+
 config.keys = {
 	-- タブ操作
 	{ key = "t", mods = "CTRL|SHIFT", action = wezterm.action.SpawnTab("CurrentPaneDomain") },
@@ -134,9 +191,9 @@ config.keys = {
 	{ key = "Tab", mods = "CTRL", action = wezterm.action.ActivateTabRelative(1) },
 	{ key = "Tab", mods = "CTRL|SHIFT", action = wezterm.action.ActivateTabRelative(-1) },
 
-	-- ペイン分割
-	{ key = "|", mods = "CTRL|SHIFT", action = wezterm.action.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
-	{ key = "_", mods = "CTRL|SHIFT", action = wezterm.action.SplitVertical({ domain = "CurrentPaneDomain" }) },
+	-- ペイン分割。開いているシェルと同じコマンドで起動する
+	{ key = "|", mods = "CTRL|SHIFT", action = split_like_current("horizontal") },
+	{ key = "_", mods = "CTRL|SHIFT", action = split_like_current("vertical") },
 
 	-- ペイン移動
 	{ key = "LeftArrow", mods = "CTRL|SHIFT", action = wezterm.action.ActivatePaneDirection("Left") },
