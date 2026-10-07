@@ -4,6 +4,7 @@ chromium
 cmake
 fd
 git
+github-cli
 libyaml
 neovim
 openssh
