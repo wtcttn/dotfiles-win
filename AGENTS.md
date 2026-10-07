@@ -135,8 +135,8 @@ entrypoint が `/mnt/win-ssh` の通常ファイルを、ドットファイル�
 
 設定は3つに分ける。
 
-- 開発リポジトリはコンテナの `wslc-dev/home/.config/nvim`。LazyVim 一式はまだ移していない。クリップボードは `vim.ui.clipboard.osc52` があるときだけ OSC 52 を使う。Markdown は `render-markdown.nvim` と `markdown.nvim`。言語サーバーと Mason は入れない。プラグインデータはホームボリュームに置く。
-- Windows のファイルは `windows/`。Neovim は `windows/nvim`。`windows/install-powershell.ps1` が winget の `Neovim.Neovim` を入れ、`%LOCALAPPDATA%\nvim` へリンクする。クリップボードは未設定のままにする。Markdown プラグインはコンテナと同じ構成で、設定ファイルは共有しない。言語サーバーと Mason は入れない。プラグインデータは `%LOCALAPPDATA%\nvim-data` に置く。
+- 開発リポジトリはコンテナの `wslc-dev/home/.config/nvim`。LazyVim。エクスプローラーは Snacks（`<leader>e`）。Git の差分は gitsigns、Snacks の `<leader>gd`、Diffview の `<leader>gv`。クリップボードは `vim.ui.clipboard.osc52` があるときだけ OSC 52 を使う。プラグインデータはホームボリュームに置く。
+- Windows のファイルは `windows/`。Neovim は `windows/nvim`。`windows/install-powershell.ps1` が winget の `Neovim.Neovim` を入れ、`%LOCALAPPDATA%\nvim` へリンクする。LazyVim の構成はコンテナと同じだが、設定ファイルは共有しない。クリップボードは未設定のままにする。プラグインデータは `%LOCALAPPDATA%\nvim-data` に置く。
 - Arch 用の `archlinux/.config/nvim` は消さない。Windows やコンテナの設定へ流用しない。
 
 ## 保留
@@ -145,5 +145,4 @@ entrypoint が `/mnt/win-ssh` の通常ファイルを、ドットファイル�
 
 - Arch の nvim アンインストール
 - Arch 用 dotfiles とコンテナ用コピーの統合
-- LazyVim 設定の移植
 - コンテナでの 1Password コミット署名
