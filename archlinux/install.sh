@@ -149,7 +149,6 @@ install_dotfiles() {
     ".gitignore_global"
     ".p10k.zsh"
     ".proto/.prototools"
-    "Microsoft.PowerShell_profile.ps1"
   )
 
   for file in "${files[@]}"; do
@@ -176,8 +175,6 @@ install_dotfiles() {
   fi
 
   echo -e "${GREEN}Dotfiles installation completed!${NC}"
-  echo -e "${BLUE}Note: PowerShell profile requires separate installation${NC}"
-  echo -e "${YELLOW}Run './install-powershell.sh install' to install PowerShell profile${NC}"
 }
 
 # Function to uninstall dotfiles

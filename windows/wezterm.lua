@@ -99,12 +99,16 @@ config.colors = {
 -- デフォルトプログラム設定 (Default Program)
 -- ============================================================================
 
--- WSL Arch Linuxをデフォルトに設定
-config.default_prog = { "wsl.exe", "-d", "archlinux", "--cd", "~" }
--- config.default_prog = { "pwsh.exe" }
+-- WSLc の開発コンテナをデフォルトに設定
+local wslc_dev = "C:\\Users\\kento\\dotfiles\\wslc-dev\\wezterm.cmd"
+config.default_prog = { "cmd.exe", "/c", wslc_dev }
 
 -- 起動プロファイル定義
 config.launch_menu = {
+	{
+		label = "WSLc dev",
+		args = { "cmd.exe", "/c", wslc_dev },
+	},
 	{
 		label = "Arch Linux (WSL)",
 		args = { "wsl.exe", "-d", "archlinux", "--cd", "~" },

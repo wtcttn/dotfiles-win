@@ -24,10 +24,10 @@ winget install wez.wezterm
 
 ```powershell
 # PowerShellプロファイル + WezTerm設定を一括インストール
-.\install-powershell.ps1 install
+.\windows\install-powershell.ps1 install
 
 # WezTerm設定のみをインストール
-.\install-powershell.ps1 wezterm
+.\windows\install-powershell.ps1 wezterm
 ```
 
 インストール後、WezTermを再起動すると設定が反映されます。
@@ -76,7 +76,7 @@ winget install wez.wezterm
 ### カラースキームの変更
 
 ```lua
--- .wezterm.lua を編集
+-- windows/wezterm.lua を編集
 config.color_scheme = 'Tokyo Night' -- 他のテーマに変更
 
 -- おすすめテーマ:
@@ -128,7 +128,7 @@ config.default_prog = { 'wsl.exe', '-d', 'Ubuntu', '--cd', '~' }
    ```
 3. 必要に応じて再インストール:
    ```powershell
-   .\install-powershell.ps1 font
+   .\windows\install-powershell.ps1 font
    ```
 
 ### 透明度が効かない
@@ -146,7 +146,7 @@ wsl --list --verbose
 # Arch Linuxが存在するか確認
 wsl -d Arch echo "OK"
 
-# ディストリビューション名が異なる場合は .wezterm.lua を編集
+# ディストリビューション名が異なる場合は windows/wezterm.lua を編集
 ```
 
 ### 設定が反映されない
@@ -158,7 +158,7 @@ ls C:\Users\kento\.wezterm.lua
 # 構文エラーがないか確認（WezTermを起動してエラーメッセージを確認）
 
 # 設定を再インストール
-.\install-powershell.ps1 wezterm
+.\windows\install-powershell.ps1 wezterm
 ```
 
 ## 📚 参考リンク
@@ -173,16 +173,16 @@ ls C:\Users\kento\.wezterm.lua
 1. **Oh My Poshを設定**: PowerShellをさらに美しく
    ```powershell
    winget install JanDeDobbeleer.OhMyPosh
-   .\install-powershell.ps1 install
+   .\windows\install-powershell.ps1 install
    ```
 
 2. **Zshをセットアップ**: WSL側でさらにパワフルなシェル体験
    ```bash
    cd ~/dotfiles
-   ./install.sh install
+   ./archlinux/install.sh install
    ```
 
-3. **カスタムテーマを作成**: `.wezterm.lua`を編集して自分好みに調整
+3. **カスタムテーマを作成**: `windows/wezterm.lua`を編集して自分好みに調整
 
 ---
 

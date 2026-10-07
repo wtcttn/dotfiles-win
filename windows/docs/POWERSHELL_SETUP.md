@@ -6,9 +6,9 @@
 
 ```powershell
 winget install JanDeDobbeleer.OhMyPosh
-.\install-powershell.ps1 install
+.\windows\install-powershell.ps1 install
 # 端末に合わせて GlazeWM プロファイルを指定（例: ThinkPad 環境）
-# .\install-powershell.ps1 install -GlazewmProfile thinkpad
+# .\windows\install-powershell.ps1 install -GlazewmProfile thinkpad
 ```
 
 自動インストール：Terminal-Icons, posh-git, Moralerspace HWJPDOC
@@ -24,7 +24,7 @@ Windows Terminal: `Ctrl+,` → Font face → `Moralerspace Neon HWJPDOC`
 
 ```powershell
 code $PROFILE                                          # Profile
-code C:\Users\kento\dotfiles\ohmyposh-theme.omp.json  # Theme
+code C:\Users\kento\dotfiles\windows\ohmyposh-theme.omp.json  # Theme
 reload                                                 # Apply
 ```
 
@@ -57,7 +57,7 @@ which           # Get-Command
 ## フォント再インストール
 
 ```powershell
-.\install-powershell.ps1 font
+.\windows\install-powershell.ps1 font
 ```
 
 インストール先: `%LocalAppData%\Microsoft\Windows\Fonts` (管理者権限不要)

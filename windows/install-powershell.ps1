@@ -5,6 +5,7 @@
 # - Installs PowerShell profile (Microsoft.PowerShell_profile.ps1)
 # - Auto-installs Terminal-Icons and posh-git modules
 # - Auto-installs Moralerspace HWJPDOC font (Japanese programming font)
+# - Installs Neovim (winget Neovim.Neovim) and links windows/nvim
 # - Backups existing profile
 # - Validates PowerShell installation
 # - Syntax checking
@@ -22,7 +23,8 @@ param(
 
 $UserProfile = [Environment]::GetFolderPath("UserProfile")
 $UserBinPath = Join-Path $UserProfile "bin"
-$DotfilesPath = Split-Path -Parent $PSCommandPath
+$WindowsPath = Split-Path -Parent $PSCommandPath
+$DotfilesPath = Split-Path -Parent $WindowsPath
 $SymlinkFallbackMessage = "Symbolic link creation failed, falling back to file copy."
 
 # Colors for output
@@ -67,12 +69,24 @@ function Set-SymbolicLinkOrCopy {
     $isDirectory = $sourceItem.PSIsContainer
 
     try {
-        New-Item -ItemType SymbolicLink -Path $DestinationPath -Target $SourcePath -Force | Out-Null
+        New-Item -ItemType SymbolicLink -Path $DestinationPath -Target $SourcePath -Force -ErrorAction Stop | Out-Null
         Write-ColorOutput "$Description linked successfully!" "Green"
         Write-ColorOutput "Link: $DestinationPath -> $SourcePath" "Blue"
         return $true
     } catch {
         Write-ColorOutput "Failed to create symbolic link for ${Description}: $($_.Exception.Message)" "Yellow"
+
+        if ($isDirectory) {
+            try {
+                New-Item -ItemType Junction -Path $DestinationPath -Target $SourcePath -Force -ErrorAction Stop | Out-Null
+                Write-ColorOutput "$Description junction created successfully!" "Green"
+                Write-ColorOutput "Junction: $DestinationPath -> $SourcePath" "Blue"
+                return $true
+            } catch {
+                Write-ColorOutput "Failed to create junction for ${Description}: $($_.Exception.Message)" "Yellow"
+            }
+        }
+
         Write-ColorOutput $SymlinkFallbackMessage "Yellow"
 
         try {
@@ -144,7 +158,7 @@ function Initialize-UserBinDirectory {
 function Install-WeztermConfig {
     Write-ColorOutput "Installing WezTerm configuration..." "Green"
     
-    $weztermSourcePath = Join-Path $DotfilesPath ".wezterm.lua"
+    $weztermSourcePath = Join-Path $WindowsPath "wezterm.lua"
     $weztermDestPath = Join-Path $UserProfile ".wezterm.lua"
     
     try {
@@ -160,10 +174,53 @@ function Install-WeztermConfig {
     }
 }
 
+function Install-Neovim {
+    Write-ColorOutput "Installing Neovim..." "Green"
+
+    # Neovim.Neovim is a WiX MSI and has no per-user installer.
+    $wingetArgs = @(
+        "--id", "Neovim.Neovim",
+        "--exact",
+        "--accept-package-agreements",
+        "--accept-source-agreements"
+    )
+
+    & winget install @wingetArgs
+    $installExit = $LASTEXITCODE
+    if ($installExit -ne 0) {
+        & winget list --id Neovim.Neovim --exact --accept-source-agreements | Out-Null
+        if ($LASTEXITCODE -ne 0) {
+            Write-ColorOutput "winget install Neovim.Neovim failed (exit $installExit)" "Red"
+            return $false
+        }
+        Write-ColorOutput "Neovim is already installed" "Yellow"
+    }
+
+    $sourcePath = Join-Path $WindowsPath "nvim"
+    $destPath = Join-Path $env:LOCALAPPDATA "nvim"
+
+    if (!(Test-Path $sourcePath)) {
+        Write-ColorOutput "Neovim config not found: $sourcePath" "Red"
+        return $false
+    }
+
+    try {
+        Backup-AndRemoveItem -Path $destPath -Description "Neovim config"
+        if (!(Set-SymbolicLinkOrCopy -SourcePath $sourcePath -DestinationPath $destPath -Description "Neovim config")) {
+            return $false
+        }
+        Write-ColorOutput "Open a new terminal if nvim is not on PATH yet." "Yellow"
+        return $true
+    } catch {
+        Write-ColorOutput "Failed to install Neovim config: $($_.Exception.Message)" "Red"
+        return $false
+    }
+}
+
 function Install-WslConfig {
     Write-ColorOutput "Installing WSL configuration..." "Green"
     
-    $wslSourcePath = Join-Path $DotfilesPath ".wslconfig"
+    $wslSourcePath = Join-Path $WindowsPath "wslconfig"
     $wslDestPath = Join-Path $UserProfile ".wslconfig"
     
     try {
@@ -329,7 +386,7 @@ function Install-GlazewmProfile {
 function Install-GlzrConfigs {
     Write-ColorOutput "Installing .glzr configurations..." "Green"
 
-    $glzrSourcePath = Join-Path $DotfilesPath ".glzr"
+    $glzrSourcePath = Join-Path $WindowsPath "glzr"
     if (!(Test-Path $glzrSourcePath)) {
         Write-ColorOutput ".glzr source directory not found: $glzrSourcePath" "Yellow"
         return $false
@@ -421,7 +478,7 @@ function Install-PowerShellProfile {
     Write-ColorOutput "Installing PowerShell profile..." "Green"
     
     $profilePath = $PROFILE
-    $wslSourcePath = Join-Path $DotfilesPath "Microsoft.PowerShell_profile.ps1"
+    $wslSourcePath = Join-Path $WindowsPath "Microsoft.PowerShell_profile.ps1"
     
     # Create profile directory if it doesn't exist
     $profileDir = Split-Path $profilePath -Parent
@@ -455,6 +512,12 @@ function Install-PowerShellProfile {
     Write-ColorOutput "" "White"
     if (!(Install-WeztermConfig)) {
         Write-ColorOutput "Warning: WezTerm config installation failed, but continuing..." "Yellow"
+    }
+
+    # Install Neovim and link the Windows config
+    Write-ColorOutput "" "White"
+    if (!(Install-Neovim)) {
+        Write-ColorOutput "Warning: Neovim installation failed, but continuing..." "Yellow"
     }
     
     # Install WSL config
@@ -541,20 +604,21 @@ function Show-Help {
     Write-ColorOutput "PowerShell Profile Installer" "Cyan"
     Write-ColorOutput "=============================" "Cyan"
     Write-ColorOutput "" "White"
-    Write-ColorOutput "Usage: .\install-powershell.ps1 [install|uninstall|test|check|font|wezterm|wsl|help]" "White"
+    Write-ColorOutput "Usage: .\install-powershell.ps1 [install|uninstall|test|check|font|wezterm|wsl|nvim|help]" "White"
     Write-ColorOutput "       .\install-powershell.ps1 install -GlazewmProfile thinkpad" "DarkGray"
     Write-ColorOutput "" "White"
     Write-ColorOutput "Options:" "Yellow"
-    Write-ColorOutput "  -GlazewmProfile <name>  - Apply glazewm profile from .glzr\glazewm\profiles (default: sugimot-pc)" "White"
+    Write-ColorOutput "  -GlazewmProfile <name>  - Apply glazewm profile from glzr\glazewm\profiles (default: sugimoto-pc)" "White"
     Write-ColorOutput "" "White"
     Write-ColorOutput "Commands:" "Yellow"
-    Write-ColorOutput "  install   - Install PowerShell profile + modules + Moralerspace font + WezTerm + WSL config" "White"
+    Write-ColorOutput "  install   - Install PowerShell profile + modules + Moralerspace font + WezTerm + WSL config + Neovim" "White"
     Write-ColorOutput "  uninstall - Remove PowerShell profile" "White"
     Write-ColorOutput "  test      - Test PowerShell profile syntax" "White"
     Write-ColorOutput "  check     - Check PowerShell installation" "White"
     Write-ColorOutput "  font      - Install Moralerspace HWJPDOC font only" "White"
     Write-ColorOutput "  wezterm   - Install WezTerm config only" "White"
-    Write-ColorOutput "  wsl      - Install WSL config only" "White"
+    Write-ColorOutput "  wsl       - Install WSL config only" "White"
+    Write-ColorOutput "  nvim      - Install Neovim and link windows/nvim only" "White"
     Write-ColorOutput "  help      - Show this help message" "White"
     Write-ColorOutput "" "White"
     Write-ColorOutput "Prerequisites (manual installation):" "Yellow"
@@ -567,6 +631,7 @@ function Show-Help {
     Write-ColorOutput "  • Moralerspace HWJPDOC - Japanese programming font" "White"
     Write-ColorOutput "  • WezTerm config       - Cool terminal emulator config with transparency" "White"
     Write-ColorOutput "  • WSL config          - WSL GUI optimization for Ghostty/GTK apps" "White"
+    Write-ColorOutput "  • Neovim              - winget Neovim.Neovim, config at %LOCALAPPDATA%\nvim" "White"
     Write-ColorOutput "" "White"
     Write-ColorOutput "Recommended font setting:" "Yellow"
     Write-ColorOutput "  'Moralerspace Argon HWJPDOC', 'Consolas', monospace" "Cyan"
@@ -601,6 +666,9 @@ switch ($Action.ToLower()) {
     }
     "wsl" {
         Install-WslConfig
+    }
+    "nvim" {
+        Install-Neovim
     }
     "help" {
         Show-Help

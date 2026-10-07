@@ -177,6 +177,8 @@ window_rules:
       - window_process: { equals: "msrdc" }
       - window_title: { regex: "[Ss]etup" }
       - window_process: { equals: "CLIPStudioPaint" }
+      - window_title: { regex: "Google Play Games" }
+      - window_title: { regex: "セットアップ" }
 
 binding_modes:
   # When enabled, the focused window can be resized via arrow keys or HJKL.

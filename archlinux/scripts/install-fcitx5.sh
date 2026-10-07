@@ -85,7 +85,7 @@ install_fcitx5() {
     print_color "$BLUE" "Setting up configuration directory (symbolic link)..."
     
     local config_dir="$HOME/.config/fcitx5"
-    local dotfiles_fcitx5="$HOME/dotfiles/.config/fcitx5"
+    local dotfiles_fcitx5="$HOME/dotfiles/archlinux/.config/fcitx5"
     
     # Check if dotfiles fcitx5 directory exists
     if [ ! -d "$dotfiles_fcitx5" ]; then
@@ -111,7 +111,7 @@ install_fcitx5() {
     
     local systemd_dir="$HOME/.config/systemd/user"
     local service_file="fcitx5.service"
-    local dotfiles_service="$HOME/dotfiles/.config/systemd/user/$service_file"
+    local dotfiles_service="$HOME/dotfiles/archlinux/.config/systemd/user/$service_file"
     
     # Check if dotfiles systemd service exists
     if [ -f "$dotfiles_service" ]; then
@@ -332,7 +332,7 @@ show_help() {
     print_color "$CYAN" "  • journalctl --user -u fcitx5 -f   # View logs"
     echo ""
     print_color "$YELLOW" "Note:"
-    print_color "$CYAN" "  • ~/.config/fcitx5 directory is symlinked to ~/dotfiles/.config/fcitx5"
+    print_color "$CYAN" "  • ~/.config/fcitx5 directory is symlinked to ~/dotfiles/archlinux/.config/fcitx5"
     print_color "$CYAN" "  • Fcitx5 managed by systemd (auto-start, auto-restart)"
     print_color "$CYAN" "  • IME environment variables set in .zshrc (GUI only)"
     print_color "$CYAN" "  • Changes to dotfiles will be reflected automatically"

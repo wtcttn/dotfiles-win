@@ -26,7 +26,7 @@ LazyVim + Ghostty + tmux + fcitx5 の統合キーバインドを IDE 風の操�
 
 ## 1. 入力メソッド（fcitx5）
 
-```startLine:endLine:dotfiles/.config/fcitx5/config
+```startLine:endLine:dotfiles/archlinux/.config/fcitx5/config
 # ... existing code ...
 TriggerKey=CTRL_SPACE
 SwitchKey=SHIFT_SPACE
@@ -44,7 +44,7 @@ SwitchKey=SHIFT_SPACE
 
 ## 2. Ghostty（端末）
 
-```startLine:endLine:dotfiles/.config/ghostty/config
+```startLine:endLine:dotfiles/archlinux/.config/ghostty/config
 # ... existing code ...
 keybind = ctrl+shift+c=copy_to_clipboard
 keybind = ctrl+shift+v=paste_from_clipboard
@@ -68,7 +68,7 @@ keybind = ctrl+shift+comma=reload_config
 
 ## 3. tmux（セッション管理）
 
-```startLine:endLine:dotfiles/.tmux.conf
+```startLine:endLine:dotfiles/archlinux/.tmux.conf
 # ... existing code ...
 set-option -g prefix C-g
 bind | split-window -h

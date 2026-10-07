@@ -1,0 +1,13 @@
+[safe]
+	directory = /workspace
+	directory = /workspace/*
+
+[user]
+	name = wtcttn
+	email = kento@studio-cleaf.com
+	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIB5Gl2AWWpI4bAWpPP291UgKHN2dy9JT2FwaB9PzfwtU
+
+[core]
+	filemode = false
+	checkStat = minimal
+	trustctime = false

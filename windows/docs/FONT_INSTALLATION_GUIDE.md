@@ -3,8 +3,8 @@
 ## 自動インストール
 
 ```powershell
-.\install-powershell.ps1 install  # With profile
-.\install-powershell.ps1 font     # Font only
+.\windows\install-powershell.ps1 install  # With profile
+.\windows\install-powershell.ps1 font     # Font only
 ```
 
 ## 特徴

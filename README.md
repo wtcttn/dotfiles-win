@@ -5,13 +5,9 @@ WSL/Windows統合dotfiles管理。
 ## 構成
 
 ```
-├── .zshrc, .bashrc, .gitconfig, .vimrc, .tmux.conf
-├── .p10k.zsh                        # Powerlevel10k (awesome-fontconfig)
-├── .wezterm.lua                     # WezTerm config (semi-transparent, Catppuccin)
-├── Microsoft.PowerShell_profile.ps1 # PSReadLine + Terminal-Icons + posh-git
-├── ohmyposh-theme.omp.json          # Oh My Posh custom theme
-├── install.sh / install-powershell.ps1
-└── Moralerspace HWJPDOC (auto-install)
+├── archlinux/          # Arch Linux の dotfiles と install.sh
+├── windows/            # WezTerm、PowerShell、GlazeWM、Windows Neovim
+└── wslc-dev/           # WSLc 共有開発コンテナ
 ```
 
 ## 依存パッケージ
@@ -45,7 +41,7 @@ WSL/Windows統合dotfiles管理。
 
 ### WSL (Zsh + Powerlevel10k)
 ```bash
-./install.sh install
+./archlinux/install.sh install
 source ~/.zshrc
 ```
 
@@ -54,9 +50,9 @@ source ~/.zshrc
 
 ```powershell
 winget install JanDeDobbeleer.OhMyPosh
-.\install-powershell.ps1 install  # Modules + Moralerspace font + WezTerm config
+.\windows\install-powershell.ps1 install  # Modules + Moralerspace font + WezTerm config
 # GlazeWM のプロファイルを切り替えたい場合（例: ThinkPad）
-# .\install-powershell.ps1 install -GlazewmProfile thinkpad
+# .\windows\install-powershell.ps1 install -GlazewmProfile thinkpad
 ```
 
 **推奨:** WezTerm (半透過背景、Catppuccin Mocha、WSL Arch Linuxデフォルト)  
@@ -66,17 +62,17 @@ winget install JanDeDobbeleer.OhMyPosh
 
 ```bash
 # Sync
-git pull && ./install.sh install
+git pull && ./archlinux/install.sh install
 
 # Update modules
-./install-powershell.ps1 install  # PowerShell
-./install.sh install              # Zsh
+./windows/install-powershell.ps1 install  # PowerShell
+./archlinux/install.sh install            # Zsh
 
 # Font reinstall
-./install-powershell.ps1 font
+./windows/install-powershell.ps1 font
 
 # WezTerm config reinstall
-./install-powershell.ps1 wezterm
+./windows/install-powershell.ps1 wezterm
 ```
 
 ## カスタマイズ
@@ -90,14 +86,14 @@ p10k configure  # Wizard
 ### PowerShell (Oh My Posh)
 ```powershell
 code $PROFILE  # Microsoft.PowerShell_profile.ps1
-code C:\Users\kento\dotfiles\ohmyposh-theme.omp.json
+code C:\Users\kento\dotfiles\windows\ohmyposh-theme.omp.json
 reload
 ```
 
 ### WezTerm
 ```powershell
 code C:\Users\kento\.wezterm.lua         # User config (auto-installed)
-code C:\Users\kento\dotfiles\.wezterm.lua  # Source config
+code C:\Users\kento\dotfiles\windows\wezterm.lua  # Source config
 ```
 
 ## 設定詳細
@@ -107,4 +103,4 @@ code C:\Users\kento\dotfiles\.wezterm.lua  # Source config
 **WezTerm**: Catppuccin Mocha + 半透過 (85%) + WSL Arch Linux デフォルト  
 **Font**: Moralerspace HWJPDOC Nerd Font (auto-installed)
 
-詳細: `docs/POWERSHELL_SETUP.md`, `docs/FONT_INSTALLATION_GUIDE.md`, `docs/WEZTERM_SETUP.md`
+詳細: `windows/docs/POWERSHELL_SETUP.md`, `windows/docs/FONT_INSTALLATION_GUIDE.md`, `windows/docs/WEZTERM_SETUP.md`
