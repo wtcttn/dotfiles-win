@@ -103,4 +103,4 @@ code C:\Users\kento\dotfiles\windows\wezterm.lua  # Source config
 **WezTerm**: Catppuccin Mocha + 半透過 (85%) + WSL Arch Linux デフォルト  
 **Font**: Moralerspace HWJPDOC Nerd Font (auto-installed)
 
-詳細: `windows/docs/POWERSHELL_SETUP.md`, `windows/docs/FONT_INSTALLATION_GUIDE.md`, `windows/docs/WEZTERM_SETUP.md`
+詳細: `windows/docs/POWERSHELL_SETUP.md`, `windows/docs/FONT_INSTALLATION_GUIDE.md`, `windows/docs/WEZTERM_SETUP.md`, `windows/docs/MUTAGEN_SETUP.md`（Windows と WSLc のボリュームの双方向同期、`scoop install mutagen`）
