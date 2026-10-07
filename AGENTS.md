@@ -19,7 +19,7 @@
 
 - `archlinux/` の Arch 用 dotfiles（`.zshrc`、`.zshenv`、`.p10k.zsh`、`.config/nvim` など）
 - Arch の nvim アンインストールと、`~/.config/nvim` シンボリックリンクの削除
-- 既存の WSLc スタック。コンテナは web、nginx、sidekiq、api、floci-ui、floci、valkey、postgresql。ネットワークは `myfans`。ボリュームは `mf_*`。パスは `C:\Users\kento\workspace\getozinc\`
+- `wslc-dev` 以外の WSLc のコンテナ、ネットワーク、ボリューム（プロジェクトのアプリ用スタック）。管理しているのは各プロジェクト側である
 
 ## レイアウト
 
@@ -31,6 +31,11 @@
 | ワークスペース | `C:\Users\kento\workspace` | `/workspace` |
 | 設定 | `wslc-dev/home` | `/opt/wslc-dev/home` |
 | Windows SSH | `C:\Users\kento\.ssh`（読み取り専用） | `/mnt/win-ssh` |
+| 追加のボリューム | `dev.local.ps1` の `$ExtraVolumes`。動的 VHD、10GiB、uid/gid 1000 | `dev.local.ps1` で指定（例: リポジトリの `node_modules`） |
+
+リポジトリの `node_modules` は Windows 側（VirtioFS）に置くと `pnpm install` や `tsc` が極端に遅いので、コンテナ専用のボリュームを重ねる。プロジェクトのアプリ用コンテナの node_modules とは別のボリュームにする。
+
+マシンやプロジェクトに固有の設定（追加のボリュームなど）は `wslc-dev/dev.local.ps1` に書く。このファイルは `.gitignore` で除外していて、`dev.ps1` が読み込む。書式は `wslc-dev/dev.local.example.ps1`。プロジェクトの名前やパスは、`dev.ps1` を含め git で管理するファイルに書かない。変更したら `recreate` する。
 
 ユーザーは `kento`、uid/gid 1000。sudo は NOPASSWD。
 
@@ -47,6 +52,8 @@
 - `down` はコンテナを止める。
 - `recreate` はコンテナだけ作り直す。ホームボリュームは残る。イメージ由来の書き込み層は消える。
 - `status` は状態を表示する。
+- `packages-save` は、コンテナに入れたパッケージの一覧を `wslc-dev/home/packages/` に書き出す。
+- `packages-restore` は、その一覧からパッケージを入れ直す。`recreate` のあとに使う。
 
 マウントはコンテナ作成時に固定される。`up` と `start` では新しい `-v` は付かない。Dockerfile と entrypoint を変えたあとは `build` してから `recreate` する。
 
@@ -60,7 +67,18 @@ WezTerm の既定は `wslc-dev/wezterm.cmd` である。`wslc start wslc-dev` �
 
 イメージに残る定義は Dockerfile である。公式パッケージの `pacman -S`、`/usr/bin` の proto、AUR の `paru` を `makepkg -si` で入れる箇所が、Brewfile に相当する。
 
-同じコンテナを使い続けるあいだの更新は、コンテナの中で `paru -Syu` する。`down` して `up` しても残る。`recreate` すると消えるので、残したいパッケージは Dockerfile に足して rebuild する。
+Dockerfile はベース（シェル、エディタ、proto、paru）だけにする。開発で使うパッケージは、走っているコンテナに `pacman -S` / `paru -S` で入れ、`dev.ps1 packages-save` で一覧を `wslc-dev/home/packages/` に書き出して git で管理する。
+
+| ファイル | 中身 | 書き出し元 |
+| --- | --- | --- |
+| `packages/pacman.txt` | 明示インストールした公式パッケージ | `pacman -Qqen` |
+| `packages/aur.txt` | 明示インストールした AUR パッケージ | `pacman -Qqem` |
+| `packages/proto.txt` | proto のツールとバージョン（1 行に `tool version`） | `~/.proto/tools/*/*` |
+| `packages/prototools.toml` | proto のグローバル設定 | `~/.proto/.prototools` |
+
+パッケージを足したら `packages-save` して、差分をコミットする。`recreate` すると書き込み層のパッケージは消えるので、`packages-restore` で入れ直す。proto のツール本体と gem はホームボリュームにあるので `recreate` では消えない。
+
+同じコンテナを使い続けるあいだの更新は、コンテナの中で `paru -Syu` する。`down` して `up` しても残る。
 
 `pacman -Syu` だけにはしない。libalpm の soname が上がると paru が動かなくなる。`paru-bin` は入れない。イメージの pacman は `libalpm.so.16` で、paru は AUR の `paru` をソースからビルドする。
 
@@ -73,13 +91,24 @@ pacman -Qqen > pkglist.txt
 pacman -Qqem > aurlist.txt
 ```
 
-戻すときは `sudo pacman -S --needed - < pkglist.txt` と `paru -S --needed - < aurlist.txt`。この一覧をイメージの定義にはしない。
+`packages-save` / `packages-restore` はこの手順をまとめたもの。この一覧をイメージの定義にはしない。
 
-proto のバイナリは `/usr/bin/proto` と `/usr/bin/proto-shim`。ツール本体はホームボリュームの `~/.proto` に入る。ツールの一覧は `~/.proto/.prototools`。zsh は `PROTO_HOME=$HOME/.proto` と `PROTO_LOOKUP_DIR=/usr/bin` を置く。
+proto のバイナリは `/usr/bin/proto` と `/usr/bin/proto-shim`。ツール本体はホームボリュームの `~/.proto` に入る。zsh は `PROTO_HOME=$HOME/.proto` と `PROTO_LOOKUP_DIR=/usr/bin` を `.zshenv` と `.zshrc` の両方に置く（`.zshenv` は git フックなど非対話の `zsh -c` 用、`.zshrc` はログインシェルで `/etc/profile` が PATH を上書きした後の再設定）。
+
+## 言語ランタイム
+
+ruby / node / pnpm は proto で入れる。バージョンはリポジトリのファイルから自動で選ばれる（`.ruby-version`、`.node-version`、`package.json` の `engines` と `packageManager`）。リポジトリに `.prototools` は置かない。
+
+- グローバルの既定は node だけ固定する（`proto pin --to global node <version>`）。pnpm のインストールに node の指定が要るため。
+- 新しいバージョンが要るときは、そのリポジトリで `proto install <tool> <version>` してから `packages-save`。
+- gem はホームボリュームの proto の ruby に入る（`bundle install`）。ネイティブ拡張用に `cmake`、`postgresql-libs`、`libyaml` を pacman で入れている。
+- Playwright（vitest のブラウザテストなど）を使うリポジトリがある。Playwright は Arch 用の依存の自動インストール（`--with-deps`）に対応していないので、必要な共有ライブラリは pacman の `chromium` を入れて揃え、ブラウザ本体はそのリポジトリで `pnpm exec playwright install chromium`（`~/.cache/ms-playwright`、ホームボリューム）で入れる。
+
+リポジトリの git フック（bundle install / pnpm install、husky の lint / tsc / test など）は、このコンテナの git で動く。そのため、フックが使うランタイムと依存をこのコンテナに入れておく。
 
 ## シェル
 
-コンテナの zsh は、Arch の Oh My Zsh と Powerlevel10k から、wsl2-ssh-agent、khal、docker、docker-compose を外したもの。最初から入っているのは yazi、proto、paru、screenfetch。`yay` は `paru` の別名。`vi` と `vim` は `nvim`。
+コンテナの zsh は、Arch の Oh My Zsh と Powerlevel10k から、wsl2-ssh-agent、khal、docker、docker-compose を外したもの。イメージに最初から入っているのは yazi、proto、paru、screenfetch。それ以外は `wslc-dev/home/packages/` を参照。`yay` は `paru` の別名。`vi` と `vim` は `nvim`。
 
 プロンプトのアイコンは WezTerm のフォント（Moralerspace Neon HWJPDOC）に依存する。`wslc-dev/home/.p10k.zsh` は `archlinux/.p10k.zsh` のコピーであり、同時に更新されるリンクではない。個人差分は `~/.zshrc.local` に書く。
 

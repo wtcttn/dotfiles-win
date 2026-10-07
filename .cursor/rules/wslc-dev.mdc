@@ -7,4 +7,4 @@ alwaysApply: true
 
 日常のシェルと開発用 Neovim は WSLc コンテナ `wslc-dev` である。方針の全文はリポジトリ直下の `AGENTS.md` にあり、実装は `wslc-dev/` にある。コンテナ、WezTerm の既定端末、パッケージ、git、ssh を変える前に `AGENTS.md` を読む。
 
-Arch 用の既存 dotfiles と、myfans 用の既存 WSLc コンテナは、その作業を明示されない限り変更しない。
+Arch 用の既存 dotfiles と、`wslc-dev` 以外の既存の WSLc コンテナ（プロジェクトのアプリ用スタック）は、その作業を明示されない限り変更しない。マシンやプロジェクトに固有の設定は、git で管理しない `wslc-dev/dev.local.ps1` に書く。

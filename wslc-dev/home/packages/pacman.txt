@@ -1,0 +1,15 @@
+base
+base-devel
+chromium
+cmake
+fd
+git
+libyaml
+neovim
+openssh
+postgresql-libs
+ripgrep
+screenfetch
+unzip
+yazi
+zsh
