@@ -2,7 +2,12 @@ general:
   # Commands to run when the WM has started. This is useful for running a
   # script or launching another application.
   # Example: The below command launches Zebar.
-  startup_commands: ["shell-exec zebar"]
+  # noctty-opacity.ps1: フォーカス時に GlazeWM が不透明へ戻す Noctty の透過を当て直す。
+  startup_commands:
+    [
+      "shell-exec zebar",
+      "shell-exec --hide-window powershell -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File C:/Users/kento/dotfiles/windows/glzr/glazewm/noctty-opacity.ps1",
+    ]
 
   # Commands to run just before the WM is shutdown.
   # Example: The below command kills Zebar.
@@ -48,7 +53,7 @@ gaps:
 
   # Gap between windows and the screen edge.
   outer_gap:
-    top: "50px"
+    top: "40px"
     right: "10px"
     bottom: "10px"
     left: "10px"
@@ -133,8 +138,8 @@ workspaces:
     display_name: "main4"
     bind_to_monitor: 2
   - name: "5"
-    display_name: "right5"
-    bind_to_monitor: 3
+    display_name: "main5"
+    bind_to_monitor: 2
   - name: "6"
     display_name: "right6"
     bind_to_monitor: 3
@@ -142,10 +147,13 @@ workspaces:
     display_name: "right7"
     bind_to_monitor: 3
   - name: "8"
-    display_name: "left8"
-    bind_to_monitor: 1
+    display_name: "right8"
+    bind_to_monitor: 3
   - name: "9"
-    display_name: "wacom9"
+    display_name: "left9"
+    bind_to_monitor: 1
+  - name: "0"
+    display_name: "wacom0"
     bind_to_monitor: 0
 
 window_rules:
@@ -179,7 +187,7 @@ window_rules:
       - window_process: { equals: "CLIPStudioPaint" }
       - window_title: { regex: "Google Play Games" }
       - window_title: { regex: "セットアップ" }
-
+      - window_title: { regex: "Installer" }
 binding_modes:
   # When enabled, the focused window can be resized via arrow keys or HJKL.
   - name: "resize"
@@ -314,6 +322,8 @@ keybindings:
     bindings: ["alt+8"]
   - commands: ["focus --workspace 9"]
     bindings: ["alt+9"]
+  - commands: ["focus --workspace 0"]
+    bindings: ["alt+0"]
 
   # Move the focused window's parent workspace to a monitor in a given
   # direction.
@@ -345,3 +355,5 @@ keybindings:
     bindings: ["alt+shift+8"]
   - commands: ["move --workspace 9", "focus --workspace 9"]
     bindings: ["alt+shift+9"]
+  - commands: ["move --workspace 0", "focus --workspace 0"]
+    bindings: ["alt+shift+0"]

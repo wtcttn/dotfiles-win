@@ -15,6 +15,8 @@ return {
     ---@type render.md.UserConfig
     opts = {
       latex = { enabled = false },
+      -- コードブロックの背景を塗らない。見出しの背景は colorscheme 側で消す。
+      code = { disable_background = true },
     },
   },
   {

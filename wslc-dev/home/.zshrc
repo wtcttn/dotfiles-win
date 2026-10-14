@@ -1,7 +1,7 @@
 # Arch 側の .zshrc と同じ構成。コンテナに無いコマンドは読み込まない。
 
-if [[ -o interactive ]] && command -v screenfetch >/dev/null 2>&1; then
-  screenfetch
+if [[ -o interactive ]] && command -v fastfetch >/dev/null 2>&1; then
+  fastfetch
 fi
 
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
@@ -27,11 +27,14 @@ export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=250'
 
 source $ZSH/oh-my-zsh.sh
 
+# 端末のタブ名。待機中はディレクトリ名、実行中はコマンド名。
+ZSH_THEME_TERM_TAB_TITLE_IDLE='✦ %1~'
+ZSH_THEME_TERM_TITLE_IDLE='✦ %1~'
+
 export PATH="$PATH:$HOME/.local/bin"
 
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-export TZ="Asia/Tokyo"
 export LANG=ja_JP.UTF-8
 
 alias yay='paru'
@@ -50,4 +53,6 @@ export PROTO_HOME="$HOME/.proto"
 export PROTO_LOOKUP_DIR=/usr/bin
 export PATH="$PROTO_HOME/shims:$PROTO_HOME/bin:$PATH"
 
-[ -f ~/.zshrc.local ] && source ~/.zshrc.local
+if [[ -f ~/.zshrc.local ]]; then
+  source ~/.zshrc.local
+fi

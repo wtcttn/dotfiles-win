@@ -1,21 +1,32 @@
 {
   "$schema": "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json",
+  "palette": {
+    "pink": "#f5a8d6",
+    "lavender": "#c9b6ff",
+    "sky": "#a8d8ff",
+    "mint": "#a8ecd8",
+    "cream": "#fff0b3",
+    "peach": "#ffc9b0",
+    "rose": "#ff8fb1",
+    "plum": "#3a2440",
+    "frame": "#b9a3e8"
+  },
   "blocks": [
     {
       "alignment": "left",
       "segments": [
         {
-          "background": "#d3d7cf",
-          "foreground": "#000000",
-          "leading_diamond": "\u256d\u2500\ue0b2",
+          "background": "p:pink",
+          "foreground": "p:plum",
+          "leading_diamond": "<p:frame,transparent>\u256d\u2500</>\ue0b6",
           "style": "diamond",
           "template": " {{ if .WSL }}WSL at {{ end }}{{.Icon}} ",
           "type": "os"
         },
         {
-          "background": "#3465a4",
-          "foreground": "#e4e4e4",
-          "powerline_symbol": "\ue0b0",
+          "background": "p:lavender",
+          "foreground": "p:plum",
+          "powerline_symbol": "\ue0b4",
           "properties": {
             "home_icon": "~",
             "style": "full"
@@ -25,15 +36,15 @@
           "type": "path"
         },
         {
-          "background": "#4e9a06",
+          "background": "p:mint",
           "background_templates": [
-            "{{ if or (.Working.Changed) (.Staging.Changed) }}#c4a000{{ end }}",
-            "{{ if and (gt .Ahead 0) (gt .Behind 0) }}#f26d50{{ end }}",
-            "{{ if gt .Ahead 0 }}#89d1dc{{ end }}",
-            "{{ if gt .Behind 0 }}#4e9a06{{ end }}"
+            "{{ if or (.Working.Changed) (.Staging.Changed) }}p:cream{{ end }}",
+            "{{ if and (gt .Ahead 0) (gt .Behind 0) }}p:rose{{ end }}",
+            "{{ if gt .Ahead 0 }}p:sky{{ end }}",
+            "{{ if gt .Behind 0 }}p:peach{{ end }}"
           ],
-          "foreground": "#000000",
-          "powerline_symbol": "\ue0b0",
+          "foreground": "p:plum",
+          "powerline_symbol": "\ue0b4",
           "properties": {
             "branch_icon": "\uf126 ",
             "fetch_status": true,
@@ -50,10 +61,10 @@
       "alignment": "right",
       "segments": [
         {
-          "background": "#689f63",
-          "foreground": "#ffffff",
+          "background": "p:mint",
+          "foreground": "p:plum",
           "invert_powerline": true,
-          "powerline_symbol": "\ue0b2",
+          "powerline_symbol": "\ue0b6",
           "properties": {
             "fetch_version": true
           },
@@ -62,10 +73,10 @@
           "type": "node"
         },
         {
-          "background": "#00acd7",
-          "foreground": "#111111",
+          "background": "p:sky",
+          "foreground": "p:plum",
           "invert_powerline": true,
-          "powerline_symbol": "\ue0b2",
+          "powerline_symbol": "\ue0b6",
           "properties": {
             "fetch_version": true
           },
@@ -74,10 +85,10 @@
           "type": "go"
         },
         {
-          "background": "#4063D8",
-          "foreground": "#111111",
+          "background": "p:lavender",
+          "foreground": "p:plum",
           "invert_powerline": true,
-          "powerline_symbol": "\ue0b2",
+          "powerline_symbol": "\ue0b6",
           "properties": {
             "fetch_version": true
           },
@@ -86,10 +97,10 @@
           "type": "julia"
         },
         {
-          "background": "#FFDE57",
-          "foreground": "#111111",
+          "background": "p:cream",
+          "foreground": "p:plum",
           "invert_powerline": true,
-          "powerline_symbol": "\ue0b2",
+          "powerline_symbol": "\ue0b6",
           "properties": {
             "display_mode": "files",
             "fetch_virtual_env": false
@@ -99,10 +110,10 @@
           "type": "python"
         },
         {
-          "background": "#AE1401",
-          "foreground": "#ffffff",
+          "background": "p:rose",
+          "foreground": "p:plum",
           "invert_powerline": true,
-          "powerline_symbol": "\ue0b2",
+          "powerline_symbol": "\ue0b6",
           "properties": {
             "display_mode": "files",
             "fetch_version": true
@@ -112,10 +123,10 @@
           "type": "ruby"
         },
         {
-          "background": "#ce412b",
-          "foreground": "#ffffff",
+          "background": "p:peach",
+          "foreground": "p:plum",
           "invert_powerline": true,
-          "powerline_symbol": "\ue0b2",
+          "powerline_symbol": "\ue0b6",
           "properties": {
             "display_mode": "files",
             "fetch_version": true
@@ -125,10 +136,10 @@
           "type": "rust"
         },
         {
-          "background": "#FEAC19",
-          "foreground": "#ffffff",
+          "background": "p:cream",
+          "foreground": "p:plum",
           "invert_powerline": true,
-          "powerline_symbol": "\ue0b2",
+          "powerline_symbol": "\ue0b6",
           "properties": {
             "display_mode": "files",
             "fetch_version": false
@@ -138,13 +149,13 @@
           "type": "azfunc"
         },
         {
+          "background": "p:peach",
           "background_templates": [
-            "{{if contains \"default\" .Profile}}#FFA400{{end}}",
-            "{{if contains \"jan\" .Profile}}#f1184c{{end}}"
+            "{{if contains \"jan\" .Profile}}p:rose{{end}}"
           ],
-          "foreground": "#ffffff",
+          "foreground": "p:plum",
           "invert_powerline": true,
-          "powerline_symbol": "\ue0b2",
+          "powerline_symbol": "\ue0b6",
           "properties": {
             "display_default": false
           },
@@ -153,45 +164,45 @@
           "type": "aws"
         },
         {
-          "background": "#ffff66",
-          "foreground": "#111111",
+          "background": "p:rose",
+          "foreground": "p:plum",
           "invert_powerline": true,
-          "powerline_symbol": "\ue0b2",
+          "powerline_symbol": "\ue0b6",
           "style": "powerline",
           "template": " \uf0ad ",
           "type": "root"
         },
         {
-          "background": "#c4a000",
-          "foreground": "#000000",
+          "background": "p:cream",
+          "foreground": "p:plum",
           "invert_powerline": true,
-          "powerline_symbol": "\ue0b2",
+          "powerline_symbol": "\ue0b6",
           "style": "powerline",
           "template": " {{ .FormattedMs }} \uf252 ",
           "type": "executiontime"
         },
         {
-          "background": "#000000",
+          "background": "p:mint",
           "background_templates": [
-            "{{ if gt .Code 0 }}#cc2222{{ end }}"
+            "{{ if gt .Code 0 }}p:rose{{ end }}"
           ],
-          "foreground": "#d3d7cf",
+          "foreground": "p:plum",
           "invert_powerline": true,
-          "powerline_symbol": "\ue0b2",
+          "powerline_symbol": "\ue0b6",
           "properties": {
             "always_enabled": true
           },
           "style": "powerline",
-          "template": " {{ if gt .Code 0 }}{{ reason .Code }}{{ else }}\uf42e{{ end }} ",
+          "template": " {{ if gt .Code 0 }}\u2718 {{ reason .Code }}{{ else }}\u2661{{ end }} ",
           "type": "status"
         },
         {
-          "background": "#d3d7cf",
-          "foreground": "#000000",
+          "background": "p:sky",
+          "foreground": "p:plum",
           "invert_powerline": true,
           "style": "diamond",
-          "template": " {{ .CurrentDate | date .Format }} \uf017 ",
-          "trailing_diamond": "\ue0b0\u2500\u256e",
+          "template": " {{ .CurrentDate | date .Format }} \uf186 ",
+          "trailing_diamond": "\ue0b4<p:frame,transparent>\u2500\u256e</>",
           "type": "time"
         }
       ],
@@ -202,9 +213,9 @@
       "newline": true,
       "segments": [
         {
-          "foreground": "#d3d7cf",
+          "foreground": "p:frame",
           "style": "plain",
-          "template": "\u2570\u2500",
+          "template": "\u2570\u2500<p:pink>\u2726</>",
           "type": "text"
         }
       ],
@@ -213,7 +224,7 @@
     {
       "segments": [
         {
-          "foreground": "#d3d7cf",
+          "foreground": "p:frame",
           "style": "plain",
           "template": "\u2500\u256f",
           "type": "text"
@@ -222,7 +233,7 @@
       "type": "rprompt"
     }
   ],
-  "console_title_template": "{{ .Shell }} in {{ .Folder }}",
+  "console_title_template": "♡ {{ .Folder }}",
   "final_space": true,
   "version": 3
 }

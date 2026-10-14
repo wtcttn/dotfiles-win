@@ -71,7 +71,11 @@ Set-Alias -Name reload -Value Import-Profile
 # Environment variables
 $env:EDITOR = "code"
 
-# Welcome message
-Write-Host "🚀 PowerShell Profile Loaded!" -ForegroundColor Green
-Write-Host "   Theme: Custom (ohmyposh-theme.omp.json) | Font: Moralerspace Neon" -ForegroundColor Cyan
-Write-Host "   Modules: Terminal-Icons, posh-git, PSReadLine" -ForegroundColor Gray
+# Welcome message (fastfetch config: windows/fastfetch/config.jsonc)
+if (Get-Command fastfetch -ErrorAction SilentlyContinue) {
+    fastfetch
+} else {
+    Write-Host "🚀 PowerShell Profile Loaded!" -ForegroundColor Green
+    Write-Host "   Theme: Custom (ohmyposh-theme.omp.json) | Font: Moralerspace Neon" -ForegroundColor Cyan
+    Write-Host "   Modules: Terminal-Icons, posh-git, PSReadLine" -ForegroundColor Gray
+}

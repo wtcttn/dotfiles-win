@@ -175,6 +175,75 @@ function Install-WeztermConfig {
     }
 }
 
+function Install-NocttyConfig {
+    Write-ColorOutput "Installing Noctty configuration..." "Green"
+
+    $sourcePath = Join-Path $WindowsPath "noctty\config.ghostty"
+    $destDir = Join-Path $env:LOCALAPPDATA "noctty"
+    $destPath = Join-Path $destDir "config.ghostty"
+
+    if (!(Test-Path $sourcePath)) {
+        Write-ColorOutput "Noctty config not found: $sourcePath" "Red"
+        return $false
+    }
+
+    if (!(Test-Path $destDir)) {
+        Write-ColorOutput "Creating Noctty config directory: $destDir" "Blue"
+        New-Item -ItemType Directory -Path $destDir -Force | Out-Null
+    }
+
+    try {
+        Backup-AndRemoveItem -Path $destPath -Description "Noctty config"
+        try {
+            New-Item -ItemType SymbolicLink -Path $destPath -Target $sourcePath -Force -ErrorAction Stop | Out-Null
+            Write-ColorOutput "Noctty config linked successfully!" "Green"
+            Write-ColorOutput "Link: $destPath -> $sourcePath" "Blue"
+            return $true
+        } catch {
+            Write-ColorOutput "Failed to create symbolic link for Noctty config: $($_.Exception.Message)" "Yellow"
+            Write-ColorOutput "Writing a config-file include instead of copying the config." "Yellow"
+            $includePath = $sourcePath.Replace('\', '/')
+            $utf8NoBom = New-Object System.Text.UTF8Encoding $false
+            [System.IO.File]::WriteAllText($destPath, "config-file = $includePath`n", $utf8NoBom)
+            Write-ColorOutput "Noctty config include written: $destPath" "Green"
+            return $true
+        }
+    } catch {
+        Write-ColorOutput "Failed to install Noctty config: $($_.Exception.Message)" "Red"
+        return $false
+    }
+}
+
+function Install-Fastfetch {
+    Write-ColorOutput "Installing fastfetch..." "Green"
+
+    if (Get-Command fastfetch -ErrorAction SilentlyContinue) {
+        Write-ColorOutput "fastfetch is already installed" "Yellow"
+    } else {
+        & winget install --id Fastfetch-cli.Fastfetch --exact --accept-package-agreements --accept-source-agreements
+        if ($LASTEXITCODE -ne 0) {
+            Write-ColorOutput "winget install Fastfetch-cli.Fastfetch failed (exit $LASTEXITCODE)" "Red"
+            return $false
+        }
+    }
+
+    $sourcePath = Join-Path $WindowsPath "fastfetch"
+    $destDir = Join-Path $UserProfile ".config"
+    $destPath = Join-Path $destDir "fastfetch"
+
+    if (!(Test-Path $destDir)) {
+        New-Item -ItemType Directory -Path $destDir -Force | Out-Null
+    }
+
+    try {
+        Backup-AndRemoveItem -Path $destPath -Description "fastfetch config"
+        return (Set-SymbolicLinkOrCopy -SourcePath $sourcePath -DestinationPath $destPath -Description "fastfetch config")
+    } catch {
+        Write-ColorOutput "Failed to install fastfetch config: $($_.Exception.Message)" "Red"
+        return $false
+    }
+}
+
 function Install-Neovim {
     Write-ColorOutput "Installing Neovim..." "Green"
 
@@ -561,6 +630,12 @@ function Install-PowerShellProfile {
         Write-ColorOutput "Warning: WezTerm config installation failed, but continuing..." "Yellow"
     }
 
+    # Install fastfetch (startup greeting) and link its config
+    Write-ColorOutput "" "White"
+    if (!(Install-Fastfetch)) {
+        Write-ColorOutput "Warning: fastfetch installation failed, but continuing..." "Yellow"
+    }
+
     # Install Neovim and link the Windows config
     Write-ColorOutput "" "White"
     if (!(Install-Neovim)) {
@@ -657,7 +732,7 @@ function Show-Help {
     Write-ColorOutput "PowerShell Profile Installer" "Cyan"
     Write-ColorOutput "=============================" "Cyan"
     Write-ColorOutput "" "White"
-    Write-ColorOutput "Usage: .\install-powershell.ps1 [install|uninstall|test|check|font|wezterm|wsl|nvim|mutagen|help]" "White"
+    Write-ColorOutput "Usage: .\install-powershell.ps1 [install|uninstall|test|check|font|wezterm|noctty|fastfetch|wsl|nvim|mutagen|help]" "White"
     Write-ColorOutput "       .\install-powershell.ps1 install -GlazewmProfile thinkpad" "DarkGray"
     Write-ColorOutput "" "White"
     Write-ColorOutput "Options:" "Yellow"
@@ -670,6 +745,8 @@ function Show-Help {
     Write-ColorOutput "  check     - Check PowerShell installation" "White"
     Write-ColorOutput "  font      - Install Moralerspace HWJPDOC font only" "White"
     Write-ColorOutput "  wezterm   - Install WezTerm config only" "White"
+    Write-ColorOutput "  noctty    - Link Noctty config only (does not install the app)" "White"
+    Write-ColorOutput "  fastfetch - Install fastfetch (winget) and link windows/fastfetch only" "White"
     Write-ColorOutput "  wsl       - Install WSL config only" "White"
     Write-ColorOutput "  nvim      - Install Neovim and link windows/nvim only" "White"
     Write-ColorOutput "  mutagen   - Install Mutagen (scoop), pin MUTAGEN_SSH_PATH, register the daemon only" "White"
@@ -718,6 +795,12 @@ switch ($Action.ToLower()) {
     }
     "wezterm" {
         Install-WeztermConfig
+    }
+    "noctty" {
+        Install-NocttyConfig
+    }
+    "fastfetch" {
+        Install-Fastfetch
     }
     "wsl" {
         Install-WslConfig

@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" href="./styles.css" />
+    <script
+      src="https://unpkg.com/@babel/standalone@7.25.6/babel.min.js"
+      integrity="sha256-aS0B0wnsaDByLfE16h4MDCP1fQFccysd1YWOcV+gbBo="
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel" data-type="module">
+      import React, { useState, useEffect } from 'https://esm.sh/react@18';
+      import { createRoot } from 'https://esm.sh/react-dom@18/client';
+      import * as zebar from 'https://esm.sh/zebar@3.0';
+
+      const providers = zebar.createProviderGroup({
+        glazewm: { type: 'glazewm' },
+        cpu: { type: 'cpu' },
+        memory: { type: 'memory' },
+        weather: { type: 'weather' },
+        keyboard: { type: 'keyboard' },
+        date: { type: 'date', formatting: 'M/d (EEE) HH:mm', locale: 'ja' },
+      });
+
+      // Nerd Font のグリフ（Maple Mono NF に入っている）
+      const icon = {
+        cpu: '\uf4bc',
+        memory: String.fromCodePoint(0xf035b),
+        keyboard: String.fromCodePoint(0xf030c),
+        moon: '\uf186',
+        horizontal: String.fromCodePoint(0xf04e1),
+        vertical: String.fromCodePoint(0xf04e2),
+      };
+
+      const weatherIcon = {
+        clear_day: '\ue30d',
+        clear_night: '\ue32b',
+        cloudy_day: '\ue302',
+        cloudy_night: '\ue37e',
+        light_rain_day: '\ue30b',
+        light_rain_night: '\ue328',
+        heavy_rain_day: '\ue308',
+        heavy_rain_night: '\ue325',
+        snow_day: '\ue30a',
+        snow_night: '\ue327',
+        thunder_day: '\ue305',
+        thunder_night: '\ue322',
+      };
+
+      createRoot(document.getElementById('root')).render(<App />);
+
+      function App() {
+        const [output, setOutput] = useState(providers.outputMap);
+
+        useEffect(() => {
+          providers.onOutput(() => setOutput(providers.outputMap));
+        }, []);
+
+        const glazewm = output.glazewm;
+        const focused = glazewm?.focusedContainer;
+        const title = focused?.type === 'window' ? focused.title : '';
+
+        return (
+          <div className="app">
+            <div className="left">
+              <div className="island">
+                <span className="sparkle">✦</span>
+                {glazewm && (
+                  <div className="workspaces">
+                    {glazewm.currentWorkspaces.map(workspace => (
+                      <button
+                        className={[
+                          'workspace',
+                          workspace.isDisplayed && 'displayed',
+                          workspace.hasFocus && 'focused',
+                        ]
+                          .filter(Boolean)
+                          .join(' ')}
+                        onClick={() =>
+                          glazewm.runCommand(
+                            `focus --workspace ${workspace.name}`,
+                          )
+                        }
+                        key={workspace.name}
+                      >
+                        {workspace.displayName ?? workspace.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              {glazewm?.bindingModes.map(mode => (
+                <button
+                  className="island chip"
+                  key={mode.name}
+                  onClick={() =>
+                    glazewm.runCommand(
+                      `wm-disable-binding-mode --name ${mode.name}`,
+                    )
+                  }
+                >
+                  {mode.displayName ?? mode.name}
+                </button>
+              ))}
+              {glazewm?.isPaused && (
+                <button
+                  className="island chip"
+                  onClick={() => glazewm.runCommand('wm-toggle-pause')}
+                >
+                  paused
+                </button>
+              )}
+            </div>
+
+            <div className="center">
+              {title && (
+                <div className="island title">
+                  <span className="heart">♡</span>
+                  <span className="title-text">{title}</span>
+                </div>
+              )}
+            </div>
+
+            <div className="right">
+              <div className="island stats">
+                {glazewm && (
+                  <button
+                    className="stat tiling"
+                    onClick={() =>
+                      glazewm.runCommand('toggle-tiling-direction')
+                    }
+                  >
+                    {glazewm.tilingDirection === 'horizontal'
+                      ? icon.horizontal
+                      : icon.vertical}
+                  </button>
+                )}
+                {output.cpu && (
+                  <span
+                    className={`stat cpu ${output.cpu.usage > 85 ? 'high' : ''}`}
+                  >
+                    <i>{icon.cpu}</i>
+                    {Math.round(output.cpu.usage)}%
+                  </span>
+                )}
+                {output.memory && (
+                  <span
+                    className={`stat memory ${output.memory.usage > 85 ? 'high' : ''}`}
+                  >
+                    <i>{icon.memory}</i>
+                    {Math.round(output.memory.usage)}%
+                  </span>
+                )}
+                {output.weather && (
+                  <span className="stat weather">
+                    <i>{weatherIcon[output.weather.status] ?? '\ue30d'}</i>
+                    {Math.round(output.weather.celsiusTemp)}°
+                  </span>
+                )}
+                {output.keyboard && (
+                  <span className="stat keyboard">
+                    <i>{icon.keyboard}</i>
+                    {output.keyboard.layout?.split('-')[0]}
+                  </span>
+                )}
+              </div>
+              {output.date && (
+                <div className="island clock">
+                  <i>{icon.moon}</i>
+                  {output.date.formatted}
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      }
+    </script>
+  </body>
+</html>

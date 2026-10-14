@@ -74,6 +74,9 @@ git pull && ./archlinux/install.sh install
 # WezTerm config reinstall
 ./windows/install-powershell.ps1 wezterm
 
+# Noctty config（試用。アプリ本体は winget install AmanThanvi.noctty）
+./windows/install-powershell.ps1 noctty
+
 # Mutagen (Windows と WSLc ボリュームの同期) のインストール・設定
 ./windows/install-powershell.ps1 mutagen
 ```

@@ -2,8 +2,10 @@
 set -euo pipefail
 
 CONFIG_HOME=/opt/wslc-dev/home
-USER_NAME=kento
+USER_NAME=wtcttn
 USER_HOME=/home/${USER_NAME}
+# ホームボリュームは以前 /home/kento にマウントしていた。proto の ruby や gem がその絶対パスを持っている。
+LEGACY_HOME=/home/kento
 
 link_config() {
   local src="$1"
@@ -54,12 +56,16 @@ if [ "$(id -u)" -eq 0 ]; then
   if [ "$(stat -c '%u' "$USER_HOME")" != "1000" ]; then
     chown "${USER_NAME}:${USER_NAME}" "$USER_HOME"
   fi
+  if [ -L "$LEGACY_HOME" ] || [ ! -e "$LEGACY_HOME" ]; then
+    ln -sfn "$USER_HOME" "$LEGACY_HOME"
+  fi
 
   link_config "${CONFIG_HOME}/.zshenv" "${USER_HOME}/.zshenv"
   link_config "${CONFIG_HOME}/.zshrc" "${USER_HOME}/.zshrc"
   link_config "${CONFIG_HOME}/.p10k.zsh" "${USER_HOME}/.p10k.zsh"
   link_config "${CONFIG_HOME}/.gitconfig" "${USER_HOME}/.gitconfig"
   link_config "${CONFIG_HOME}/.config/nvim" "${USER_HOME}/.config/nvim"
+  link_config "${CONFIG_HOME}/.config/fastfetch" "${USER_HOME}/.config/fastfetch"
   sync_ssh
   chown -h "${USER_NAME}:${USER_NAME}" \
     "${USER_HOME}/.zshenv" \
@@ -67,7 +73,8 @@ if [ "$(id -u)" -eq 0 ]; then
     "${USER_HOME}/.p10k.zsh" \
     "${USER_HOME}/.gitconfig" \
     "${USER_HOME}/.config" \
-    "${USER_HOME}/.config/nvim" 2>/dev/null || true
+    "${USER_HOME}/.config/nvim" \
+    "${USER_HOME}/.config/fastfetch" 2>/dev/null || true
 
   exec runuser --preserve-environment -u "$USER_NAME" -- "$@"
 fi

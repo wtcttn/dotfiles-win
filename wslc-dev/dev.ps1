@@ -27,6 +27,7 @@ $Root = $PSScriptRoot
 $Image = "wslc-dev:local"
 $Container = "wslc-dev"
 $Volume = "wslc-dev-home"
+$User = "wtcttn"
 $Workspace = "C:\Users\kento\workspace"
 $WindowsSsh = "C:\Users\kento\.ssh"
 $HomeConfig = Join-Path $Root "home"
@@ -62,7 +63,7 @@ function Invoke-DevScript {
     # 引数で渡し、コンテナの中で戻す
     $bytes = [System.Text.Encoding]::UTF8.GetBytes(($Script -replace "`r", ""))
     $encoded = [System.Convert]::ToBase64String($bytes)
-    & wslc exec -u kento $Container zsh -c "echo $encoded | base64 -d | zsh -s"
+    & wslc exec -u $User $Container zsh -c "echo $encoded | base64 -d | zsh -s"
 }
 
 function Read-WslcJsonLines {
@@ -114,7 +115,7 @@ function New-UserVolume {
         }
     }
     Write-Host "ボリュームを作成します: $Name"
-    # 動的 VHD。中身は Linux の ext4 で、所有者を kento (1000) にする。
+    # 動的 VHD。中身は Linux の ext4 で、所有者を wtcttn (1000) にする。
     Invoke-Wslc @(
         "volume", "create",
         "--driver", "vhd",
@@ -150,11 +151,11 @@ function Start-DevContainer {
 
     Write-Host "コンテナを作成します: $Container"
     $runArgs = @(
-        "run", "--detach", "--name", $Container,
+        "run", "--detach", "--name", $Container, "--hostname", $Container,
         "-v", "$(ConvertTo-WslcPath $Workspace):/workspace",
         "-v", "$(ConvertTo-WslcPath $HomeConfig):/opt/wslc-dev/home",
         "-v", "$(ConvertTo-WslcPath $WindowsSsh):/mnt/win-ssh:ro",
-        "-v", "${Volume}:/home/kento"
+        "-v", "${Volume}:/home/$User"
     )
     foreach ($name in $ExtraVolumes.Keys) {
         $runArgs += @("-v", "${name}:$($ExtraVolumes[$name])")
@@ -192,12 +193,12 @@ switch ($Command) {
     }
     "enter" {
         Start-DevContainer
-        & wslc exec -it -u kento -w /workspace $Container zsh
+        & wslc exec -it -u $User -w /workspace $Container zsh
         exit $LASTEXITCODE
     }
     "nvim" {
         Start-DevContainer
-        & wslc exec -it -u kento -w /workspace $Container nvim @ArgsRest
+        & wslc exec -it -u $User -w /workspace $Container nvim @ArgsRest
         exit $LASTEXITCODE
     }
     "packages-save" {

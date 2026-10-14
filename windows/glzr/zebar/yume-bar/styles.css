@@ -1,0 +1,208 @@
+/* 色は windows/noctty/cute.glsl、p10k、Oh My Posh と同じパステル。 */
+:root {
+  --pink: #f5a8d6;
+  --lavender: #c9b6ff;
+  --sky: #a8d8ff;
+  --mint: #a8ecd8;
+  --cream: #fff0b3;
+  --peach: #ffc9b0;
+  --rose: #ff8fb1;
+  --plum: #3a2440;
+  --frame: #b9a3e8;
+  --muted: #8a76b8;
+  --text: #e8def5;
+  --island: linear-gradient(135deg, rgb(48 34 60 / 88%), rgb(34 26 40 / 88%));
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: 'Maple Mono NF', 'Moralerspace Neon HWJPDOC', monospace;
+  font-size: 12px;
+  color: var(--text);
+  overflow: hidden;
+  background: transparent;
+}
+
+div,
+span,
+p {
+  cursor: default;
+  user-select: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+i {
+  font-style: normal;
+  margin-right: 5px;
+}
+
+.app {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+  height: 100%;
+  padding: 0 10px;
+  box-sizing: border-box;
+}
+
+.left,
+.center,
+.right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.right {
+  justify-self: end;
+}
+
+.island {
+  display: flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--island);
+  border: 1px solid rgb(201 182 255 / 28%);
+  box-shadow:
+    0 2px 10px rgb(245 168 214 / 14%),
+    inset 0 1px 0 rgb(255 255 255 / 6%);
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.sparkle {
+  color: var(--pink);
+  margin-right: 8px;
+  animation: twinkle 3.2s ease-in-out infinite;
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 1;
+    text-shadow: 0 0 6px rgb(245 168 214 / 70%);
+  }
+  50% {
+    opacity: 0.45;
+    text-shadow: none;
+  }
+}
+
+.workspaces {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.workspace {
+  padding: 2px 9px;
+  border-radius: 999px;
+  color: var(--muted);
+  transition:
+    background 0.2s,
+    color 0.2s;
+
+  &.displayed {
+    color: var(--lavender);
+    background: rgb(201 182 255 / 14%);
+  }
+
+  &.focused {
+    color: var(--plum);
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--pink), var(--lavender));
+    box-shadow: 0 0 8px rgb(245 168 214 / 45%);
+  }
+
+  &:hover:not(.focused) {
+    color: var(--pink);
+    background: rgb(245 168 214 / 16%);
+  }
+}
+
+.chip {
+  color: var(--plum);
+  background: linear-gradient(135deg, var(--cream), var(--peach));
+  border: 0;
+}
+
+.title {
+  max-width: 40vw;
+  color: var(--text);
+}
+
+.heart {
+  color: var(--rose);
+  margin-right: 7px;
+}
+
+.title-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stats {
+  gap: 12px;
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+}
+
+.tiling {
+  color: var(--frame);
+  padding: 0;
+
+  &:hover {
+    color: var(--pink);
+  }
+}
+
+.cpu i {
+  color: var(--peach);
+}
+
+.memory i {
+  color: var(--mint);
+}
+
+.weather i {
+  color: var(--cream);
+}
+
+.keyboard i {
+  color: var(--lavender);
+}
+
+.high {
+  color: var(--rose);
+}
+
+.clock {
+  color: var(--plum);
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--sky), var(--lavender));
+  border: 0;
+
+  & i {
+    color: var(--plum);
+  }
+}

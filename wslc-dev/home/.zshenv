@@ -18,6 +18,7 @@ if [ -f /etc/arch-release ]; then
 fi
 
 export LANG=ja_JP.UTF-8
+export TZ="Asia/Tokyo"
 export EDITOR="${EDITOR:-nvim}"
 export VISUAL="${VISUAL:-nvim}"
 export WORKSPACE="${WORKSPACE:-/workspace}"

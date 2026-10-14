@@ -27,7 +27,7 @@
 | --- | --- | --- |
 | イメージ `wslc-dev:local` | `wslc-dev/Dockerfile` | |
 | コンテナ `wslc-dev` | `wslc-dev/dev.ps1` が作成 | |
-| ボリューム `wslc-dev-home` | 動的 VHD、20GiB、uid/gid 1000 | `/home/kento` |
+| ボリューム `wslc-dev-home` | 動的 VHD、20GiB、uid/gid 1000 | `/home/wtcttn` |
 | ワークスペース | `C:\Users\kento\workspace` | `/workspace` |
 | 設定 | `wslc-dev/home` | `/opt/wslc-dev/home` |
 | Windows SSH | `C:\Users\kento\.ssh`（読み取り専用） | `/mnt/win-ssh` |
@@ -37,9 +37,9 @@
 
 マシンやプロジェクトに固有の設定（追加のボリュームなど）は `wslc-dev/dev.local.ps1` に書く。このファイルは `.gitignore` で除外していて、`dev.ps1` が読み込む。書式は `wslc-dev/dev.local.example.ps1`。プロジェクトの名前やパスは、`dev.ps1` を含め git で管理するファイルに書かない。変更したら `recreate` する。
 
-ユーザーは `kento`、uid/gid 1000。sudo は NOPASSWD。
+ユーザーは `wtcttn`、uid/gid 1000。sudo は NOPASSWD。ホスト名は `wslc-dev`（`dev.ps1` が `--hostname` を付ける）。ホームボリュームは以前 `/home/kento` にマウントしていて、proto の ruby や gem がその絶対パスを持っているので、entrypoint が `/home/kento` を `/home/wtcttn` へのシンボリックリンクにする。
 
-起動時、`wslc-dev/home` の `.zshenv`、`.zshrc`、`.p10k.zsh`、`.gitconfig`、`.config/nvim` をホームへシンボリックリンクする。宛先が無い、または既にシンボリックリンクのときだけ張り替える。ホームボリューム上の実ファイルは残す。
+起動時、`wslc-dev/home` の `.zshenv`、`.zshrc`、`.p10k.zsh`、`.gitconfig`、`.config/nvim`、`.config/fastfetch` をホームへシンボリックリンクする。宛先が無い、または既にシンボリックリンクのときだけ張り替える。ホームボリューム上の実ファイルは残す。
 
 ## 操作
 
@@ -47,7 +47,7 @@
 
 - `build` はイメージを作る。
 - `up` はコンテナを起動する。無ければ作成する。
-- `enter` はユーザー `kento` の zsh に入る。
+- `enter` はユーザー `wtcttn` の zsh に入る。
 - `nvim` はコンテナの nvim を開く。
 - `down` はコンテナを止める。
 - `recreate` はコンテナだけ作り直す。ホームボリュームは残る。イメージ由来の書き込み層は消える。
@@ -61,7 +61,9 @@
 
 `dev.ps1` では、関数引数に `-d` を渡さない。PowerShell が `-Debug` に取る。継続行の先頭を `--opt` にしない。`wslc` への引数は文字列配列で `Invoke-Wslc` に渡す。
 
-WezTerm の既定は `wslc-dev/wezterm.cmd` である。`wslc start wslc-dev` のあと `wslc exec -it -u kento -w /workspace wslc-dev zsh` を実行する。反映には新しいウィンドウが要る。Arch はランチャに残す。
+WezTerm の既定は `wslc-dev/wezterm.cmd` である。`wslc start wslc-dev` のあと `wslc exec -it -u wtcttn -w /workspace wslc-dev zsh` を実行する。反映には新しいウィンドウが要る。Arch はランチャに残す。
+
+Noctty は試用中の端末で、WezTerm の置き換えではない。設定は `windows/noctty/config.ghostty` を `%LOCALAPPDATA%\noctty\config.ghostty` へリンクする。既定シェルは同じ `wslc-dev/wezterm.cmd`。完全に切り替えるまでは、WezTerm の `default_prog` を変えない。
 
 ## パッケージ
 
@@ -108,7 +110,7 @@ ruby / node / pnpm は proto で入れる。バージョンはリポジトリの
 
 ## シェル
 
-コンテナの zsh は、Arch の Oh My Zsh と Powerlevel10k から、wsl2-ssh-agent、khal、docker、docker-compose を外したもの。イメージに最初から入っているのは yazi、proto、paru、screenfetch。それ以外は `wslc-dev/home/packages/` を参照。`yay` は `paru` の別名。`vi` と `vim` は `nvim`。
+コンテナの zsh は、Arch の Oh My Zsh と Powerlevel10k から、wsl2-ssh-agent、khal、docker、docker-compose を外したもの。イメージに最初から入っているのは yazi、proto、paru、fastfetch。起動時の fastfetch の設定は `wslc-dev/home/.config/fastfetch`（PowerShell 用は `windows/fastfetch`）。それ以外は `wslc-dev/home/packages/` を参照。`yay` は `paru` の別名。`vi` と `vim` は `nvim`。
 
 プロンプトのアイコンは WezTerm のフォント（Moralerspace Neon HWJPDOC）に依存する。`wslc-dev/home/.p10k.zsh` は `archlinux/.p10k.zsh` のコピーであり、同時に更新されるリンクではない。個人差分は `~/.zshrc.local` に書く。
 

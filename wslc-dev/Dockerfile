@@ -10,7 +10,7 @@ RUN pacman-key --init \
         git \
         neovim \
         ripgrep \
-        screenfetch \
+        fastfetch \
         unzip \
         which \
         yazi \
@@ -23,9 +23,9 @@ RUN pacman-key --init \
     && git clone --depth=1 https://github.com/zsh-users/zsh-syntax-highlighting.git /usr/share/oh-my-zsh/custom/plugins/zsh-syntax-highlighting \
     && rm -rf /var/cache/pacman/pkg/*
 
-RUN useradd --create-home --shell /usr/bin/zsh --uid 1000 --user-group kento \
-    && echo 'kento ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/kento \
-    && chmod 440 /etc/sudoers.d/kento
+RUN useradd --create-home --shell /usr/bin/zsh --uid 1000 --user-group wtcttn \
+    && echo 'wtcttn ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/wtcttn \
+    && chmod 440 /etc/sudoers.d/wtcttn
 
 RUN curl -fsSL https://moonrepo.dev/install/proto.sh -o /tmp/proto-install.sh \
     && PROTO_HOME=/opt/proto bash /tmp/proto-install.sh --yes --no-profile \
@@ -33,9 +33,9 @@ RUN curl -fsSL https://moonrepo.dev/install/proto.sh -o /tmp/proto-install.sh \
     && install -m 755 /opt/proto/bin/proto-shim /usr/bin/proto-shim \
     && rm -rf /opt/proto /tmp/proto-install.sh \
     && git clone --depth=1 https://aur.archlinux.org/paru.git /tmp/paru \
-    && chown -R kento:kento /tmp/paru \
-    && runuser -u kento -- bash -c 'cd /tmp/paru && makepkg -si --noconfirm' \
-    && rm -rf /tmp/paru /home/kento/.cargo
+    && chown -R wtcttn:wtcttn /tmp/paru \
+    && runuser -u wtcttn -- bash -c 'cd /tmp/paru && makepkg -si --noconfirm' \
+    && rm -rf /tmp/paru /home/wtcttn/.cargo
 
 RUN pacman -S --noconfirm --needed openssh \
     && rm -rf /var/cache/pacman/pkg/*
