@@ -244,6 +244,22 @@ function Install-Fastfetch {
     }
 }
 
+function Install-Chafa {
+    Write-ColorOutput "Installing chafa..." "Green"
+
+    if (Get-Command chafa -ErrorAction SilentlyContinue) {
+        Write-ColorOutput "chafa is already installed" "Yellow"
+        return $true
+    }
+
+    & winget install --id hpjansson.Chafa --exact --accept-package-agreements --accept-source-agreements
+    if ($LASTEXITCODE -ne 0) {
+        Write-ColorOutput "winget install hpjansson.Chafa failed (exit $LASTEXITCODE)" "Red"
+        return $false
+    }
+    return $true
+}
+
 function Install-Neovim {
     Write-ColorOutput "Installing Neovim..." "Green"
 
@@ -636,6 +652,12 @@ function Install-PowerShellProfile {
         Write-ColorOutput "Warning: fastfetch installation failed, but continuing..." "Yellow"
     }
 
+    # Neovim の起動画面が chafa で絵を出す
+    Write-ColorOutput "" "White"
+    if (!(Install-Chafa)) {
+        Write-ColorOutput "Warning: chafa installation failed, but continuing..." "Yellow"
+    }
+
     # Install Neovim and link the Windows config
     Write-ColorOutput "" "White"
     if (!(Install-Neovim)) {
@@ -732,7 +754,7 @@ function Show-Help {
     Write-ColorOutput "PowerShell Profile Installer" "Cyan"
     Write-ColorOutput "=============================" "Cyan"
     Write-ColorOutput "" "White"
-    Write-ColorOutput "Usage: .\install-powershell.ps1 [install|uninstall|test|check|font|wezterm|noctty|fastfetch|wsl|nvim|mutagen|help]" "White"
+    Write-ColorOutput "Usage: .\install-powershell.ps1 [install|uninstall|test|check|font|wezterm|noctty|fastfetch|chafa|wsl|nvim|mutagen|help]" "White"
     Write-ColorOutput "       .\install-powershell.ps1 install -GlazewmProfile thinkpad" "DarkGray"
     Write-ColorOutput "" "White"
     Write-ColorOutput "Options:" "Yellow"
@@ -747,6 +769,7 @@ function Show-Help {
     Write-ColorOutput "  wezterm   - Install WezTerm config only" "White"
     Write-ColorOutput "  noctty    - Link Noctty config only (does not install the app)" "White"
     Write-ColorOutput "  fastfetch - Install fastfetch (winget) and link windows/fastfetch only" "White"
+    Write-ColorOutput "  chafa     - Install chafa (winget) for the Neovim startup image" "White"
     Write-ColorOutput "  wsl       - Install WSL config only" "White"
     Write-ColorOutput "  nvim      - Install Neovim and link windows/nvim only" "White"
     Write-ColorOutput "  mutagen   - Install Mutagen (scoop), pin MUTAGEN_SSH_PATH, register the daemon only" "White"
@@ -801,6 +824,9 @@ switch ($Action.ToLower()) {
     }
     "fastfetch" {
         Install-Fastfetch
+    }
+    "chafa" {
+        Install-Chafa
     }
     "wsl" {
         Install-WslConfig

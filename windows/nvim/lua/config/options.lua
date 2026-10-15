@@ -10,7 +10,7 @@ vim.opt.tabstop = 2
 vim.opt.confirm = true
 vim.opt.undofile = true
 
--- クリップボードは未設定のままにする。"+ と "* だけが Windows 標準のプロバイダを使う。
-vim.opt.clipboard = ""
+-- y や p を Windows のクリップボードに繋ぐ。
+vim.opt.clipboard = "unnamedplus"
 vim.g.loaded_perl_provider = 0
 vim.g.loaded_ruby_provider = 0

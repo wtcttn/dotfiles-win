@@ -17,7 +17,7 @@ theme = Catppuccin Frappe
 background = #210429
 
 # ぼかしは使えないので、透過は文字が読める範囲で少しだけ上げる。
-background-opacity = 0.95
+background-opacity = 0.9
 
 background-image = C:/Users/kento/dotfiles/windows/noctty/background.png
 background-image-fit = none
@@ -49,6 +49,10 @@ command = C:\Users\kento\dotfiles\wslc-dev\wezterm.cmd
 # コンテナに ghostty の terminfo を入れるまでは、未知の TERM で zsh を落とさない。
 term = xterm-256color
 
+# Neovim の yank は OSC 52 で届く。確認ダイアログなしで読み書きする。
+clipboard-write = allow
+clipboard-read = allow
+
 # ペイン移動とサイズは WezTerm と同じ割り当て。Alt+矢印の既定も残る。
 keybind = ctrl+shift+left=goto_split:left
 keybind = ctrl+shift+right=goto_split:right
@@ -59,3 +63,53 @@ keybind = ctrl+alt+right=resize_split:right,20
 keybind = ctrl+alt+up=resize_split:up,20
 keybind = ctrl+alt+down=resize_split:down,20
 keybind = ctrl+shift+l=toggle_command_palette
+
+# Alt+数字は GlazeWM のワークスペース切り替え。タブジャンプは Ctrl+Alt+数字にする。
+keybind = alt+1=unbind
+keybind = alt+digit_1=unbind
+keybind = alt+2=unbind
+keybind = alt+digit_2=unbind
+keybind = alt+3=unbind
+keybind = alt+digit_3=unbind
+keybind = alt+4=unbind
+keybind = alt+digit_4=unbind
+keybind = alt+5=unbind
+keybind = alt+digit_5=unbind
+keybind = alt+6=unbind
+keybind = alt+digit_6=unbind
+keybind = alt+7=unbind
+keybind = alt+digit_7=unbind
+keybind = alt+8=unbind
+keybind = alt+digit_8=unbind
+keybind = alt+9=unbind
+keybind = ctrl+alt+1=goto_tab:1
+keybind = ctrl+alt+digit_1=goto_tab:1
+keybind = ctrl+alt+2=goto_tab:2
+keybind = ctrl+alt+digit_2=goto_tab:2
+keybind = ctrl+alt+3=goto_tab:3
+keybind = ctrl+alt+digit_3=goto_tab:3
+keybind = ctrl+alt+4=goto_tab:4
+keybind = ctrl+alt+digit_4=goto_tab:4
+keybind = ctrl+alt+5=goto_tab:5
+keybind = ctrl+alt+digit_5=goto_tab:5
+keybind = ctrl+alt+6=goto_tab:6
+keybind = ctrl+alt+digit_6=goto_tab:6
+keybind = ctrl+alt+7=goto_tab:7
+keybind = ctrl+alt+digit_7=goto_tab:7
+keybind = ctrl+alt+8=goto_tab:8
+keybind = ctrl+alt+digit_8=goto_tab:8
+keybind = ctrl+alt+9=last_tab
+keybind = ctrl+alt+digit_9=last_tab
+
+# Ctrl+Shift+数字は未割り当てのままだと fixterms の CSI;5u になり、シェルへ「;5u」と入る。
+# 物理キーで受け、設定済みの command（wslc-dev）で新しいタブを開く。
+keybind = ctrl+shift+digit_1=new_tab
+keybind = ctrl+shift+digit_2=new_tab
+keybind = ctrl+shift+digit_3=new_tab
+keybind = ctrl+shift+digit_4=new_tab
+keybind = ctrl+shift+digit_5=new_tab
+keybind = ctrl+shift+digit_6=new_tab
+keybind = ctrl+shift+digit_7=new_tab
+keybind = ctrl+shift+digit_8=new_tab
+keybind = ctrl+shift+digit_9=new_tab
+keybind = ctrl+shift+digit_0=new_tab

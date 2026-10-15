@@ -13,8 +13,11 @@ general:
   # Example: The below command kills Zebar.
   shutdown_commands: ["shell-exec taskkill /IM zebar.exe /F"]
 
-  # Commands to run after the WM config is reloaded.
-  config_reload_commands: []
+  # 再読み込みでは startup_commands が走らない。購読が切れていたらここで戻す。
+  config_reload_commands:
+    [
+      "shell-exec --hide-window powershell -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File C:/Users/kento/dotfiles/windows/glzr/glazewm/noctty-opacity.ps1",
+    ]
 
   # Whether to automatically focus windows underneath the cursor.
   focus_follows_cursor: false

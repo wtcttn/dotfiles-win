@@ -12,7 +12,7 @@ const vec3 CREAM = vec3(1.00, 0.96, 0.88);
 const float IMAGE_SIZE = 420.0;
 
 // Overall strength of the background color and decorations (0 = off, 1 = full).
-const float EFFECT = 0.5;
+const float EFFECT = 0.6;
 
 // Brightness of the pastel gradient behind the text. Lower is darker and easier to read.
 // Shader colors are linear, so small values already look fairly bright on screen.
