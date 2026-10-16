@@ -193,19 +193,8 @@
   # OS identifier color.
   typeset -g POWERLEVEL9K_OS_ICON_FOREGROUND='#3a2440'
   typeset -g POWERLEVEL9K_OS_ICON_BACKGROUND='#f5a8d6'
-  # Custom icon - ディストリビューション別にアイコンを表示
-  typeset -g POWERLEVEL9K_OS_ICON_CONTENT_EXPANSION='${:-$(
-    if [[ -f /etc/os-release ]]; then
-      source /etc/os-release
-      case "$ID" in
-        arch) echo "\uF303" ;;      # Arch Linux アイコン
-        ubuntu) echo "\uF31B" ;;    # Ubuntu アイコン
-        *) echo "\uF17C" ;;         # デフォルトの Linux アイコン
-      esac
-    else
-      echo "\uF17C"
-    fi
-  )}'
+  # Apple logo (Nerd Font U+F179). $'' で代入時に文字へ変換する。
+  typeset -g POWERLEVEL9K_OS_ICON_CONTENT_EXPANSION=$'\uF179'
 
   ################################[ prompt_char: prompt symbol ]################################
   # Transparent background.
@@ -529,7 +518,9 @@
   # Status on success. No content, just an icon. No need to show it if prompt_char is enabled as
   # it will signify success by turning green.
   typeset -g POWERLEVEL9K_STATUS_OK=true
+  # ♡ はセルの右に描かれる。右の余白を1つ足して枠の中央に寄せる。
   typeset -g POWERLEVEL9K_STATUS_OK_VISUAL_IDENTIFIER_EXPANSION='♡'
+  typeset -g POWERLEVEL9K_STATUS_OK_RIGHT_RIGHT_WHITESPACE='  '
   typeset -g POWERLEVEL9K_STATUS_OK_FOREGROUND='#3a2440'
   typeset -g POWERLEVEL9K_STATUS_OK_BACKGROUND='#a8ecd8'
 
@@ -537,6 +528,7 @@
   # like this: 1|0.
   typeset -g POWERLEVEL9K_STATUS_OK_PIPE=true
   typeset -g POWERLEVEL9K_STATUS_OK_PIPE_VISUAL_IDENTIFIER_EXPANSION='♡'
+  typeset -g POWERLEVEL9K_STATUS_OK_PIPE_RIGHT_RIGHT_WHITESPACE='  '
   typeset -g POWERLEVEL9K_STATUS_OK_PIPE_FOREGROUND='#3a2440'
   typeset -g POWERLEVEL9K_STATUS_OK_PIPE_BACKGROUND='#a8ecd8'
 

@@ -529,7 +529,9 @@
   # Status on success. No content, just an icon. No need to show it if prompt_char is enabled as
   # it will signify success by turning green.
   typeset -g POWERLEVEL9K_STATUS_OK=true
+  # ♡ はセルの右に描かれる。右の余白を1つ足して枠の中央に寄せる。
   typeset -g POWERLEVEL9K_STATUS_OK_VISUAL_IDENTIFIER_EXPANSION='♡'
+  typeset -g POWERLEVEL9K_STATUS_OK_RIGHT_RIGHT_WHITESPACE='  '
   typeset -g POWERLEVEL9K_STATUS_OK_FOREGROUND='#3a2440'
   typeset -g POWERLEVEL9K_STATUS_OK_BACKGROUND='#a8ecd8'
 
@@ -537,6 +539,7 @@
   # like this: 1|0.
   typeset -g POWERLEVEL9K_STATUS_OK_PIPE=true
   typeset -g POWERLEVEL9K_STATUS_OK_PIPE_VISUAL_IDENTIFIER_EXPANSION='♡'
+  typeset -g POWERLEVEL9K_STATUS_OK_PIPE_RIGHT_RIGHT_WHITESPACE='  '
   typeset -g POWERLEVEL9K_STATUS_OK_PIPE_FOREGROUND='#3a2440'
   typeset -g POWERLEVEL9K_STATUS_OK_PIPE_BACKGROUND='#a8ecd8'
 

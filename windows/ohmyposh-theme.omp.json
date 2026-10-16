@@ -193,7 +193,7 @@
             "always_enabled": true
           },
           "style": "powerline",
-          "template": " {{ if gt .Code 0 }}\u2718 {{ reason .Code }}{{ else }}\u2661{{ end }} ",
+          "template": " {{ if gt .Code 0 }}\u2718 {{ reason .Code }}{{ else }}\u2661 {{ end }} ",
           "type": "status"
         },
         {
