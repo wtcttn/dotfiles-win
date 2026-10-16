@@ -12,16 +12,14 @@ minimum-contrast = 4
 
 theme = Catppuccin Frappe
 background = #210429
-# デスクトップが透ける liquid glass。macOS 26 のガラス材質。
+# デスクトップが透けてぼける liquid glass。macos-glass-* は背景画像を描かず、シェーダーにも透明な背景しか渡さない。
 background-opacity = 0.7
-background-blur = macos-glass-regular
-# Noctty のシェーダーはリニア色前提。macOS の既定 native だと背景が文字扱いになり、効果が出ない。
-alpha-blending = linear-corrected
+background-blur = 20
 
 background-image = background.png
 background-image-fit = none
 background-image-position = bottom-right
-background-image-opacity = 0.2
+background-image-opacity = 0.6
 background-image-repeat = false
 
 custom-shader = cute.glsl
