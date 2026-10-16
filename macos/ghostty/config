@@ -1,4 +1,4 @@
-# Mac の Ghostty。色・背景・カーソルは、wslc-dev を開く Noctty の設定に合わせる。
+# Mac の Ghostty。色・背景・カーソルは Noctty に合わせ、透過は macOS の liquid glass。
 # 起動コマンドは Mac のログインシェル。GlazeWM 用のキー割り当ては入れない。
 # 反映は Cmd+Shift+,。フォントやシェーダーを初めて読むときは再起動。
 
@@ -12,12 +12,16 @@ minimum-contrast = 4
 
 theme = Catppuccin Frappe
 background = #210429
-background-opacity = 0.9
+# デスクトップが透ける liquid glass。macOS 26 のガラス材質。
+background-opacity = 0.7
+background-blur = macos-glass-regular
+# Noctty のシェーダーはリニア色前提。macOS の既定 native だと背景が文字扱いになり、効果が出ない。
+alpha-blending = linear-corrected
 
 background-image = background.png
 background-image-fit = none
 background-image-position = bottom-right
-background-image-opacity = 0.5
+background-image-opacity = 0.2
 background-image-repeat = false
 
 custom-shader = cute.glsl

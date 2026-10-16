@@ -167,36 +167,36 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     vec3 cursorLight = cursorColor * exp(-dot2(toCursor) / (cell * cell * 0.9)) * 0.2;
 
     float since = t - iTimeCursorChange;
-    if (since < 1.1) {
-        float burst = fract(iTimeCursorChange * 7.31 + cursor.x * 0.0131 + cursor.y * 0.0071);
-        int count = 5 + int(hash(burst * 91.0) * 6.0);
-        for (int i = 0; i < 10; i++) {
-            if (i >= count) break;
-            float id = float(i) * 13.7 + burst * 1000.0;
-            float life = 0.6 + hash(id * 4.4) * 0.5;
-            float age = since / life;
-            if (age >= 1.0) continue;
-            float angle = hash(id * 1.3) * 6.2831853;
-            float speed = cell * (1.0 + hash(id * 2.9) * 3.5);
-            vec2 velocity = vec2(cos(angle), sin(angle) * 0.7 + 0.5) * speed;
-            vec2 position = velocity * since - vec2(0.0, cell * 3.0) * since * since;
-            float size = cell * (0.16 + hash(id * 5.7) * 0.26) * (1.0 - age * 0.4);
-            float spin = hash(id * 6.1) * 6.2831853 + since * (hash(id * 8.3) - 0.5) * 14.0;
-            float d = chubbyStar(rotate(spin) * (toCursor - position), size);
-            float fill = smoothstep(1.0, -1.0, d);
-            float halo = exp(-max(d, 0.0) / (size * 0.6)) * 0.35;
-            float fade = 1.0 - smoothstep(0.5, 1.0, age);
-            cursorLight += starColor(hash(id * 9.1)) * (fill * 0.85 + halo) * fade * BURST_STAR;
-        }
-        for (int i = 0; i < 8; i++) {
-            float id = float(i) * 5.3 + burst * 777.0;
-            float age = since / 0.8;
-            if (age >= 1.0) break;
-            float angle = hash(id * 1.9) * 6.2831853;
-            vec2 position = vec2(cos(angle), sin(angle)) * cell * (0.5 + hash(id * 3.1) * 2.5) * sqrt(age);
-            float radius = 1.2 + hash(id * 2.3) * 1.5;
-            cursorLight += CREAM * exp(-dot2(toCursor - position) / (radius * radius)) * (1.0 - age) * 0.8;
-        }
+    float bursting = step(since, 1.1);
+    float burst = fract(iTimeCursorChange * 7.31 + cursor.x * 0.0131 + cursor.y * 0.0071);
+    float count = 5.0 + floor(hash(burst * 91.0) * 6.0);
+    // Metal へ変換するとき、ループ内の break でシェーダー全体が落ちる。係数で無効化する。
+    for (int i = 0; i < 10; i++) {
+        float on = step(float(i) + 0.5, count);
+        float id = float(i) * 13.7 + burst * 1000.0;
+        float life = 0.6 + hash(id * 4.4) * 0.5;
+        float age = since / life;
+        float alive = step(age, 0.999);
+        float angle = hash(id * 1.3) * 6.2831853;
+        float speed = cell * (1.0 + hash(id * 2.9) * 3.5);
+        vec2 velocity = vec2(cos(angle), sin(angle) * 0.7 + 0.5) * speed;
+        vec2 position = velocity * since - vec2(0.0, cell * 3.0) * since * since;
+        float size = cell * (0.16 + hash(id * 5.7) * 0.26) * (1.0 - age * 0.4);
+        float spin = hash(id * 6.1) * 6.2831853 + since * (hash(id * 8.3) - 0.5) * 14.0;
+        float d = chubbyStar(rotate(spin) * (toCursor - position), size);
+        float fill = smoothstep(1.0, -1.0, d);
+        float halo = exp(-max(d, 0.0) / (size * 0.6)) * 0.35;
+        float fade = 1.0 - smoothstep(0.5, 1.0, age);
+        cursorLight += starColor(hash(id * 9.1)) * (fill * 0.85 + halo) * fade * BURST_STAR * on * alive * bursting;
+    }
+    float sparkAge = since / 0.8;
+    float sparking = step(sparkAge, 0.999) * bursting;
+    for (int i = 0; i < 8; i++) {
+        float id = float(i) * 5.3 + burst * 777.0;
+        float angle = hash(id * 1.9) * 6.2831853;
+        vec2 position = vec2(cos(angle), sin(angle)) * cell * (0.5 + hash(id * 3.1) * 2.5) * sqrt(max(sparkAge, 0.001));
+        float radius = 1.2 + hash(id * 2.3) * 1.5;
+        cursorLight += CREAM * exp(-dot2(toCursor - position) / (radius * radius)) * (1.0 - sparkAge) * 0.8 * sparking;
     }
 
     color.rgb += cursorLight * CURSOR_LIGHT;
