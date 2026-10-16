@@ -1,6 +1,13 @@
-# Mac の Ghostty。シェル（zsh）はまだ旧 dotfiles のまま。
+# Mac のパッケージ。シェル（zsh）はまだ旧 dotfiles のまま。
+# ウィンドウ管理もここへ足す。旧 ~/dotfiles の Brewfile には足さない。
 # Neovim は bottle があるときだけ Homebrew で入れる。無いときは install.sh が公式バイナリを使う。
 # chafa は起動画面の絵用。bottle が無い環境では依存ごとソースビルドになるので、自動では入れない。
+tap "nikitabobko/tap"
+tap "felixkratz/formulae"
 brew "ripgrep"
 brew "fd"
+brew "sketchybar"
+brew "borders"
+cask "font-jetbrains-mono-nerd-font"
 cask "ghostty"
+cask "aerospace"

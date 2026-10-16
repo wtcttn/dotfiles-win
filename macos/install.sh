@@ -1,5 +1,5 @@
 #!/bin/bash
-# Mac に Ghostty、Neovim、Powerlevel10k を入れ、このディレクトリへシンボリックリンクする。
+# Mac に Ghostty、Neovim、Powerlevel10k、AeroSpace、SketchyBar を入れ、このディレクトリへシンボリックリンクする。
 
 set -euo pipefail
 
@@ -106,8 +106,68 @@ fi
 link_dir "$DOTFILES_DIR/ghostty" "$HOME/.config/ghostty"
 link_dir "$DOTFILES_DIR/nvim" "$HOME/.config/nvim"
 link_dir "$DOTFILES_DIR/fastfetch" "$HOME/.config/fastfetch"
+link_dir "$DOTFILES_DIR/aerospace" "$HOME/.config/aerospace"
+link_dir "$DOTFILES_DIR/sketchybar" "$HOME/.config/sketchybar"
+link_dir "$DOTFILES_DIR/borders" "$HOME/.config/borders"
 link_file "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
 link_file "$DOTFILES_DIR/.p10k.zsh" "$HOME/.p10k.zsh"
+
+chmod +x \
+  "$DOTFILES_DIR/aerospace/start-status.sh" \
+  "$DOTFILES_DIR/borders/bordersrc" \
+  "$DOTFILES_DIR/sketchybar/sketchybarrc" \
+  "$DOTFILES_DIR/sketchybar/plugins/"*
+
+export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+
+# borders の brew service は色を渡さない。ログイン時に bordersrc を起動する。
+plist="$HOME/Library/LaunchAgents/com.kento.borders.plist"
+mkdir -p "$HOME/Library/LaunchAgents"
+cat > "$plist" <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.kento.borders</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>$HOME/.config/borders/bordersrc</string>
+  </array>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>ProcessType</key>
+  <string>Interactive</string>
+</dict>
+</plist>
+EOF
+launchctl bootout "gui/$(id -u)/com.kento.borders" 2>/dev/null || true
+launchctl bootstrap "gui/$(id -u)" "$plist"
+
+mkdir -p "$HOME/.cache/sketchybar/bin"
+swiftc -O -o "$HOME/.cache/sketchybar/bin/gradient" "$DOTFILES_DIR/sketchybar/gradient.swift" || true
+
+# Wi-Fi 名は位置情報の許可が要る。SketchyBar という名前の小さなアプリで読む。
+wifi_app="$HOME/Library/Application Support/SketchyBar/SketchyBar.app"
+if [[ ! -x "$wifi_app/Contents/MacOS/SketchyBar" ]]; then
+  mkdir -p "$wifi_app/Contents/MacOS"
+  cp "$DOTFILES_DIR/sketchybar/wifissid/Info.plist" "$wifi_app/Contents/Info.plist"
+  swiftc -O -framework AppKit -framework CoreLocation -framework CoreWLAN \
+    -o "$wifi_app/Contents/MacOS/SketchyBar" \
+    "$DOTFILES_DIR/sketchybar/wifissid/main.swift" || true
+  codesign --force --deep --sign - "$wifi_app" || true
+fi
+
+if pgrep -x sketchybar >/dev/null 2>&1; then
+  sketchybar --reload
+else
+  brew services start sketchybar
+fi
+
+# 標準メニューバーは常に隠す。ポインタを上端に寄せるとアプリメニューが出る。
+osascript -e 'tell application "System Events" to tell dock preferences to set autohide menu bar to true' >/dev/null 2>&1 || true
 
 export PATH="$HOME/.local/bin:$PATH"
 if command -v nvim >/dev/null 2>&1; then
@@ -115,4 +175,7 @@ if command -v nvim >/dev/null 2>&1; then
   nvim --headless "+Lazy! restore" +qa
 fi
 
+open -a AeroSpace
+
 echo "完了。Ghostty を開き直すと設定が反映されます。"
+echo "AeroSpace の初回は、システム設定のアクセシビリティで許可してください。許可するまでタイル配置は始まりません。"

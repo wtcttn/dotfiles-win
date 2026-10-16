@@ -1,0 +1,169 @@
+# GlazeWM（sugimoto-pc）のキーを AeroSpace に移したもの。
+# 非フォーカス窓の透過は macOS の公開 API ではできない。枠線は JankyBorders。
+# 設定を保存すると読み直す。初回だけ AeroSpace を一度起動する。
+
+config-version = 2
+
+start-at-login = true
+auto-reload-config = true
+
+enable-normalization-flatten-containers = true
+enable-normalization-opposite-orientation-for-nested-containers = true
+
+accordion-padding = 30
+default-root-container-layout = 'tiles'
+default-root-container-orientation = 'auto'
+
+after-startup-command = [
+  'exec-and-forget /bin/bash -c "$HOME/.config/aerospace/start-status.sh"',
+]
+
+# モニタを移したときだけカーソルを追従させる（GlazeWM の cursor_jump: monitor_focus）。
+on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
+
+on-focus-changed = [
+  'exec-and-forget sketchybar --trigger aerospace_focus_change',
+]
+
+on-mode-changed = [
+  'exec-and-forget sketchybar --trigger aerospace_mode_change',
+]
+
+exec-on-workspace-change = [
+  '/bin/bash', '-c',
+  'export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"; sketchybar --trigger aerospace_workspace_change',
+]
+
+focus-follows-mouse.enabled = false
+key-mapping.preset = 'qwerty'
+
+# メニューバーは隠す。左右と同じ 10px を、バーの上と下にも空ける。
+# 上 10 + バー 32 + 下 10。
+gaps.inner.horizontal = 10
+gaps.inner.vertical = 10
+gaps.outer.left = 10
+gaps.outer.bottom = 10
+gaps.outer.top = 52
+gaps.outer.right = 10
+
+# 名前はキーの数字。バーに出す表示名は SketchyBar 側（main1 など）。
+# 空でも残す。next / prev は名前の辞書順（1, 2, ... 9）。
+persistent-workspaces = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
+
+# ダイアログ以外で、GlazeWM が ignore していたものに近い窓だけ浮かせる。
+on-window-detected = [
+  {
+    if = 'test %{app-bundle-id} = com.apple.systempreferences',
+    run = 'layout floating',
+  },
+  {
+    if = 'test %{window-title} ~= picture.in.picture',
+    run = 'layout floating',
+  },
+  {
+    if = 'test %{window-title} ~= installer',
+    run = 'layout floating',
+  },
+  {
+    if = 'test %{window-title} ~= セットアップ',
+    run = 'layout floating',
+  },
+]
+
+# この Mac は左が DELL、右が内蔵（main）。GlazeWM の main1–5 を内蔵、right6–8 を DELL に置く。
+# DELL が無いときは 6–8 も main に戻る。固定したワークスペースは move-workspace-to-monitor が効かない。
+[workspace-to-monitor-force-assignment]
+1 = 'built-in'
+2 = 'built-in'
+3 = 'built-in'
+4 = 'built-in'
+5 = 'built-in'
+6 = ['DELL', 'secondary', 'built-in']
+7 = ['DELL', 'secondary', 'built-in']
+8 = ['DELL', 'secondary', 'built-in']
+9 = 'built-in'
+
+# GUI アプリの PATH には Homebrew が入らない。Intel は /usr/local、Apple Silicon は /opt/homebrew。
+[exec.env-vars]
+PATH = '/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/local/sbin:${PATH}'
+
+[mode.main.binding]
+alt-h = 'focus left'
+alt-j = 'focus down'
+alt-k = 'focus up'
+alt-l = 'focus right'
+alt-left = 'focus left'
+alt-down = 'focus down'
+alt-up = 'focus up'
+alt-right = 'focus right'
+
+alt-shift-h = 'move left'
+alt-shift-j = 'move down'
+alt-shift-k = 'move up'
+alt-shift-l = 'move right'
+alt-shift-left = 'move left'
+alt-shift-down = 'move down'
+alt-shift-up = 'move up'
+alt-shift-right = 'move right'
+
+# GlazeWM は 2%。AeroSpace はピクセル。
+alt-u = 'resize width -40'
+alt-p = 'resize width +40'
+alt-o = 'resize height +40'
+alt-i = 'resize height -40'
+
+alt-r = 'mode resize'
+
+alt-shift-p = 'exec-and-forget /bin/bash -c "$HOME/.config/sketchybar/plugins/toggle_pause.sh"'
+
+alt-v = 'layout tiles horizontal vertical'
+alt-shift-space = 'layout floating tiling'
+alt-t = 'layout floating tiling'
+alt-f = 'fullscreen'
+alt-m = 'macos-native-minimize'
+alt-shift-q = 'close'
+alt-shift-e = '''exec-and-forget osascript -e 'tell application "AeroSpace" to quit' '''
+alt-shift-r = 'reload-config'
+# GlazeWM の wm-redraw に当たる命令は無いので、比率を揃える。
+alt-shift-w = 'balance-sizes'
+
+alt-s = 'workspace --wrap-around next'
+alt-a = 'workspace --wrap-around prev'
+alt-d = 'workspace-back-and-forth'
+
+alt-1 = 'workspace 1'
+alt-2 = 'workspace 2'
+alt-3 = 'workspace 3'
+alt-4 = 'workspace 4'
+alt-5 = 'workspace 5'
+alt-6 = 'workspace 6'
+alt-7 = 'workspace 7'
+alt-8 = 'workspace 8'
+alt-9 = 'workspace 9'
+
+alt-shift-1 = 'move-node-to-workspace --focus-follows-window 1'
+alt-shift-2 = 'move-node-to-workspace --focus-follows-window 2'
+alt-shift-3 = 'move-node-to-workspace --focus-follows-window 3'
+alt-shift-4 = 'move-node-to-workspace --focus-follows-window 4'
+alt-shift-5 = 'move-node-to-workspace --focus-follows-window 5'
+alt-shift-6 = 'move-node-to-workspace --focus-follows-window 6'
+alt-shift-7 = 'move-node-to-workspace --focus-follows-window 7'
+alt-shift-8 = 'move-node-to-workspace --focus-follows-window 8'
+alt-shift-9 = 'move-node-to-workspace --focus-follows-window 9'
+
+alt-shift-a = 'move-workspace-to-monitor left'
+alt-shift-f = 'move-workspace-to-monitor right'
+alt-shift-d = 'move-workspace-to-monitor up'
+alt-shift-s = 'move-workspace-to-monitor down'
+
+[mode.resize.binding]
+h = 'resize width -40'
+l = 'resize width +40'
+k = 'resize height +40'
+j = 'resize height -40'
+left = 'resize width -40'
+right = 'resize width +40'
+up = 'resize height +40'
+down = 'resize height -40'
+esc = 'mode main'
+enter = 'mode main'

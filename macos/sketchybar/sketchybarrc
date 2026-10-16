@@ -1,0 +1,210 @@
+#!/bin/zsh
+# yume-bar に合わせたメニューバー。ワークスペース名は GlazeWM の display_name。
+export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+source "${0:A:h}/colors.zsh"
+PLUGIN_DIR="${0:A:h}/plugins"
+
+sketchybar --bar \
+  position=top \
+  height=32 \
+  color=0x00000000 \
+  blur_radius=30 \
+  margin=0 \
+  y_offset=10 \
+  padding_left=10 \
+  padding_right=10 \
+  corner_radius=0 \
+  shadow=off \
+  sticky=on \
+  topmost=off \
+  font_smoothing=on
+
+sketchybar --default \
+  icon.font="$ICON_FONT" \
+  label.font="$FONT" \
+  icon.color="$TEXT" \
+  label.color="$TEXT" \
+  icon.padding_left=6 \
+  icon.padding_right=4 \
+  label.padding_left=2 \
+  label.padding_right=6 \
+  background.drawing=off \
+  background.height=22 \
+  background.corner_radius=11
+
+sketchybar --add event aerospace_workspace_change \
+           --add event aerospace_focus_change \
+           --add event aerospace_mode_change \
+           --add event aerospace_pause
+
+sketchybar --add item sparkle left \
+  --set sparkle \
+    icon=✦ \
+    icon.font="$FONT" \
+    icon.color="$PINK" \
+    label.drawing=off \
+    icon.padding_left=10 \
+    icon.padding_right=2
+
+typeset -a space_items
+space_items=()
+for spec in \
+  "1:main1" "2:main2" "3:main3" "4:main4" "5:main5" \
+  "6:right6" "7:right7" "8:right8" "9:left9"
+do
+  sid="${spec%%:*}"
+  label="${spec#*:}"
+  space_items+=("space.$sid")
+  sketchybar --add item "space.$sid" left \
+    --set "space.$sid" \
+      label="$label" \
+      icon.drawing=off \
+      label.align=left \
+      padding_left=1 \
+      padding_right=1 \
+      label.padding_left=8 \
+      label.padding_right=8 \
+      click_script="export PATH=\"/opt/homebrew/bin:/usr/local/bin:\$PATH\"; aerospace workspace $sid"
+done
+
+sketchybar --add bracket spaces sparkle "${space_items[@]}" \
+  --set spaces \
+    background.color="$ISLAND" \
+    background.border_color="$ISLAND_BORDER" \
+    background.border_width=1 \
+    background.corner_radius=16 \
+    background.height=28
+
+sketchybar --add item mode left \
+  --set mode \
+    drawing=off \
+    script="$PLUGIN_DIR/mode.zsh" \
+    background.corner_radius=14 \
+    background.height=28 \
+    label.padding_left=10 \
+    label.padding_right=10 \
+  --subscribe mode aerospace_mode_change
+
+sketchybar --add item pause left \
+  --set pause \
+    drawing=off \
+    script="$PLUGIN_DIR/pause.zsh" \
+    background.corner_radius=14 \
+    background.height=28 \
+    label.padding_left=10 \
+    label.padding_right=10 \
+    click_script="\"$PLUGIN_DIR/toggle_pause.sh\"" \
+  --subscribe pause aerospace_pause
+
+sketchybar --add item title center \
+  --set title \
+    drawing=off \
+    icon=♡ \
+    icon.font="$FONT" \
+    icon.color="$ROSE" \
+    label.max_chars=40 \
+    background.drawing=on \
+    background.color="$ISLAND" \
+    background.border_color="$ISLAND_BORDER" \
+    background.border_width=1 \
+    background.corner_radius=16 \
+    background.height=28 \
+    icon.padding_left=12 \
+    label.padding_right=12
+
+# 右端から順に足す。
+sketchybar --add item clock right \
+  --set clock \
+    icon=$'\U0000f186' \
+    icon.color="$PLUM" \
+    label.color="$PLUM" \
+    label.font="$FONT_BOLD" \
+    background.drawing=on \
+    background.color="$CLOCK_BG" \
+    background.corner_radius=16 \
+    background.height=28 \
+    padding_left=18 \
+    padding_right=0 \
+    icon.padding_left=12 \
+    label.padding_right=12 \
+    script="$PLUGIN_DIR/clock.zsh" \
+    update_freq=10
+
+sketchybar --add item keyboard right \
+  --set keyboard \
+    icon=$'\U000f030c' \
+    icon.color="$LAVENDER" \
+    label.padding_right=6 \
+    background.padding_right=8 \
+    script="$PLUGIN_DIR/keyboard.zsh" \
+    update_freq=5
+
+sketchybar --add item volume right \
+  --set volume \
+    icon=$'\U000f057e' \
+    icon.color="$PINK" \
+    script="$PLUGIN_DIR/volume.zsh" \
+    click_script="\"$PLUGIN_DIR/volume.zsh\" toggle" \
+    update_freq=10 \
+  --subscribe volume volume_change
+
+sketchybar --add item battery right \
+  --set battery \
+    icon=$'\U000f0079' \
+    icon.color="$MINT" \
+    script="$PLUGIN_DIR/battery.zsh" \
+    update_freq=30 \
+  --subscribe battery power_source_change
+
+sketchybar --add item wifi right \
+  --set wifi \
+    icon=$'\U000f05a9' \
+    icon.color="$SKY" \
+    label.max_chars=10 \
+    script="$PLUGIN_DIR/wifi.zsh" \
+    update_freq=10 \
+  --subscribe wifi wifi_change
+
+sketchybar --add item weather right \
+  --set weather \
+    icon.drawing=off \
+    label.color="$CREAM" \
+    script="$PLUGIN_DIR/weather.zsh" \
+    update_freq=1800
+
+sketchybar --add item memory right \
+  --set memory \
+    icon=$'\U000f035b' \
+    icon.color="$MINT" \
+    script="$PLUGIN_DIR/memory.zsh" \
+    update_freq=10
+
+sketchybar --add item cpu right \
+  --set cpu \
+    icon=$'\uf4bc' \
+    icon.color="$PEACH" \
+    script="$PLUGIN_DIR/cpu.zsh" \
+    update_freq=10
+
+sketchybar --add item layout right \
+  --set layout \
+    icon=$'\U000f04e1' \
+    icon.color="$FRAME" \
+    icon.padding_left=6 \
+    label.drawing=off \
+    background.padding_left=8 \
+    click_script="export PATH=\"/opt/homebrew/bin:/usr/local/bin:\$PATH\"; aerospace layout tiles horizontal vertical; sketchybar --trigger aerospace_focus_change"
+
+sketchybar --add bracket stats layout cpu memory weather wifi battery volume keyboard \
+  --set stats \
+    background.color="$ISLAND" \
+    background.border_color="$ISLAND_BORDER" \
+    background.border_width=1 \
+    background.corner_radius=16 \
+    background.height=28
+
+sketchybar --add item aerospace.listener left \
+  --set aerospace.listener \
+    drawing=off \
+    script="$PLUGIN_DIR/aerospace.zsh" \
+  --subscribe aerospace.listener aerospace_workspace_change aerospace_focus_change

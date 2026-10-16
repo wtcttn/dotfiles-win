@@ -1,0 +1,14 @@
+#!/bin/bash
+# GlazeWM の枠色。フォーカス #8dbcff、それ以外は薄い #a1a1a1。
+# 非表示ワークスペースの窓は画面端に 1px 残る。枠を付けるとその角が見えるので、非フォーカスは薄くする。
+export PATH="/opt/homebrew/bin:/usr/local/bin:${PATH:-/usr/bin:/bin}"
+
+options=(
+  style=round
+  width=3.0
+  hidpi=on
+  active_color=0xff8dbcff
+  inactive_color=0x66a1a1a1
+)
+
+exec borders "${options[@]}"

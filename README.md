@@ -8,7 +8,7 @@ WSL/Windows統合dotfiles管理。
 ├── archlinux/          # Arch Linux の dotfiles と install.sh
 ├── windows/            # WezTerm、PowerShell、GlazeWM、Windows Neovim
 ├── wslc-dev/           # WSLc 共有開発コンテナ
-└── macos/              # Mac の Ghostty と Neovim
+└── macos/              # Mac の Ghostty、Neovim、AeroSpace、SketchyBar
 ```
 
 ## 依存パッケージ
@@ -59,15 +59,15 @@ winget install JanDeDobbeleer.OhMyPosh
 **推奨:** WezTerm (半透過背景、Catppuccin Mocha、WSL Arch Linuxデフォルト)  
 **Font:** Windows Terminal → `Moralerspace Neon HWJPDOC`
 
-### macOS (Ghostty + Neovim)
+### macOS (Ghostty + Neovim + AeroSpace)
 
-シェルは Powerlevel10k。Ghostty の見た目は、wslc-dev を開く Noctty に合わせる。
+シェルは Powerlevel10k。Ghostty の見た目は、wslc-dev を開く Noctty に合わせる。ウィンドウは AeroSpace（GlazeWM のキー）、バーは SketchyBar（yume-bar）、枠は JankyBorders。パッケージは `macos/Brewfile`。
 
 ```bash
 ./macos/install.sh
 ```
 
-Neovim は `wslc-dev/home/.config/nvim` のコピー。Obsidian のボルトは `~/notes`。プロンプトは `wslc-dev/home/.p10k.zsh` のコピー。Ghostty は Noctty の色と背景を使い、キー割り当ては macOS の既定にペイン移動を足したもの。
+Neovim は `wslc-dev/home/.config/nvim` のコピー。Obsidian のボルトは `~/notes`。プロンプトは `wslc-dev/home/.p10k.zsh` のコピー。Ghostty は Noctty の色と背景を使い、キー割り当ては macOS の既定にペイン移動を足したもの。初回は AeroSpace にアクセシビリティ権限を許可する。
 
 ## 管理
 
