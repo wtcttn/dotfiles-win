@@ -148,7 +148,7 @@ entrypoint が `/mnt/win-ssh` の通常ファイルを、ドットファイル�
 
 転記と島づくりは、ボルト直下の `AGENTS.md` が正である。ノートを書く前にそれを読む。Windows は `C:\Users\kento\notes\AGENTS.md`、コンテナは `/mnt/notes/AGENTS.md`、Mac は `~/notes/AGENTS.md`。
 
-Cursor の個人スキル `obsidian-capture` の正本は `cursor/skills/obsidian-capture` である。Windows は `windows/install-powershell.ps1 cursor-skill` が `%USERPROFILE%\.cursor\skills\obsidian-capture` へリンクする。Mac は `macos/install.sh` が `~/.cursor/skills/obsidian-capture` へリンクする。
+Cursor の個人スキル `obsidian-capture` と `vst-study` の正本は `cursor/skills/` である。Windows は `windows/install-powershell.ps1 cursor-skill` が `%USERPROFILE%\.cursor\skills\` へリンクする。Mac は `macos/install.sh` が `~/.cursor/skills/` へリンクする。
 
 ## Mac
 
@@ -158,7 +158,7 @@ Cursor の個人スキル `obsidian-capture` の正本は `cursor/skills/obsidia
 - シェルは `macos/.zshrc`。Oh My Zsh と Powerlevel10k は `~/.local/share/oh-my-zsh` に置く。プロンプトは `wslc-dev/home/.p10k.zsh` のコピー。個人差分は `~/.zshrc.local`。Git の名前とメールは `macos/.gitconfig`。
 - Neovim は `wslc-dev/home/.config/nvim` のコピー。LazyVim。クリップボードは macOS のシステムクリップボード。
 - Obsidian のボルトは `~/notes`。Windows の `C:\Users\kento\notes` と同じ並びで、Syncthing で揃える。ボルト本体はこのリポジトリに置かない。
-- ホームの設定リンクは `macos/install.sh` が `macos/` へ張る。旧 `~/dotfiles` は使わない。Cursor の個人スキル `obsidian-capture` もこのスクリプトが、リポジトリの `cursor/skills/obsidian-capture` へ張る。
+- ホームの設定リンクは `macos/install.sh` が `macos/` へ張る。旧 `~/dotfiles` は使わない。Cursor の個人スキル `obsidian-capture` と `vst-study` もこのスクリプトが、リポジトリの `cursor/skills/` へ張る。
 
 入れるものは `macos/Brewfile`（Ghostty、ripgrep、fd、git、rbenv、ruby-build、OrbStack）と、フォント Moralerspace Neon HWJPDOC。Neovim は bottle があるとき Homebrew、無いときは公式の macOS バイナリを `~/.local` に置く。chafa は起動画面の絵用で、bottle があるときだけ入れる。コンテナは OrbStack で、Docker Desktop は入れない。
 

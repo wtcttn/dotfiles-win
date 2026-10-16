@@ -607,31 +607,35 @@ function Install-PowerShellModules {
 }
 
 function Install-CursorSkill {
-    Write-ColorOutput "Linking Cursor skill obsidian-capture..." "Green"
-
-    $sourcePath = Join-Path $DotfilesPath "cursor\skills\obsidian-capture"
+    $skills = @("obsidian-capture", "vst-study")
     $destDir = Join-Path $UserProfile ".cursor\skills"
-    $destPath = Join-Path $destDir "obsidian-capture"
-
-    if (!(Test-Path $sourcePath)) {
-        Write-ColorOutput "Cursor skill not found: $sourcePath" "Red"
-        return $false
-    }
 
     if (!(Test-Path $destDir)) {
         New-Item -ItemType Directory -Path $destDir -Force | Out-Null
     }
 
-    try {
-        Backup-AndRemoveItem -Path $destPath -Description "Cursor skill obsidian-capture"
-        if (Set-SymbolicLinkOrCopy -SourcePath $sourcePath -DestinationPath $destPath -Description "Cursor skill obsidian-capture") {
-            return $true
+    foreach ($skill in $skills) {
+        Write-ColorOutput "Linking Cursor skill $skill..." "Green"
+        $sourcePath = Join-Path $DotfilesPath "cursor\skills\$skill"
+        $destPath = Join-Path $destDir $skill
+
+        if (!(Test-Path $sourcePath)) {
+            Write-ColorOutput "Cursor skill not found: $sourcePath" "Red"
+            return $false
         }
-        return $false
-    } catch {
-        Write-ColorOutput "Failed to link Cursor skill: $($_.Exception.Message)" "Red"
-        return $false
+
+        try {
+            Backup-AndRemoveItem -Path $destPath -Description "Cursor skill $skill"
+            if (!(Set-SymbolicLinkOrCopy -SourcePath $sourcePath -DestinationPath $destPath -Description "Cursor skill $skill")) {
+                return $false
+            }
+        } catch {
+            Write-ColorOutput "Failed to link Cursor skill ${skill}: $($_.Exception.Message)" "Red"
+            return $false
+        }
     }
+
+    return $true
 }
 
 function Install-PowerShellProfile {
@@ -806,7 +810,7 @@ function Show-Help {
     Write-ColorOutput "  chafa     - Install chafa (winget) for the Neovim startup image" "White"
     Write-ColorOutput "  wsl       - Install WSL config only" "White"
     Write-ColorOutput "  nvim      - Install Neovim and link windows/nvim only" "White"
-    Write-ColorOutput "  cursor-skill - Link cursor/skills/obsidian-capture into the user Cursor skills directory" "White"
+    Write-ColorOutput "  cursor-skill - Link cursor/skills/obsidian-capture and vst-study into the user Cursor skills directory" "White"
     Write-ColorOutput "  mutagen   - Install Mutagen (scoop), pin MUTAGEN_SSH_PATH, register the daemon only" "White"
     Write-ColorOutput "  help      - Show this help message" "White"
     Write-ColorOutput "" "White"

@@ -122,6 +122,7 @@ link_file "$DOTFILES_DIR/.p10k.zsh" "$HOME/.p10k.zsh"
 link_file "$DOTFILES_DIR/.gitconfig" "$HOME/.gitconfig"
 # Win と Mac で同じ Cursor スキル。正本はリポジトリ直下の cursor/skills。
 link_dir "$DOTFILES_DIR/../cursor/skills/obsidian-capture" "$HOME/.cursor/skills/obsidian-capture"
+link_dir "$DOTFILES_DIR/../cursor/skills/vst-study" "$HOME/.cursor/skills/vst-study"
 
 chmod +x \
   "$DOTFILES_DIR/aerospace/start-status.sh" \
