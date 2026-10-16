@@ -8,7 +8,8 @@ WSL/Windows統合dotfiles管理。
 ├── archlinux/          # Arch Linux の dotfiles と install.sh
 ├── windows/            # WezTerm、PowerShell、GlazeWM、Windows Neovim
 ├── wslc-dev/           # WSLc 共有開発コンテナ
-└── macos/              # Mac の Ghostty、Neovim、AeroSpace、SketchyBar
+├── macos/              # Mac の Ghostty、Neovim、AeroSpace、SketchyBar
+└── grokbot/            # Grok Bot のボックスのスキルと install.sh
 ```
 
 ## 依存パッケージ
@@ -68,6 +69,18 @@ winget install JanDeDobbeleer.OhMyPosh
 ```
 
 Neovim は `wslc-dev/home/.config/nvim` のコピー。Obsidian のボルトは `~/notes`。プロンプトは `wslc-dev/home/.p10k.zsh` のコピー。Ghostty は Noctty の色と背景を使い、キー割り当ては macOS の既定にペイン移動を足したもの。初回は AeroSpace にアクセシビリティ権限を許可する。
+
+### Grok Bot
+
+Grok Bot のボックス（Linux）で使う。`cursor/skills/` を写したスキルを `grokbot/skills/` に置き、`/home/box/agent-data/workflows/<slug>/SKILL.md` へコピーする。ボルトは Syncthing で `/home/box/sync/obsidian-vault` に同期し、`~/notes` をそこへリンクする。Grok Bot が書くノートの `source` は `grok-bot`。
+
+```bash
+./grokbot/install.sh install   # ~/notes、スキル、Syncthing
+./grokbot/install.sh convert   # cursor/skills のうち未変換のものだけ grokbot/skills へ写す
+./grokbot/install.sh skills    # スキルだけ入れ直す
+```
+
+`cursor/skills/` を直したら、`grokbot/skills/<slug>` を消して `convert` し直す。
 
 ## 管理
 

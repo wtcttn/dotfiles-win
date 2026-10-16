@@ -148,7 +148,7 @@ entrypoint が `/mnt/win-ssh` の通常ファイルを、ドットファイル�
 
 転記と島づくりは、ボルト直下の `AGENTS.md` が正である。ノートを書く前にそれを読む。Windows は `C:\Users\kento\notes\AGENTS.md`、コンテナは `/mnt/notes/AGENTS.md`、Mac は `~/notes/AGENTS.md`。
 
-Cursor の個人スキル `obsidian-capture` と `vst-study` の正本は `cursor/skills/` である。Windows は `windows/install-powershell.ps1 cursor-skill` が `%USERPROFILE%\.cursor\skills\` へリンクする。Mac は `macos/install.sh` が `~/.cursor/skills/` へリンクする。
+Cursor の個人スキル `obsidian-capture` と `vst-study` の正本は `cursor/skills/` である。Windows は `windows/install-powershell.ps1 cursor-skill` が `%USERPROFILE%\.cursor\skills\` へリンクする。Mac は `macos/install.sh` が `~/.cursor/skills/` へリンクする。Grok Bot は `grokbot/install.sh` が `cursor/skills/` を `grokbot/skills/` へ写し（ボックスのボルト `/home/box/sync/obsidian-vault` と `source: grok-bot` を足す）、`/home/box/agent-data/workflows/` へコピーする。
 
 ## Mac
 
