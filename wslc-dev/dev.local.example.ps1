@@ -4,3 +4,7 @@
 # 追加のボリューム（ボリューム名 => コンテナ内のパス）。無ければ作成する（動的 VHD、10GiB、uid/gid 1000）。
 # 例: リポジトリの node_modules を VirtioFS ではなくボリュームに置く。
 # $ExtraVolumes["wslc-dev-<org>-<repo>-node-modules"] = "/workspace/<org>/<repo>/node_modules"
+
+# ホストのフォルダをコンテナへそのまま渡す。VHD は作らない。
+# ノートのボルト。Windows の Syncthing が同期するフォルダを、コンテナから /mnt/notes で開く。
+# $ExtraBinds["C:\Users\kento\notes"] = "/mnt/notes"

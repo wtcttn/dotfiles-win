@@ -37,6 +37,9 @@ $HomeConfig = Join-Path $Root "home"
 # git で管理しない dev.local.ps1 に書く（書式は dev.local.example.ps1）。
 # 追加・変更したら recreate する（マウントはコンテナ作成時に固定される）。
 $ExtraVolumes = [ordered]@{}
+# ホストのフォルダ => コンテナ内のパス。VHD は作らず、Windows 上のディレクトリをそのまま見せる。
+# ノートのように、Windows の Syncthing から見える必要があるものを置く。パスは dev.local.ps1。
+$ExtraBinds = [ordered]@{}
 $LocalConfig = Join-Path $Root "dev.local.ps1"
 if (Test-Path -LiteralPath $LocalConfig) {
     . $LocalConfig
@@ -160,6 +163,13 @@ function Start-DevContainer {
     foreach ($name in $ExtraVolumes.Keys) {
         $runArgs += @("-v", "${name}:$($ExtraVolumes[$name])")
     }
+    foreach ($hostPath in @($ExtraBinds.Keys)) {
+        if (-not (Test-Path -LiteralPath $hostPath)) {
+            New-Item -ItemType Directory -Path $hostPath | Out-Null
+            Write-Host "作成しました: $hostPath"
+        }
+        $runArgs += @("-v", "$(ConvertTo-WslcPath $hostPath):$($ExtraBinds[$hostPath])")
+    }
     $runArgs += @("-w", "/workspace", $Image)
     Invoke-Wslc $runArgs
 }
@@ -245,6 +255,9 @@ fi
         Write-Host "container: $Container"
         Write-Host "volume:    $Volume"
         Write-Host "workspace: $Workspace"
+        foreach ($hostPath in @($ExtraBinds.Keys)) {
+            Write-Host "bind:      $hostPath -> $($ExtraBinds[$hostPath])"
+        }
         $status = Get-WslcContainerStatus
         if ($status) {
             Write-Host "state:     $status"

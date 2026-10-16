@@ -32,10 +32,11 @@
 | 設定 | `wslc-dev/home` | `/opt/wslc-dev/home` |
 | Windows SSH | `C:\Users\kento\.ssh`（読み取り専用） | `/mnt/win-ssh` |
 | 追加のボリューム | `dev.local.ps1` の `$ExtraVolumes`。動的 VHD、10GiB、uid/gid 1000 | `dev.local.ps1` で指定（例: リポジトリの `node_modules`） |
+| ノート | `C:\Users\kento\notes`（`dev.local.ps1` の `$ExtraBinds`） | `/mnt/notes` |
 
 リポジトリの `node_modules` は Windows 側（VirtioFS）に置くと `pnpm install` や `tsc` が極端に遅いので、コンテナ専用のボリュームを重ねる。プロジェクトのアプリ用コンテナの node_modules とは別のボリュームにする。
 
-マシンやプロジェクトに固有の設定（追加のボリュームなど）は `wslc-dev/dev.local.ps1` に書く。このファイルは `.gitignore` で除外していて、`dev.ps1` が読み込む。書式は `wslc-dev/dev.local.example.ps1`。プロジェクトの名前やパスは、`dev.ps1` を含め git で管理するファイルに書かない。変更したら `recreate` する。
+マシンやプロジェクトに固有の設定（追加のボリューム、ホストフォルダの割り当て）は `wslc-dev/dev.local.ps1` に書く。このファイルは `.gitignore` で除外していて、`dev.ps1` が読み込む。書式は `wslc-dev/dev.local.example.ps1`。`$ExtraVolumes` は VHD を作る。`$ExtraBinds` は Windows 上のフォルダをそのままコンテナへ渡す。プロジェクトの名前やパスは、`dev.ps1` を含め git で管理するファイルに書かない。変更したら `recreate` する。
 
 ユーザーは `wtcttn`、uid/gid 1000。sudo は NOPASSWD。ホスト名は `wslc-dev`（`dev.ps1` が `--hostname` を付ける）。ホームボリュームは以前 `/home/kento` にマウントしていて、proto の ruby や gem がその絶対パスを持っているので、entrypoint が `/home/kento` を `/home/wtcttn` へのシンボリックリンクにする。
 
@@ -137,9 +138,13 @@ entrypoint が `/mnt/win-ssh` の通常ファイルを、ドットファイル�
 
 設定は3つに分ける。
 
-- 開発リポジトリはコンテナの `wslc-dev/home/.config/nvim`。LazyVim。エクスプローラーは Snacks（`<leader>e`）。Git の差分は gitsigns、Snacks の `<leader>gd`、Diffview の `<leader>gv`。クリップボードは `vim.ui.clipboard.osc52` があるときだけ OSC 52 を使う。プラグインデータはホームボリュームに置く。
+- 開発リポジトリはコンテナの `wslc-dev/home/.config/nvim`。LazyVim。エクスプローラーは Snacks（`<leader>e`）。Git の差分は gitsigns、Snacks の `<leader>gd`、Diffview の `<leader>gv`。クリップボードは `vim.ui.clipboard.osc52` があるときだけ OSC 52 を使う。プラグインデータはホームボリュームに置く。ノートは `/mnt/notes` を `obsidian.nvim` で開く。表示は render-markdown のまま。
 - Windows のファイルは `windows/`。Neovim は `windows/nvim`。`windows/install-powershell.ps1` が winget の `Neovim.Neovim` を入れ、`%LOCALAPPDATA%\nvim` へリンクする。LazyVim の構成はコンテナと同じだが、設定ファイルは共有しない。クリップボードは `unnamedplus` で、yank を Windows のクリップボードに繋ぐ。プラグインデータは `%LOCALAPPDATA%\nvim-data` に置く。
 - Arch 用の `archlinux/.config/nvim` は消さない。Windows やコンテナの設定へ流用しない。
+
+## ノート
+
+ボルトは `C:\Users\kento\notes`。コンテナ内は `/mnt/notes`。同期は Syncthing で、Windows、Mac、Android は vps-wtcttn とだけペアにする。ボルト本体はこのリポジトリに置かない。無視リストのテンプレートは `wslc-dev/notes/stignore.txt` で、各端末の `.stignore` は `#include stignore.txt`。VPS 側の手順は vps-wtcttn の `~/ops/README.md` が正である。
 
 ## 保留
 
