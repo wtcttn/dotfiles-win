@@ -35,21 +35,23 @@ apply_gradient() {
     background.color=0x00000000
 }
 
-# ワークスペース島。文字幅は固定なので、バー読み込み時に一度敷く。
+# 見えているワークスペース分だけ島の幅を取る。引数は表示名。
 paint_spaces_bracket() {
   ensure_gradient || return 1
   local font="Moralerspace Neon HWJPDOC"
   local sparkle
   sparkle="$(text_width "$font" 12 regular "✦")"
-  local width=$((10 + sparkle + 2 + 1))
-  local labels=(main1 main2 main3 main4 main5 right6 right7 right8 left9)
+  local -a labels=("$@")
+  local width=$((10 + sparkle + 2))
+  local n=${#labels}
+  (( n > 0 )) && width=$((width + 1))
   local i=0
   local label text
-  for label in $labels; do
+  for label in "${labels[@]}"; do
     text="$(text_width "$font" 12 regular "$label")"
     width=$((width + 8 + text + 8))
     i=$((i + 1))
-    (( i < ${#labels} )) && width=$((width + 2))
+    (( i < n )) && width=$((width + 2))
   done
   apply_gradient spaces "$width" 28 14 e030223c e0221a28 island
 }

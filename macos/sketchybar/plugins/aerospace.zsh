@@ -24,14 +24,24 @@ fi
 can_gradient=0
 if ensure_gradient; then
   can_gradient=1
-  paint_spaces_bracket || true
 fi
 
 focused="$(aerospace list-workspaces --focused --format '%{workspace}' 2>/dev/null | head -1)"
 focused="${focused%% *}"
 visible="$(aerospace list-workspaces --monitor all --visible --format '%{workspace}' 2>/dev/null)"
+occupied="$(aerospace list-windows --all --format '%{workspace}' 2>/dev/null)"
 
-for sid label in ${(kv)LABELS}; do
+typeset -a shown_labels
+shown_labels=()
+for sid in 1 2 3 4 5 6 7 8 9; do
+  label="${LABELS[$sid]}"
+  # 窓の無いタブは隠す。今いる場所だけは空でも残す。
+  if ! print -r -- "$occupied" | grep -qx "$sid" && [[ "$sid" != "$focused" ]]; then
+    sketchybar --set "space.$sid" drawing=off
+    continue
+  fi
+  shown_labels+=("$label")
+  sketchybar --set "space.$sid" drawing=on
   if [[ "$sid" == "$focused" ]]; then
     sketchybar --set "space.$sid" \
       label.color="$PLUM" \
@@ -63,6 +73,10 @@ for sid label in ${(kv)LABELS}; do
       background.image.drawing=off
   fi
 done
+
+if (( can_gradient )); then
+  paint_spaces_bracket "${shown_labels[@]}" || true
+fi
 
 title="$(aerospace list-windows --focused --format '%{window-title}' 2>/dev/null | head -1)"
 if [[ -n "$title" ]]; then
