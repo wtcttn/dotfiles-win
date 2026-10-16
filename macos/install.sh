@@ -63,6 +63,14 @@ else
   echo "フォントは入っています"
 fi
 
+if [[ ! -x "$HOME/.proto/bin/proto" ]]; then
+  echo "proto を入れます"
+  proto_tmp="$(mktemp)"
+  curl -fsSL -o "$proto_tmp" https://moonrepo.dev/install/proto.sh
+  PROTO_HOME="$HOME/.proto" bash "$proto_tmp" --yes --no-profile
+  rm -f "$proto_tmp"
+fi
+
 link_path() {
   local source="$1"
   local target="$2"
@@ -111,6 +119,7 @@ link_dir "$DOTFILES_DIR/sketchybar" "$HOME/.config/sketchybar"
 link_dir "$DOTFILES_DIR/borders" "$HOME/.config/borders"
 link_file "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
 link_file "$DOTFILES_DIR/.p10k.zsh" "$HOME/.p10k.zsh"
+link_file "$DOTFILES_DIR/.gitconfig" "$HOME/.gitconfig"
 
 chmod +x \
   "$DOTFILES_DIR/aerospace/start-status.sh" \

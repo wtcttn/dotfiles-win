@@ -1,13 +1,18 @@
-# Mac のパッケージ。シェル（zsh）はまだ旧 dotfiles のまま。
-# ウィンドウ管理もここへ足す。旧 ~/dotfiles の Brewfile には足さない。
+# Mac のパッケージ。シェルは macos/.zshrc。
+# Google Chrome と Slack はアプリのまま残し、cask では管理しない。
+# コンテナは OrbStack。Docker Desktop は入れない。
 # Neovim は bottle があるときだけ Homebrew で入れる。無いときは install.sh が公式バイナリを使う。
 # chafa は起動画面の絵用。bottle が無い環境では依存ごとソースビルドになるので、自動では入れない。
 tap "nikitabobko/tap"
 tap "felixkratz/formulae"
+brew "git"
 brew "ripgrep"
 brew "fd"
+brew "rbenv"
+brew "ruby-build"
 brew "sketchybar"
 brew "borders"
 cask "font-jetbrains-mono-nerd-font"
 cask "ghostty"
 cask "aerospace"
+cask "orbstack"

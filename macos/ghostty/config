@@ -19,7 +19,7 @@ background-blur = 20
 background-image = background.png
 background-image-fit = none
 background-image-position = bottom-right
-background-image-opacity = 0.4
+background-image-opacity = 0.6
 background-image-repeat = false
 
 custom-shader = cute.glsl

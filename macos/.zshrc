@@ -51,25 +51,15 @@ if command -v yazi >/dev/null 2>&1; then
   }
 fi
 
+# node と pnpm は proto。グローバルの node は 22.18.0。
+# リポジトリの .node-version と packageManager で切り替わる。
+# Ruby は rbenv。proto の Ruby は Intel Mac 向けのビルド済みが無い。
 if [[ -d "$HOME/.proto" ]]; then
   export PROTO_HOME="$HOME/.proto"
   export PATH="$PROTO_HOME/shims:$PROTO_HOME/bin:$PATH"
 fi
-
-# 旧 dotfiles の .zshrc にあった Mac のランタイム。
-export PATH="$HOME/.nodebrew/current/bin:$PATH"
 if command -v rbenv >/dev/null 2>&1; then
-  eval "$(rbenv init -)"
-fi
-if command -v pyenv >/dev/null 2>&1; then
-  export PYENV_ROOT="$HOME/.pyenv"
-  export PATH="$PYENV_ROOT/bin:$PATH"
-  eval "$(pyenv init -)"
-fi
-if [[ -d /usr/local/opt/libpq ]]; then
-  export LDFLAGS="-L/usr/local/opt/libpq/lib"
-  export CPPFLAGS="-I/usr/local/opt/libpq/include"
-  export PATH="/usr/local/opt/libpq/bin:$PATH"
+  eval "$(rbenv init - zsh)"
 fi
 
 if [[ -f ~/.zshrc.local ]]; then
