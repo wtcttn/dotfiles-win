@@ -607,8 +607,16 @@ function Install-PowerShellModules {
 }
 
 function Install-CursorSkill {
-    $skills = @("obsidian-capture", "vst-study")
+    $skillsRoot = Join-Path $DotfilesPath "cursor\skills"
+    $skills = @(Get-ChildItem -Path $skillsRoot -Directory -ErrorAction SilentlyContinue |
+        Where-Object { Test-Path (Join-Path $_.FullName "SKILL.md") } |
+        ForEach-Object { $_.Name })
     $destDir = Join-Path $UserProfile ".cursor\skills"
+
+    if ($skills.Count -eq 0) {
+        Write-ColorOutput "No Cursor skills found in $skillsRoot" "Red"
+        return $false
+    }
 
     if (!(Test-Path $destDir)) {
         New-Item -ItemType Directory -Path $destDir -Force | Out-Null
@@ -810,7 +818,7 @@ function Show-Help {
     Write-ColorOutput "  chafa     - Install chafa (winget) for the Neovim startup image" "White"
     Write-ColorOutput "  wsl       - Install WSL config only" "White"
     Write-ColorOutput "  nvim      - Install Neovim and link windows/nvim only" "White"
-    Write-ColorOutput "  cursor-skill - Link cursor/skills/obsidian-capture and vst-study into the user Cursor skills directory" "White"
+    Write-ColorOutput "  cursor-skill - Link every cursor/skills/<slug> (with SKILL.md) into the user Cursor skills directory" "White"
     Write-ColorOutput "  mutagen   - Install Mutagen (scoop), pin MUTAGEN_SSH_PATH, register the daemon only" "White"
     Write-ColorOutput "  help      - Show this help message" "White"
     Write-ColorOutput "" "White"

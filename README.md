@@ -80,6 +80,16 @@ Grok Bot のボックス（Linux）で使う。`cursor/skills/` を写したス�
 ./grokbot/install.sh skills    # スキルだけ入れ直す
 ```
 
+### スキルの追加
+
+`cursor/skills/<slug>/SKILL.md` を置くだけでよい。各インストールが `SKILL.md` のあるフォルダをすべて拾う。
+
+```
+.\windows\install-powershell.ps1 cursor-skill   # Windows
+./macos/install.sh                               # Mac
+./grokbot/install.sh convert && ./grokbot/install.sh install   # Grok Bot
+```
+
 `cursor/skills/` を直したら、`grokbot/skills/<slug>` を消して `convert` し直す。
 
 ## 管理
