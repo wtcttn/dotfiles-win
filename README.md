@@ -7,7 +7,8 @@ WSL/Windows統合dotfiles管理。
 ```
 ├── archlinux/          # Arch Linux の dotfiles と install.sh
 ├── windows/            # WezTerm、PowerShell、GlazeWM、Windows Neovim
-└── wslc-dev/           # WSLc 共有開発コンテナ
+├── wslc-dev/           # WSLc 共有開発コンテナ
+└── macos/              # Mac の Ghostty と Neovim
 ```
 
 ## 依存パッケージ
@@ -57,6 +58,16 @@ winget install JanDeDobbeleer.OhMyPosh
 
 **推奨:** WezTerm (半透過背景、Catppuccin Mocha、WSL Arch Linuxデフォルト)  
 **Font:** Windows Terminal → `Moralerspace Neon HWJPDOC`
+
+### macOS (Ghostty + Neovim)
+
+シェル（`~/.zshrc`）は旧 dotfiles のまま残す。Ghostty と Neovim だけこちらで管理する。
+
+```bash
+./macos/install.sh
+```
+
+Neovim は `wslc-dev/home/.config/nvim` のコピー。Obsidian のボルトは `~/notes`。Ghostty の色とフォントは `archlinux/.config/ghostty/config` に合わせ、キー割り当ては macOS の既定を使う。
 
 ## 管理
 

@@ -146,6 +146,17 @@ entrypoint が `/mnt/win-ssh` の通常ファイルを、ドットファイル�
 
 ボルトは `C:\Users\kento\notes`。コンテナ内は `/mnt/notes`。同期は Syncthing で、Windows、Mac、Android は vps-wtcttn とだけペアにする。ボルト本体はこのリポジトリに置かない。無視リストのテンプレートは `wslc-dev/notes/stignore.txt` で、各端末の `.stignore` は `#include stignore.txt`。VPS 側の手順は vps-wtcttn の `~/ops/README.md` が正である。
 
+## Mac
+
+この Mac の Ghostty と Neovim は `macos/` で管理する。`archlinux/` と `wslc-dev/` は、Mac の作業では変更しない。設定ファイルは共有せず、コピーする。
+
+- Ghostty の色、フォント、透過は `archlinux/.config/ghostty/config` に合わせる。GTK の項目と Linux のキー割り当ては入れない。
+- Neovim は `wslc-dev/home/.config/nvim` のコピー。LazyVim。クリップボードは macOS のシステムクリップボード。
+- Obsidian のボルトは `~/notes`。Windows の `C:\Users\kento\notes` と同じ並びで、Syncthing で揃える。ボルト本体はこのリポジトリに置かない。
+- シェル（`~/.zshrc`）は旧 dotfiles のまま残す。`macos/install.sh` はそこを書き換えない。
+
+入れるものは `macos/Brewfile`（Ghostty、ripgrep、fd）と、フォント Moralerspace Neon HWJPDOC。Neovim は bottle があるとき Homebrew、無いときは公式の macOS バイナリを `~/.local` に置く。chafa は起動画面の絵用で、bottle があるときだけ入れる。
+
 ## 保留
 
 次は、明示されるまで着手しない。
