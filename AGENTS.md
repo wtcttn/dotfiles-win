@@ -150,7 +150,8 @@ entrypoint が `/mnt/win-ssh` の通常ファイルを、ドットファイル�
 
 この Mac の Ghostty と Neovim は `macos/` で管理する。`archlinux/` と `wslc-dev/` は、Mac の作業では変更しない。設定ファイルは共有せず、コピーする。
 
-- Ghostty の色、フォント、透過は `archlinux/.config/ghostty/config` に合わせる。GTK の項目と Linux のキー割り当ては入れない。
+- Ghostty の色、背景画像、シェーダーは `windows/noctty`（wslc-dev を開く端末）に合わせる。起動コマンドは Mac のログインシェル。GTK の項目と GlazeWM 用のキー割り当ては入れない。
+- シェルは `macos/.zshrc`。Oh My Zsh と Powerlevel10k は `~/.local/share/oh-my-zsh` に置く。プロンプトは `wslc-dev/home/.p10k.zsh` のコピー。旧 dotfiles の `~/.zshrc` は使わない。個人差分は `~/.zshrc.local`。
 - Neovim は `wslc-dev/home/.config/nvim` のコピー。LazyVim。クリップボードは macOS のシステムクリップボード。
 - Obsidian のボルトは `~/notes`。Windows の `C:\Users\kento\notes` と同じ並びで、Syncthing で揃える。ボルト本体はこのリポジトリに置かない。
 - シェル（`~/.zshrc`）は旧 dotfiles のまま残す。`macos/install.sh` はそこを書き換えない。

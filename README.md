@@ -61,13 +61,13 @@ winget install JanDeDobbeleer.OhMyPosh
 
 ### macOS (Ghostty + Neovim)
 
-シェル（`~/.zshrc`）は旧 dotfiles のまま残す。Ghostty と Neovim だけこちらで管理する。
+シェルは Powerlevel10k。Ghostty の見た目は、wslc-dev を開く Noctty に合わせる。
 
 ```bash
 ./macos/install.sh
 ```
 
-Neovim は `wslc-dev/home/.config/nvim` のコピー。Obsidian のボルトは `~/notes`。Ghostty の色とフォントは `archlinux/.config/ghostty/config` に合わせ、キー割り当ては macOS の既定を使う。
+Neovim は `wslc-dev/home/.config/nvim` のコピー。Obsidian のボルトは `~/notes`。プロンプトは `wslc-dev/home/.p10k.zsh` のコピー。Ghostty は Noctty の色と背景を使い、キー割り当ては macOS の既定にペイン移動を足したもの。
 
 ## 管理
 

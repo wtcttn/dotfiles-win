@@ -1,6 +1,5 @@
 #!/bin/bash
-# Mac に Ghostty と Neovim を入れ、このディレクトリへシンボリックリンクする。
-# ~/.zshrc は旧 dotfiles のまま触らない。
+# Mac に Ghostty、Neovim、Powerlevel10k を入れ、このディレクトリへシンボリックリンクする。
 
 set -euo pipefail
 
@@ -64,7 +63,7 @@ else
   echo "フォントは入っています"
 fi
 
-link_dir() {
+link_path() {
   local source="$1"
   local target="$2"
 
@@ -80,8 +79,35 @@ link_dir() {
   echo "link: $target -> $source"
 }
 
+link_dir() { link_path "$@"; }
+link_file() { link_path "$@"; }
+
+if [[ ! -d "$HOME/.local/share/oh-my-zsh/.git" ]]; then
+  git clone --depth 1 https://github.com/ohmyzsh/ohmyzsh.git "$HOME/.local/share/oh-my-zsh"
+fi
+zsh_custom="$HOME/.local/share/oh-my-zsh/custom"
+mkdir -p "$zsh_custom/themes" "$zsh_custom/plugins"
+[[ -d "$zsh_custom/themes/powerlevel10k/.git" ]] || git clone --depth 1 https://github.com/romkatv/powerlevel10k.git "$zsh_custom/themes/powerlevel10k"
+[[ -d "$zsh_custom/plugins/zsh-autosuggestions/.git" ]] || git clone --depth 1 https://github.com/zsh-users/zsh-autosuggestions "$zsh_custom/plugins/zsh-autosuggestions"
+[[ -d "$zsh_custom/plugins/zsh-syntax-highlighting/.git" ]] || git clone --depth 1 https://github.com/zsh-users/zsh-syntax-highlighting.git "$zsh_custom/plugins/zsh-syntax-highlighting"
+
+if [[ ! -x "$HOME/.local/bin/fastfetch" ]]; then
+  echo "fastfetch の公式バイナリを ~/.local に入れます"
+  ff_tmp="$(mktemp -d)"
+  ff_tag="$(gh release view --repo fastfetch-cli/fastfetch --json tagName --jq .tagName)"
+  curl -fsSL -o "$ff_tmp/fastfetch.zip" \
+    "https://github.com/fastfetch-cli/fastfetch/releases/download/${ff_tag}/fastfetch-macos-universal.zip"
+  unzip -q "$ff_tmp/fastfetch.zip" -d "$ff_tmp"
+  mkdir -p "$HOME/.local/bin"
+  install -m 755 "$(find "$ff_tmp" -type f -name fastfetch | head -1)" "$HOME/.local/bin/fastfetch"
+  rm -rf "$ff_tmp"
+fi
+
 link_dir "$DOTFILES_DIR/ghostty" "$HOME/.config/ghostty"
 link_dir "$DOTFILES_DIR/nvim" "$HOME/.config/nvim"
+link_dir "$DOTFILES_DIR/fastfetch" "$HOME/.config/fastfetch"
+link_file "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
+link_file "$DOTFILES_DIR/.p10k.zsh" "$HOME/.p10k.zsh"
 
 export PATH="$HOME/.local/bin:$PATH"
 if command -v nvim >/dev/null 2>&1; then

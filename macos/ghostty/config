@@ -1,53 +1,52 @@
-# Mac の Ghostty。色・フォント・透過は archlinux/.config/ghostty/config に合わせる。
-# GTK 専用の項目と Linux のキー割り当ては入れない。macOS の既定（Cmd+T / Cmd+C など）を使う。
-# 反映は Cmd+Shift+,。フォントを初めて読むときは再起動。
+# Mac の Ghostty。色・背景・カーソルは、wslc-dev を開く Noctty の設定に合わせる。
+# 起動コマンドは Mac のログインシェル。GlazeWM 用のキー割り当ては入れない。
+# 反映は Cmd+Shift+,。フォントやシェーダーを初めて読むときは再起動。
 
 font-family = Moralerspace Neon HWJPDOC
 font-size = 13
+adjust-cell-height = 12%
+font-feature = calt
+font-feature = liga
+font-thicken = true
+minimum-contrast = 4
 
-background-opacity = 0.7
-background-blur = 10
-background = #1e1e2e
-foreground = #cdd6f4
+theme = Catppuccin Frappe
+background = #210429
+background-opacity = 0.9
 
-cursor-color = #89b4fa
-cursor-text = #1e1e2e
-cursor-style = block
+background-image = background.png
+background-image-fit = none
+background-image-position = bottom-right
+background-image-opacity = 0.5
+background-image-repeat = false
+
+custom-shader = cute.glsl
+custom-shader-animation = true
+
+window-theme = ghostty
+window-titlebar-background = #2a1e34
+window-titlebar-foreground = #f5a8d6
+window-title-font-family = Moralerspace Neon HWJPDOC
+window-padding-x = 14
+window-padding-y = 12
+window-padding-color = background
+cursor-style = bar
+cursor-color = #ffb6d9
 cursor-style-blink = true
+adjust-cursor-thickness = 70%
 
-window-padding-x = 4
-window-padding-y = 4
+scrollback-limit = 10000
+confirm-close-surface = true
 
-# Black
-palette = 0=#45475a
-palette = 8=#585b70
-# Red
-palette = 1=#f38ba8
-palette = 9=#f38ba8
-# Green
-palette = 2=#a6e3a1
-palette = 10=#a6e3a1
-# Yellow
-palette = 3=#f9e2af
-palette = 11=#f9e2af
-# Blue
-palette = 4=#89b4fa
-palette = 12=#89b4fa
-# Magenta
-palette = 5=#f5c2e7
-palette = 13=#f5c2e7
-# Cyan
-palette = 6=#94e2d5
-palette = 14=#94e2d5
-# White
-palette = 7=#bac2de
-palette = 15=#cdd6f4
-
-unfocused-split-opacity = 0.8
-
-# Option を Alt として Neovim に渡す。
 macos-option-as-alt = true
-
-# Neovim の OSC 52 を確認なしで受け付ける。普段のクリップボードは macOS 側。
 clipboard-read = allow
 clipboard-write = allow
+
+keybind = ctrl+shift+left=goto_split:left
+keybind = ctrl+shift+right=goto_split:right
+keybind = ctrl+shift+up=goto_split:up
+keybind = ctrl+shift+down=goto_split:down
+keybind = ctrl+alt+left=resize_split:left,20
+keybind = ctrl+alt+right=resize_split:right,20
+keybind = ctrl+alt+up=resize_split:up,20
+keybind = ctrl+alt+down=resize_split:down,20
