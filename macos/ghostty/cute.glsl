@@ -1,4 +1,5 @@
 // Yume-kawaii: a pastel watercolor sky with chubby stars, bokeh, and glitter.
+// A slow dreamcore mist drifts under the stars.
 // Typing throws a random burst of stars from the cursor.
 // Background effects paint only on dark cells so text stays readable.
 
@@ -12,17 +13,20 @@ const vec3 CREAM = vec3(1.00, 0.96, 0.88);
 const float IMAGE_SIZE = 210.0;
 
 // Overall strength of the background color and decorations (0 = off, 1 = full).
-const float EFFECT = 0.3;
+const float EFFECT = 0.7;
 
 // Brightness of the pastel gradient behind the text. Lower is darker and easier to read.
 // Shader colors are linear, so small values already look fairly bright on screen.
-const float BRIGHTNESS = 0.05;
+const float BRIGHTNESS = 0.2;
 
 // Strength of the cursor glow and the star burst while typing.
 const float CURSOR_LIGHT = 0.6;
 
 // Brightness of the stars thrown out while typing, on top of CURSOR_LIGHT.
-const float BURST_STAR = 0.5;
+const float BURST_STAR = 0.8;
+
+// How far empty cells lift into the slow mist (0 = off, 1 = full).
+const float FOG = 0.4;
 
 float hash(float n) {
     return fract(sin(n) * 43758.5453123);
@@ -133,6 +137,18 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     float tint = 0.8 * (1.0 - 0.75 * inImage);
     color.rgb = mix(color.rgb, dream * BRIGHTNESS, tint * background);
     color.rgb += dream * 0.05 * EFFECT * inImage * background;
+
+    // A veil over every empty cell, with thicker banks, a horizon, and the bottom.
+    // Stars are added after this, so they stay in front of the fog.
+    float fogA = fbm(p * 0.65 + vec2(t * 0.018, t * 0.007));
+    float fogB = fbm(p * 1.3 - vec2(t * 0.012, t * 0.02) + 11.0);
+    float banks = smoothstep(0.2, 0.7, fogA * 0.62 + fogB * 0.38);
+    float horizon = exp(-pow((gy - 0.4) * 2.2, 2.0));
+    float lowMist = smoothstep(0.72, 0.0, gy);
+    float fogMask = mix(0.55, 1.0, banks) * (0.7 + 0.3 * max(horizon, lowMist));
+    vec3 fogColor = mix(mix(CREAM, LAVENDER, 0.5), SKY, fogB * 0.65);
+    float fogLift = fogMask * FOG * background * (1.0 - 0.45 * inImage);
+    color.rgb = mix(color.rgb, fogColor * 0.22, fogLift);
 
     float decor = EFFECT * background * (1.0 - 0.7 * inImage);
     vec3 glow = vec3(0.0);
