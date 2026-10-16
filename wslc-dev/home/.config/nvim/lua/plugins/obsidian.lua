@@ -20,6 +20,9 @@ return {
       },
       notes_subdir = "notes",
       new_notes_location = "notes_subdir",
+      templates = {
+        folder = "templates",
+      },
       -- ファイル名はタイトルのままにする。日本語のノートを slug にしない。
       note_id_func = function(title)
         local name = vim.trim(title or "")
@@ -32,6 +35,8 @@ return {
         folder = "daily",
         date_format = "YYYY-MM-DD",
         workdays_only = false,
+        -- 骨組みはボルトの templates/daily.md。名前は templates.folder からの相対。
+        template = "daily.md",
       },
       attachments = {
         folder = "attachments",

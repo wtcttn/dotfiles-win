@@ -146,6 +146,10 @@ entrypoint が `/mnt/win-ssh` の通常ファイルを、ドットファイル�
 
 ボルトは `C:\Users\kento\notes`。コンテナ内は `/mnt/notes`。同期は Syncthing で、Windows、Mac、Android は vps-wtcttn とだけペアにする。ボルト本体はこのリポジトリに置かない。無視リストのテンプレートは `wslc-dev/notes/stignore.txt` で、各端末の `.stignore` は `#include stignore.txt`。VPS 側の手順は vps-wtcttn の `~/ops/README.md` が正である。
 
+転記と島づくりは、ボルト直下の `AGENTS.md` が正である。ノートを書く前にそれを読む。Windows は `C:\Users\kento\notes\AGENTS.md`、コンテナは `/mnt/notes/AGENTS.md`、Mac は `~/notes/AGENTS.md`。
+
+Cursor の個人スキル `obsidian-capture` の正本は `cursor/skills/obsidian-capture` である。Windows は `windows/install-powershell.ps1 cursor-skill` が `%USERPROFILE%\.cursor\skills\obsidian-capture` へリンクする。Mac は `macos/install.sh` が `~/.cursor/skills/obsidian-capture` へリンクする。
+
 ## Mac
 
 この Mac の Ghostty と Neovim は `macos/` で管理する。`archlinux/` と `wslc-dev/` は、Mac の作業では変更しない。設定ファイルは共有せず、コピーする。
@@ -154,7 +158,7 @@ entrypoint が `/mnt/win-ssh` の通常ファイルを、ドットファイル�
 - シェルは `macos/.zshrc`。Oh My Zsh と Powerlevel10k は `~/.local/share/oh-my-zsh` に置く。プロンプトは `wslc-dev/home/.p10k.zsh` のコピー。個人差分は `~/.zshrc.local`。Git の名前とメールは `macos/.gitconfig`。
 - Neovim は `wslc-dev/home/.config/nvim` のコピー。LazyVim。クリップボードは macOS のシステムクリップボード。
 - Obsidian のボルトは `~/notes`。Windows の `C:\Users\kento\notes` と同じ並びで、Syncthing で揃える。ボルト本体はこのリポジトリに置かない。
-- ホームの設定リンクは `macos/install.sh` が `macos/` へ張る。旧 `~/dotfiles` は使わない。
+- ホームの設定リンクは `macos/install.sh` が `macos/` へ張る。旧 `~/dotfiles` は使わない。Cursor の個人スキル `obsidian-capture` もこのスクリプトが、リポジトリの `cursor/skills/obsidian-capture` へ張る。
 
 入れるものは `macos/Brewfile`（Ghostty、ripgrep、fd、git、rbenv、ruby-build、OrbStack）と、フォント Moralerspace Neon HWJPDOC。Neovim は bottle があるとき Homebrew、無いときは公式の macOS バイナリを `~/.local` に置く。chafa は起動画面の絵用で、bottle があるときだけ入れる。コンテナは OrbStack で、Docker Desktop は入れない。
 

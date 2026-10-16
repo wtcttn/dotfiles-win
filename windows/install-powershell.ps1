@@ -606,6 +606,34 @@ function Install-PowerShellModules {
     return $true
 }
 
+function Install-CursorSkill {
+    Write-ColorOutput "Linking Cursor skill obsidian-capture..." "Green"
+
+    $sourcePath = Join-Path $DotfilesPath "cursor\skills\obsidian-capture"
+    $destDir = Join-Path $UserProfile ".cursor\skills"
+    $destPath = Join-Path $destDir "obsidian-capture"
+
+    if (!(Test-Path $sourcePath)) {
+        Write-ColorOutput "Cursor skill not found: $sourcePath" "Red"
+        return $false
+    }
+
+    if (!(Test-Path $destDir)) {
+        New-Item -ItemType Directory -Path $destDir -Force | Out-Null
+    }
+
+    try {
+        Backup-AndRemoveItem -Path $destPath -Description "Cursor skill obsidian-capture"
+        if (Set-SymbolicLinkOrCopy -SourcePath $sourcePath -DestinationPath $destPath -Description "Cursor skill obsidian-capture") {
+            return $true
+        }
+        return $false
+    } catch {
+        Write-ColorOutput "Failed to link Cursor skill: $($_.Exception.Message)" "Red"
+        return $false
+    }
+}
+
 function Install-PowerShellProfile {
     Write-ColorOutput "Installing PowerShell profile..." "Green"
     
@@ -662,6 +690,12 @@ function Install-PowerShellProfile {
     Write-ColorOutput "" "White"
     if (!(Install-Neovim)) {
         Write-ColorOutput "Warning: Neovim installation failed, but continuing..." "Yellow"
+    }
+
+    # Link the shared Cursor skill. Mac links the same directory from macos/install.sh.
+    Write-ColorOutput "" "White"
+    if (!(Install-CursorSkill)) {
+        Write-ColorOutput "Warning: Cursor skill link failed, but continuing..." "Yellow"
     }
     
     # Install Mutagen (Windows <-> WSLc volume sync)
@@ -754,7 +788,7 @@ function Show-Help {
     Write-ColorOutput "PowerShell Profile Installer" "Cyan"
     Write-ColorOutput "=============================" "Cyan"
     Write-ColorOutput "" "White"
-    Write-ColorOutput "Usage: .\install-powershell.ps1 [install|uninstall|test|check|font|wezterm|noctty|fastfetch|chafa|wsl|nvim|mutagen|help]" "White"
+    Write-ColorOutput "Usage: .\install-powershell.ps1 [install|uninstall|test|check|font|wezterm|noctty|fastfetch|chafa|wsl|nvim|mutagen|cursor-skill|help]" "White"
     Write-ColorOutput "       .\install-powershell.ps1 install -GlazewmProfile thinkpad" "DarkGray"
     Write-ColorOutput "" "White"
     Write-ColorOutput "Options:" "Yellow"
@@ -772,6 +806,7 @@ function Show-Help {
     Write-ColorOutput "  chafa     - Install chafa (winget) for the Neovim startup image" "White"
     Write-ColorOutput "  wsl       - Install WSL config only" "White"
     Write-ColorOutput "  nvim      - Install Neovim and link windows/nvim only" "White"
+    Write-ColorOutput "  cursor-skill - Link cursor/skills/obsidian-capture into the user Cursor skills directory" "White"
     Write-ColorOutput "  mutagen   - Install Mutagen (scoop), pin MUTAGEN_SSH_PATH, register the daemon only" "White"
     Write-ColorOutput "  help      - Show this help message" "White"
     Write-ColorOutput "" "White"
@@ -833,6 +868,9 @@ switch ($Action.ToLower()) {
     }
     "nvim" {
         Install-Neovim
+    }
+    "cursor-skill" {
+        Install-CursorSkill
     }
     "mutagen" {
         Install-Mutagen
