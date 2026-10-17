@@ -21,6 +21,8 @@ convert_skill() {
     -e 's#^- Mac: `~/notes(.*)`$#&\n- Grok Bot: `/home/box/sync/obsidian-vault\1`（`~/notes` はここへのリンク）#' \
     -e 's#`source` は `cursor`。#`source` は `cursor`。Grok Bot が書くときは `grok-bot`。#' \
     "$src" > "$dest"
+  # SKILL.md 以外のファイル（sources.md など）はそのまま写す。
+  (cd "$(dirname "$src")" && find . -type f ! -name SKILL.md -exec cp --parents {} "$(dirname "$dest")/" \;)
   if ! grep -q '/home/box/sync/obsidian-vault' "$dest"; then
     printf '\n## Grok Bot\n\nボックスのボルトは `/home/box/sync/obsidian-vault`（`~/notes` はここへのリンク）。Grok Bot が書くノートの `source` は `grok-bot`。\n' >> "$dest"
   fi

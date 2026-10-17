@@ -148,9 +148,11 @@ entrypoint が `/mnt/win-ssh` の通常ファイルを、ドットファイル�
 
 転記と島づくりは、ボルト直下の `AGENTS.md` が正である。ノートを書く前にそれを読む。Windows は `C:\Users\kento\notes\AGENTS.md`、コンテナは `/mnt/notes/AGENTS.md`、Mac は `~/notes/AGENTS.md`。
 
-Cursor の個人スキルの正本は `cursor/skills/` である（今は `obsidian-capture` と `vst-study`）。各インストールは `SKILL.md` のあるフォルダをすべて拾う。Windows は `windows/install-powershell.ps1 cursor-skill` が `%USERPROFILE%\.cursor\skills\` へリンクする。Mac は `macos/install.sh` が `~/.cursor/skills/` へリンクする。Grok Bot は `grokbot/install.sh` が `cursor/skills/` を `grokbot/skills/` へ写し（ボックスのボルト `/home/box/sync/obsidian-vault` と `source: grok-bot` を足す）、`/home/box/agent-data/workflows/` へコピーする。
+Cursor の個人スキルの正本は `cursor/skills/` である（今は `obsidian-capture`、`vst-study`、`daily-digest`）。各インストールは `SKILL.md` のあるフォルダをすべて拾う。Windows は `windows/install-powershell.ps1 cursor-skill` が `%USERPROFILE%\.cursor\skills\` へリンクする。Mac は `macos/install.sh` が `~/.cursor/skills/` へリンクする。Grok Bot は `grokbot/install.sh` が `cursor/skills/` を `grokbot/skills/` へ写し（ボックスのボルト `/home/box/sync/obsidian-vault` と `source: grok-bot` を足す）、`/home/box/agent-data/workflows/` へコピーする。
 
 スキルを足すときは `cursor/skills/<slug>/SKILL.md` を置くだけでよい。そのあと各 OS のインストール（Windows は `windows/install-powershell.ps1 cursor-skill`、Mac は `macos/install.sh`、Grok Bot は `grokbot/install.sh convert` と `grokbot/install.sh install`）を実行する。スクリプトにスキル名を書き足さない。スキルが運用方針やパスの説明を要するなら、このファイルにも書き足す。
+
+`daily-digest` は毎朝 9:00（JST）ごろ Grok Bot が回す情報収集である。情報源は同じフォルダの `sources.md`。原本をボルトの `digests/YYYY-MM-DD.md` に書き、日次の `## 情報収集` にリンクを足す。カードは作らない。
 
 ## Mac
 
