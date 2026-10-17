@@ -6,7 +6,9 @@ description: >-
   writes one raw digest per day to digests/YYYY-MM-DD.md in the Obsidian
   vault, then links it from the daily note. Use when the user says 情報収集,
   今日のニュース, ダイジェスト, or for the scheduled morning run around 9:00
-  JST. Never turn digest items into cards automatically.
+  JST. Also fills a 「ことね用ネタ」 section with trend ideas for the
+  @kotone_chan_bot (綿ことね) persona. Never turn digest items into cards
+  automatically.
 ---
 
 # 情報収集
@@ -42,7 +44,8 @@ description: >-
    - セキュリティの問題（CVE、悪性パッケージ、使っているツールの脆弱性）
    - ユーザーが使うツール（上の話題に挙げたもの、Arch、Neovim、Ghostty、Cursor、Obsidian、Syncthing）に影響する変更
    - 期限のあるセール、締め切りのあるイベント。期限を書く
-7. 原本を書き、日次にリンクを足し、チャットで短く報告する。
+7. 集めた SNS・トレンドの中から、「ことね用ネタ」の候補を選ぶ（下の「ことね用ネタ」）。
+8. 原本を書き、日次にリンクを足し、チャットで短く報告する。
 
 ## SNS
 
@@ -53,6 +56,17 @@ X、TikTok、YouTube、ニコニコ、pixiv、Reddit、Bluesky などの盛り�
 - 公式や報道で確かめられない話は「未確認」と書き、断定しない。発表やセールの話は、公式のページを見つけて出典にする。
 - 投稿の文を長く写さない。個人の投稿は、話題を示すのに要るものだけにする。
 - 日本のトレンドに上の話題が出ていれば挙げる。
+
+## ことね用ネタ
+
+X アカウント @kotone_chan_bot（綿ことね）の運用に使うネタを集める欄。運用方針は `wtcttn/jishou-hensanshitsu` の `bot/README.md`（ボックスでは `/home/box/repos/jishou-hensanshitsu`）。
+
+- 日本のトレンドや SNS の話題のうち、作品「逸般変異監査局」の世界観（AGI による監視評価社会、Tier による格差、ベーシックインカム、仮想世界エリュシオン、架空の企業「天譜智能」など）に似ているものを、0〜5件選ぶ。
+- 各項目は、話題と出典リンク、世界観とのつながりを1文。無ければ「なし」と書く。
+- 対立を煽る、誰かを傷つけるような扱いになる話題は選ばない（`bot/README.md` の NG ルール）。
+- 朝の情報収集では X に投稿しない。読み取りだけで、ユーザーのアカウントも @kotone_chan_bot も使わない。
+- 当日、`kotone-post` の巡回が反応した話題は、巡回がこの欄の末尾に追記する（`- 反応済み: [話題](URL) → [ことねの投稿](投稿の URL)`）。この欄への追記だけは、原本を書き換えない決まりの例外とする。ほかの欄は変えない。
+- この欄が長くなりそうなときは、別ノートに分ける案をチャットで相談する。
 
 ## 原本
 
@@ -90,6 +104,10 @@ date: 2026-10-17
 ## AIエンジニア
 
 ## Linux
+
+## ことね用ネタ
+
+- [話題](URL): 世界観とのつながり。
 ```
 
 `## 重要` には、重要を付けた項目を再掲する。無ければ「なし」。
@@ -108,7 +126,7 @@ date: 2026-10-17
 
 - 項目をカードにする。`notes/` に書く。ユーザーが特定の項目を残したいと言ったときだけ、`obsidian-capture` の手順で進める
 - 記事の全文や長い引用を写す
-- 既存の原本を上書きする、書き換える
+- 既存の原本を上書きする、書き換える（例外: `kotone-post` の巡回が当日の「ことね用ネタ」欄の末尾に追記すること）
 - ログインする、ユーザーのアカウントを使う、ログインが要るページの中身を書く
 
 ## 報告
