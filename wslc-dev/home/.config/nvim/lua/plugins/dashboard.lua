@@ -154,6 +154,7 @@ return {
 	{
 		"snacks.nvim",
 		init = function()
+			require("config.image_size").patch()
 			vim.api.nvim_create_autocmd("User", {
 				pattern = "SnacksDashboardUpdatePost",
 				callback = function()

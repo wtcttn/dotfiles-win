@@ -8,6 +8,7 @@ fd
 git
 github-cli
 graphviz
+imagemagick
 libyaml
 neovim
 openssh

@@ -10,6 +10,10 @@ vim.opt.tabstop = 2
 vim.opt.clipboard = "unnamedplus"
 vim.opt.shell = "zsh"
 
+-- 画像は Kitty graphics で端末が描く。変換したファイルはコンテナの中にあり、
+-- Windows の WezTerm / Noctty からはそのパスを開けない。バイト列で送る。
+vim.env.SNACKS_SSH = "true"
+
 -- 実験。graf でボルトのリンクを見る。日次と原本は除外する。
 -- バイナリと note-graph-open、設定は install-graf.sh がホームへ置く。
 -- Enter は note-graph-open 経由で、今の Neovim の新しいタブに開く。

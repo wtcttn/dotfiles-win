@@ -138,7 +138,7 @@ entrypoint が `/mnt/win-ssh` の通常ファイルを、ドットファイル�
 
 設定は3つに分ける。
 
-- 開発リポジトリはコンテナの `wslc-dev/home/.config/nvim`。LazyVim。エクスプローラーは Snacks（`<leader>e`）。Git の差分は gitsigns、Snacks の `<leader>gd`、Diffview の `<leader>gv`。クリップボードは `vim.ui.clipboard.osc52` があるときだけ OSC 52 を使う。プラグインデータはホームボリュームに置く。ノートは `/mnt/notes` を `obsidian.nvim` で開く。表示は render-markdown のまま。`:NoteGraph` は実験で、graf が `notes/` と `maps/` のリンクを開く。日次、原本、テンプレート、添付は外す。Enter は今の Neovim の新しいタブに開く。
+- 開発リポジトリはコンテナの `wslc-dev/home/.config/nvim`。LazyVim。エクスプローラーは Snacks（`<leader>e`）。Git の差分は gitsigns、Snacks の `<leader>gd`、Diffview の `<leader>gv`。クリップボードは `vim.ui.clipboard.osc52` があるときだけ OSC 52 を使う。プラグインデータはホームボリュームに置く。ノートは `/mnt/notes` を `obsidian.nvim` で開く。表示は render-markdown のまま。画像は Snacks の Kitty graphics で、画像ファイルを開くと表示し、マークダウンの `![]()` と `![[ ]]` も描く。Noctty は本文、WezTerm はカーソル位置の浮き窓。ノートへ足すのは `<leader>oi`。コンテナ内のパスは端末から開けないので画像のバイト列を送り、変換に imagemagick を使う。wslc の PTY は画素サイズを 0 で返すので、セルサイズを端末に聞いてから描く。`:NoteGraph` は実験で、graf が `notes/` と `maps/` のリンクを開く。日次、原本、テンプレート、添付は外す。Enter は今の Neovim の新しいタブに開く。
 - Windows のファイルは `windows/`。Neovim は `windows/nvim`。`windows/install-powershell.ps1` が winget の `Neovim.Neovim` を入れ、`%LOCALAPPDATA%\nvim` へリンクする。LazyVim の構成はコンテナと同じだが、設定ファイルは共有しない。クリップボードは `unnamedplus` で、yank を Windows のクリップボードに繋ぐ。プラグインデータは `%LOCALAPPDATA%\nvim-data` に置く。
 - Arch 用の `archlinux/.config/nvim` は消さない。Windows やコンテナの設定へ流用しない。
 
