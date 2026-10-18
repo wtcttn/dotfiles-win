@@ -12,14 +12,14 @@ const vec3 CREAM = vec3(1.00, 0.96, 0.88);
 const float IMAGE_SIZE = 420.0;
 
 // Overall strength of the background color and decorations (0 = off, 1 = full).
-const float EFFECT = 0.6;
+const float EFFECT = 1;
 
 // Brightness of the pastel gradient behind the text. Lower is darker and easier to read.
 // Shader colors are linear, so small values already look fairly bright on screen.
-const float BRIGHTNESS = 0.15;
+const float BRIGHTNESS = 0.1;
 
 // Strength of the cursor glow and the star burst while typing.
-const float CURSOR_LIGHT = 0.5;
+const float CURSOR_LIGHT = 0.4;
 
 // Brightness of the stars thrown out while typing, on top of CURSOR_LIGHT.
 const float BURST_STAR = 0.2;

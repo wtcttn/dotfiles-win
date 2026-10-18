@@ -4,20 +4,20 @@
 font-family = Maple Mono NF
 font-family = Moralerspace Neon HWJPDOC
 font-family = Consolas
-font-size = 12
+font-size = 13
 adjust-cell-height = 12%
 font-feature = calt
 font-feature = liga
 font-thicken = true
 # 暗いグレーの文字（入力中のコマンドや補完候補）が背景に沈まないよう、最低限のコントラストを保つ。
-minimum-contrast = 4
+minimum-contrast = 5
 
 theme = Catppuccin Frappe
 # 余白色は単色かセル背景の延長しか指定できない。画面全体を少し暖かい色にして余白と揃える。
-background = #210429
+background = #0e0012
 
 # ぼかしは使えないので、透過は文字が読める範囲で少しだけ上げる。
-background-opacity = 0.9
+background-opacity = 0.8
 
 background-image = C:/Users/kento/dotfiles/windows/noctty/background.png
 background-image-fit = none
@@ -46,6 +46,10 @@ confirm-close-surface = true
 
 # WezTerm と同じ起動スクリプト。wslc-dev を起こして /workspace の zsh に入る。
 command = C:\Users\kento\dotfiles\wslc-dev\wezterm.cmd
+# PowerShell から開くと作業ディレクトリが C:\Program Files\noctty になる。ホームから始める。
+# 既にウィンドウがあるときは、そちらのディレクトリよりこの指定を優先する。
+working-directory = C:/Users/kento
+window-inherit-working-directory = false
 # コンテナに ghostty の terminfo を入れるまでは、未知の TERM で zsh を落とさない。
 term = xterm-256color
 
