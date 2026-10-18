@@ -4,7 +4,9 @@ description: >-
   Gathers the last 24 hours of news for the user's interests (ボカロ, DTM,
   イラスト, AIエンジニア, Linux) from the curated sources in sources.md and
   writes one raw digest per day to digests/YYYY-MM-DD.md in the Obsidian
-  vault, then links it from the daily note. Use when the user says 情報収集,
+  vault, then links it from the daily note. On Grok Bot, drafts it to
+  /workspace/digests/ and asks the ノート管理 bot to write it to the vault
+  and add the link. Use when the user says 情報収集,
   今日のニュース, ダイジェスト, or for the scheduled morning run around 7:00
   JST. Also fills a 「ことね用ネタ」 section with trend ideas for the
   @kotone_chan_bot (綿ことね) persona. Never turn digest items into cards
@@ -15,7 +17,7 @@ description: >-
 
 毎朝 7:00 ごろ（JST）に、前日からの約24時間の情報を集めて、ボルトに原本を1枚書く。書く前にボルトの `AGENTS.md` を読む。このスキルと違えば `AGENTS.md` に従う。
 
-ボルトは次のいずれか。そこにあるファイルだけを編集する。
+ボルトは次のいずれか。そこにあるファイルだけを編集する。Grok Bot はボルトを読むだけで、書き込みは「ノート管理」に頼む（下の「Grok Bot の書き込み」）。
 
 - Windows: `C:/Users/kento/notes`
 - コンテナ: `/mnt/notes`
@@ -44,7 +46,7 @@ description: >-
    - ユーザーが使うツール（上の話題に挙げたもの、Arch、Neovim、Ghostty、Cursor、Obsidian、Syncthing）に影響する変更
    - 期限のあるセール、締め切りのあるイベント。期限を書く
 7. 集めた SNS・トレンドの中から、「ことね用ネタ」の候補を選ぶ（下の「ことね用ネタ」）。
-8. 原本を書き、日次にリンクを足し、チャットで短く報告する。
+8. 原本を書き、日次にリンクを足し、チャットで短く報告する。Grok Bot は原本を下書きして、書き込みを「ノート管理」に頼む。
 
 ## SNS
 
@@ -64,7 +66,7 @@ X アカウント @kotone_chan_bot（綿ことね）の運用に使うネタを�
 - 各項目は、話題と出典リンク、世界観とのつながりを1文。無ければ「なし」と書く。
 - 対立を煽る、誰かを傷つけるような扱いになる話題は選ばない（`bot/README.md` の NG ルール）。
 - 朝の情報収集では X に投稿しない。読み取りだけで、ユーザーのアカウントも @kotone_chan_bot も使わない。
-- 当日、`kotone-post` の巡回が反応した話題は、巡回がこの欄の末尾に追記する（`- 反応済み: [話題](URL) → [ことねの投稿](投稿の URL)`）。この欄への追記だけは、原本を書き換えない決まりの例外とする。ほかの欄は変えない。
+- 当日、`kotone-post` の巡回が反応した話題は、ことね運用が「ノート管理」に頼んで、この欄の末尾に追記してもらう（`- 反応済み: [話題](URL) → [ことねの投稿](投稿の URL)`）。この欄への追記だけは、原本を書き換えない決まりの例外とする。ほかの欄は変えない。
 - この欄が長くなりそうなときは、別ノートに分ける案をチャットで相談する。
 
 ## 原本
@@ -121,11 +123,24 @@ date: 2026-10-17
 
 節が無いときは、ファイルの末尾に節ごと足す。同じ行がすでにあれば足さない。それ以外の行は書き換えない。日次ファイルが無いときは、`AGENTS.md` の「日次」のフロントマターで作る。`*.sync-conflict*` のファイルは読まず、触らない。日次に競合ファイルがあるときは、本体にだけ追記してチャットで言う。
 
+## Grok Bot の書き込み
+
+2026-10-18 から、ボルトの書き込みは Bot「ノート管理」（agent id `b8cf398e-3cda-40c6-8496-2b2a6dcc35db`）が一手に引き受ける。ほかの Bot はボルトに書かない。読むのはこれまでどおり直接でよい。
+
+1. 原本の本文（「ことね用ネタ」欄を含む）を、ボックスの `/workspace/digests/YYYY-MM-DD.md` に下書きする。形は上の「原本」と同じ。
+2. SendToAgent で「ノート管理」に、次の2つを頼む。下書きのパスと本文を添える。
+   - ボルトの `digests/YYYY-MM-DD.md` に置く。同名のファイルがあれば上書きせず、`-2` などの番号を足す。
+   - `daily/YYYY-MM-DD.md` の末尾の `## 情報収集` に、上の「日次」の1行を足す。既存の行やファイルは書き換えない。
+3. 「ノート管理」から書いたと返事が来たら、ボルトのパスで報告する。返事が無いうちは、下書きのパスと、頼んだことを報告する。
+
+ことね運用が「ことね用ネタ」欄に追記するときも、「ノート管理」に頼む。
+
 ## してはいけないこと
 
 - 項目をカードにする。`notes/` に書く。ユーザーが特定の項目を残したいと言ったときだけ、`obsidian-capture` の手順で進める
 - 記事の全文や長い引用を写す
-- 既存の原本を上書きする、書き換える（例外: `kotone-post` の巡回が当日の「ことね用ネタ」欄の末尾に追記すること）
+- 既存の原本を上書きする、書き換える（例外: `kotone-post` の巡回が「ノート管理」に頼んで、当日の「ことね用ネタ」欄の末尾に追記すること）
+- Grok Bot がボルトに直接書く
 - ログインする、ユーザーのアカウントを使う、ログインが要るページの中身を書く
 
 ## 報告

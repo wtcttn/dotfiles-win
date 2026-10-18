@@ -152,7 +152,7 @@ Cursor の個人スキルの正本は `cursor/skills/` である（今は `obsid
 
 スキルを足すときは `cursor/skills/<slug>/SKILL.md` を置くだけでよい。そのあと各 OS のインストール（Windows は `windows/install-powershell.ps1 cursor-skill`、Mac は `macos/install.sh`、Grok Bot は `grokbot/install.sh convert` と `grokbot/install.sh install`）を実行する。スクリプトにスキル名を書き足さない。スキルが運用方針やパスの説明を要するなら、このファイルにも書き足す。
 
-`daily-digest` は毎朝 7:00（JST）ごろ Grok Bot が回す情報収集である。情報源は同じフォルダの `sources.md`。原本をボルトの `digests/YYYY-MM-DD.md` に書き、日次の `## 情報収集` にリンクを足す。カードは作らない。
+`daily-digest` は毎朝 7:00（JST）ごろ Grok Bot が回す情報収集である。情報源は同じフォルダの `sources.md`。原本をボルトの `digests/YYYY-MM-DD.md` に書き、日次の `## 情報収集` にリンクを足す。カードは作らない。2026-10-18 から、ボルトの書き込みは Bot「ノート管理」が一手に引き受ける。Grok Bot は原本をボックスの `/workspace/digests/YYYY-MM-DD.md` に下書きし、ボルトへの配置と日次へのリンクは「ノート管理」に頼む。ことね運用の「ことね用ネタ」への追記も同じ。ボルトを読むのは直接でよい。
 
 ## Mac
 
