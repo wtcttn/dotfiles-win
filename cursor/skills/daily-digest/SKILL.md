@@ -5,7 +5,7 @@ description: >-
   イラスト, AIエンジニア, Linux) from the curated sources in sources.md and
   writes one raw digest per day to digests/YYYY-MM-DD.md in the Obsidian
   vault, then links it from the daily note. Use when the user says 情報収集,
-  今日のニュース, ダイジェスト, or for the scheduled morning run around 9:00
+  今日のニュース, ダイジェスト, or for the scheduled morning run around 7:00
   JST. Also fills a 「ことね用ネタ」 section with trend ideas for the
   @kotone_chan_bot (綿ことね) persona. Never turn digest items into cards
   automatically.
@@ -13,7 +13,7 @@ description: >-
 
 # 情報収集
 
-毎朝 9:00 ごろ（JST）に、前日からの約24時間の情報を集めて、ボルトに原本を1枚書く。書く前にボルトの `AGENTS.md` を読む。このスキルと違えば `AGENTS.md` に従う。
+毎朝 7:00 ごろ（JST）に、前日からの約24時間の情報を集めて、ボルトに原本を1枚書く。書く前にボルトの `AGENTS.md` を読む。このスキルと違えば `AGENTS.md` に従う。
 
 ボルトは次のいずれか。そこにあるファイルだけを編集する。
 
