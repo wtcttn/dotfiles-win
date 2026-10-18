@@ -1,0 +1,4 @@
+# wslc-dev/home/graf.toml と同じ。変えるときは両方。
+# :NoteGraph 用。タイトルの表示は 1 から 60 文字。既定の 20 だと題が切れる。
+[visual]
+label_max_length = 40

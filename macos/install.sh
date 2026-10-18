@@ -99,6 +99,9 @@ mkdir -p "$zsh_custom/themes" "$zsh_custom/plugins"
 [[ -d "$zsh_custom/plugins/zsh-autosuggestions/.git" ]] || git clone --depth 1 https://github.com/zsh-users/zsh-autosuggestions "$zsh_custom/plugins/zsh-autosuggestions"
 [[ -d "$zsh_custom/plugins/zsh-syntax-highlighting/.git" ]] || git clone --depth 1 https://github.com/zsh-users/zsh-syntax-highlighting.git "$zsh_custom/plugins/zsh-syntax-highlighting"
 
+echo "graf を入れます"
+"$DOTFILES_DIR/../wslc-dev/home/install-graf.sh" "$DOTFILES_DIR"
+
 if [[ ! -x "$HOME/.local/bin/fastfetch" ]]; then
   echo "fastfetch の公式バイナリを ~/.local に入れます"
   ff_tmp="$(mktemp -d)"

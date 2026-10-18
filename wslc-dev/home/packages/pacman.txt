@@ -7,9 +7,11 @@ fastfetch
 fd
 git
 github-cli
+graphviz
 libyaml
 neovim
 openssh
+otf-ipafont
 postgresql-libs
 ripgrep
 unzip

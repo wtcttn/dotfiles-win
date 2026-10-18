@@ -1,0 +1,13 @@
+#!/bin/sh
+# macos/note-graph-open と同じ。変えるときは両方。
+# graf はエディタを実行ファイル1つとして起動し、ノートの絶対パスを引数にする。
+# 今の Neovim にタブで開く。NVIM は :NoteGraph が渡す。
+file=$1
+if [ -z "$file" ]; then
+  exit 1
+fi
+if [ -n "$NVIM" ]; then
+  nvim --server "$NVIM" --remote-tab "$file"
+  exit $?
+fi
+exec nvim "$file"

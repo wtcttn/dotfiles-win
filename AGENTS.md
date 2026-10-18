@@ -138,7 +138,7 @@ entrypoint が `/mnt/win-ssh` の通常ファイルを、ドットファイル�
 
 設定は3つに分ける。
 
-- 開発リポジトリはコンテナの `wslc-dev/home/.config/nvim`。LazyVim。エクスプローラーは Snacks（`<leader>e`）。Git の差分は gitsigns、Snacks の `<leader>gd`、Diffview の `<leader>gv`。クリップボードは `vim.ui.clipboard.osc52` があるときだけ OSC 52 を使う。プラグインデータはホームボリュームに置く。ノートは `/mnt/notes` を `obsidian.nvim` で開く。表示は render-markdown のまま。
+- 開発リポジトリはコンテナの `wslc-dev/home/.config/nvim`。LazyVim。エクスプローラーは Snacks（`<leader>e`）。Git の差分は gitsigns、Snacks の `<leader>gd`、Diffview の `<leader>gv`。クリップボードは `vim.ui.clipboard.osc52` があるときだけ OSC 52 を使う。プラグインデータはホームボリュームに置く。ノートは `/mnt/notes` を `obsidian.nvim` で開く。表示は render-markdown のまま。`:NoteGraph` は実験で、graf が `notes/` と `maps/` のリンクを開く。日次、原本、テンプレート、添付は外す。Enter は今の Neovim の新しいタブに開く。
 - Windows のファイルは `windows/`。Neovim は `windows/nvim`。`windows/install-powershell.ps1` が winget の `Neovim.Neovim` を入れ、`%LOCALAPPDATA%\nvim` へリンクする。LazyVim の構成はコンテナと同じだが、設定ファイルは共有しない。クリップボードは `unnamedplus` で、yank を Windows のクリップボードに繋ぐ。プラグインデータは `%LOCALAPPDATA%\nvim-data` に置く。
 - Arch 用の `archlinux/.config/nvim` は消さない。Windows やコンテナの設定へ流用しない。
 
@@ -162,11 +162,13 @@ Cursor の個人スキルの正本は `cursor/skills/` である（今は `obsid
 
 - Ghostty の色、背景画像、シェーダーは `windows/noctty`（wslc-dev を開く端末）に合わせる。起動コマンドは Mac のログインシェル。GTK の項目と GlazeWM 用のキー割り当ては入れない。
 - シェルは `macos/.zshrc`。Oh My Zsh と Powerlevel10k は `~/.local/share/oh-my-zsh` に置く。プロンプトは `wslc-dev/home/.p10k.zsh` のコピー。個人差分は `~/.zshrc.local`。Git の名前とメールは `macos/.gitconfig`。
-- Neovim は `wslc-dev/home/.config/nvim` のコピー。LazyVim。クリップボードは macOS のシステムクリップボード。
+- Neovim は `wslc-dev/home/.config/nvim` のコピー。LazyVim。クリップボードは macOS のシステムクリップボード。`:NoteGraph` のボルトは `~/notes`。
 - Obsidian のボルトは `~/notes`。Windows の `C:\Users\kento\notes` と同じ並びで、Syncthing で揃える。ボルト本体はこのリポジトリに置かない。
 - ホームの設定リンクは `macos/install.sh` が `macos/` へ張る。旧 `~/dotfiles` は使わない。Cursor の個人スキル（`cursor/skills/` の `SKILL.md` のあるフォルダすべて）もこのスクリプトが張る。
 
 入れるものは `macos/Brewfile`（Ghostty、ripgrep、fd、git、rbenv、ruby-build、OrbStack）と、フォント Moralerspace Neon HWJPDOC。Neovim は bottle があるとき Homebrew、無いときは公式の macOS バイナリを `~/.local` に置く。chafa は起動画面の絵用で、bottle があるときだけ入れる。コンテナは OrbStack で、Docker Desktop は入れない。
+
+graf は pacman にも Homebrew にも入っていない。`wslc-dev/home/install-graf.sh` が v1.1.0 のリリース（チェックサム固定）を `~/.local/bin/graf` に入れる。Linux x86_64 と Apple Silicon だけ。`note-graph-open` と `graf.toml` はコンテナと Mac でコピーし、同じスクリプトが `~/.local/bin/note-graph-open` と `~/.config/graf/config.toml` へ置く。コンテナは引数なしで `wslc-dev/home/install-graf.sh`、Mac は `macos/install.sh` が `macos/` を渡す。ホームボリュームを作り直したあとは、コンテナでこのスクリプトをやり直す。
 
 ## 保留
 

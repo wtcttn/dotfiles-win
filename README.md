@@ -68,7 +68,7 @@ winget install JanDeDobbeleer.OhMyPosh
 ./macos/install.sh
 ```
 
-Neovim は `wslc-dev/home/.config/nvim` のコピー。Obsidian のボルトは `~/notes`。プロンプトは `wslc-dev/home/.p10k.zsh` のコピー。Ghostty は Noctty の色と背景を使い、キー割り当ては macOS の既定にペイン移動を足したもの。初回は AeroSpace にアクセシビリティ権限を許可する。
+Neovim は `wslc-dev/home/.config/nvim` のコピー。Obsidian のボルトは `~/notes`。`:NoteGraph` 用の graf もこのスクリプトが入れる。プロンプトは `wslc-dev/home/.p10k.zsh` のコピー。Ghostty は Noctty の色と背景を使い、キー割り当ては macOS の既定にペイン移動を足したもの。初回は AeroSpace にアクセシビリティ権限を許可する。
 
 ### Grok Bot
 
