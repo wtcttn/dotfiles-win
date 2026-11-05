@@ -106,8 +106,8 @@ ruby / node / pnpm は proto で入れる。バージョンはリポジトリの
 
 - グローバルの既定は node だけ固定する（`proto pin --to global node <version>`）。pnpm のインストールに node の指定が要るため。
 - 新しいバージョンが要るときは、そのリポジトリで `proto install <tool> <version>` してから `packages-save`。
-- gem はホームボリュームの proto の ruby に入る（`bundle install`）。ネイティブ拡張用に `cmake`、`postgresql-libs`、`libyaml` を pacman で入れている。
-- Playwright（vitest のブラウザテストなど）を使うリポジトリがある。Playwright は Arch 用の依存の自動インストール（`--with-deps`）に対応していないので、必要な共有ライブラリは pacman の `chromium` を入れて揃え、ブラウザ本体はそのリポジトリで `pnpm exec playwright install chromium`（`~/.cache/ms-playwright`、ホームボリューム）で入れる。
+- gem はホームボリュームの proto の ruby に入る（`bundle install`）。ネイティブ拡張が要るときは、`cmake`、`postgresql-libs`、`libyaml` などを pacman で入れる（今は入れていない）。
+- Playwright（vitest のブラウザテストなど）を使うときは、Arch 用の依存の自動インストール（`--with-deps`）に対応していないので、必要な共有ライブラリは pacman の `chromium` を入れて揃え、ブラウザ本体はそのリポジトリで `pnpm exec playwright install chromium`（`~/.cache/ms-playwright`、ホームボリューム）で入れる（今は入れていない）。
 
 リポジトリの git フック（bundle install / pnpm install、husky の lint / tsc / test など）は、このコンテナの git で動く。そのため、フックが使うランタイムと依存をこのコンテナに入れておく。
 
