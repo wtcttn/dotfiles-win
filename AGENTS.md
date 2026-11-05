@@ -152,9 +152,11 @@ entrypoint が `/mnt/win-ssh` の通常ファイルを、ドットファイル�
 
 日次は2枚ある。本体は `daily/YYYY-MM-DD.md` で、エージェントの追記先はここだけ。人の日次は `daily/YYYY-MM-DD-mine.md` で、本体へリンクする。Neovim の `:Obsidian today` は、無いほうだけ作り、人の日次を開く。
 
-Cursor の個人スキルの正本は `cursor/skills/` である（今は `obsidian-capture`、`vst-study`、`daily-digest`）。各インストールは `SKILL.md` のあるフォルダをすべて拾う。Windows は `windows/install-powershell.ps1 cursor-skill` が `%USERPROFILE%\.cursor\skills\` へリンクする。Mac は `macos/install.sh` が `~/.cursor/skills/` へリンクする。Grok Bot は `grokbot/install.sh` が `cursor/skills/` を `grokbot/skills/` へ写し（ボックスのボルト `/home/box/sync/obsidian-vault` と `source: grok-bot` を足す）、`/home/box/agent-data/workflows/` へコピーする。
+Cursor の個人スキルの正本は `cursor/skills/` である（今は `obsidian-capture`、`vst-study`、`daily-digest`、`wezterm-claude-mcp`）。各インストールは `SKILL.md` のあるフォルダをすべて拾う。Windows は `windows/install-powershell.ps1 cursor-skill` が `%USERPROFILE%\.cursor\skills\` へリンクする。Mac は `macos/install.sh` が `~/.cursor/skills/` へリンクする。Grok Bot は `grokbot/install.sh` が `cursor/skills/` を `grokbot/skills/` へ写し（ボックスのボルト `/home/box/sync/obsidian-vault` と `source: grok-bot` を足す）、`/home/box/agent-data/workflows/` へコピーする。
 
 スキルを足すときは `cursor/skills/<slug>/SKILL.md` を置くだけでよい。そのあと各 OS のインストール（Windows は `windows/install-powershell.ps1 cursor-skill`、Mac は `macos/install.sh`、Grok Bot は `grokbot/install.sh convert` と `grokbot/install.sh install`）を実行する。スクリプトにスキル名を書き足さない。スキルが運用方針やパスの説明を要するなら、このファイルにも書き足す。
+
+`wezterm-claude-mcp` は、Grok Bot から SUGIMOTO-PC など別マシン上の WezTerm mux セッションで動く Claude Code に指示を送り、Blender MCP や After Effects MCP を使った制作に連携するスキルである。pane id は実行時に `wezterm cli --prefer-mux list` で取得・選択する。送信前に `get-text` で現在の画面を読み、入力欄が空か、意図した pane であることを確認する。応答も `get-text` で読み、明確な完了確認のない状態を完了扱いしない。`spawn`、`kill`、`split` 等の破壊的操作は明示依頼なしに行わない。課金・公開・保存済み制作物の変更などはユーザー本人の承認を必要とする。WezTerm CLI に pane 出力を継続 subscribe する機能は無いので、無計画な頻繁ポーリングは避ける。Blender MCP はツール検出済みだが実通信は未検証、After Effects MCP は新規空プロジェクトの情報取得で確認済み。
 
 `daily-digest` は毎朝 7:00（JST）ごろ Grok Bot が回す情報収集である。情報源は同じフォルダの `sources.md`。原本をボルトの `digests/YYYY-MM-DD.md` に書き、日次の `## 情報収集` にリンクを足す。カードは作らない。2026-10-18 から、ボルトの書き込みは Bot「ノート管理」が一手に引き受ける。Grok Bot は原本をボックスの `/workspace/digests/YYYY-MM-DD.md` に下書きし、ボルトへの配置と日次へのリンクは「ノート管理」に頼む。ことね運用の「ことね用ネタ」への追記も同じ。ボルトを読むのは直接でよい。
 
