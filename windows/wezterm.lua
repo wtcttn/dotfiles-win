@@ -10,7 +10,7 @@ local config = wezterm.config_builder()
 
 -- カラースキーム: モダンでクールなテーマ
 -- config.color_scheme = "Catppuccin Mocha" -- ダークで落ち着いた色合い
-config.color_scheme = "Cappuccin Frappe" -- 明るくて爽やかな色合い
+config.color_scheme = "Catppuccin Frappe" -- 明るくて爽やかな色合い
 -- 他のおすすめ: 'Tokyo Night', 'Dracula', 'Nord', 'Gruvbox Dark'
 
 -- 半透過背景設定
@@ -103,11 +103,31 @@ config.colors = {
 local wslc_dev = "C:\\Users\\kento\\dotfiles\\wslc-dev\\wezterm.cmd"
 config.default_prog = { "cmd.exe", "/c", wslc_dev }
 
+-- ============================================================================
+-- マルチプレクサ (Mux)
+-- ============================================================================
+
+-- ウィンドウを閉じても残るペインは wezterm-mux-server に置く。
+-- 初回の接続でサーバーが自動で起動する。外からは `wezterm cli --prefer-mux list` で見える
+config.unix_domains = {
+	{ name = "mux" },
+}
+
 -- 起動プロファイル定義
 config.launch_menu = {
 	{
 		label = "WSLc dev",
 		args = { "cmd.exe", "/c", wslc_dev },
+	},
+	{
+		label = "WSLc dev (常駐)",
+		args = { "cmd.exe", "/c", wslc_dev },
+		domain = { DomainName = "mux" },
+	},
+	{
+		label = "PowerShell (常駐)",
+		args = { "pwsh.exe", "-NoLogo" },
+		domain = { DomainName = "mux" },
 	},
 	{
 		label = "Arch Linux (WSL)",
@@ -221,6 +241,10 @@ config.keys = {
 
 	-- ランチャー（クイックプロファイル切り替え）
 	{ key = "l", mods = "CTRL|SHIFT", action = wezterm.action.ShowLauncher },
+
+	-- 常駐ペインのタブをこのウィンドウに出す / 切り離す
+	{ key = "a", mods = "CTRL|SHIFT", action = wezterm.action.AttachDomain("mux") },
+	{ key = "d", mods = "CTRL|SHIFT", action = wezterm.action.DetachDomain({ DomainName = "mux" }) },
 }
 
 -- ============================================================================

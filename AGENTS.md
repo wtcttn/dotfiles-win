@@ -13,7 +13,7 @@
 
 ## 変更してよい場所
 
-コンテナ環境の変更は `wslc-dev/` に閉じる。WezTerm の既定端末だけ、`windows/wezterm.lua` にある `default_prog` と launch menu の WSLc 項目を触る。
+コンテナ環境の変更は `wslc-dev/` に閉じる。WezTerm の既定端末だけ、`windows/wezterm.lua` にある `default_prog` と launch menu の WSLc 項目、常駐ペイン用の `unix_domains` と、その付け外しのキーを触る。
 
 次は、その作業を明示されなければ変更しない。
 
@@ -63,6 +63,8 @@
 `dev.ps1` では、関数引数に `-d` を渡さない。PowerShell が `-Debug` に取る。継続行の先頭を `--opt` にしない。`wslc` への引数は文字列配列で `Invoke-Wslc` に渡す。
 
 WezTerm の既定は `wslc-dev/wezterm.cmd` である。`wslc start wslc-dev` のあと `wslc exec -it -u wtcttn -w /workspace wslc-dev zsh` を実行する。反映には新しいウィンドウが要る。Arch はランチャに残す。
+
+ウィンドウを閉じても残すペインは、WezTerm の unix ドメイン `mux`（`wezterm-mux-server`）に置く。ランチャの「(常駐)」項目から人が開く。`Ctrl+Shift+A` で今のウィンドウに出し、`Ctrl+Shift+D` で切り離す。Grok Bot などの外のエージェントは、`wezterm cli --prefer-mux` の `list`、`get-text`、`send-text`（Enter は標準入力から CR を渡す）だけを使う。`spawn` は使わない。今の nightly では、外から spawn すると mux サーバーが応答しなくなり、タブが大量にできる。そうなったら `wezterm-mux-server` を終了する。中のペインは消える。初回の自動起動は、GUI の待ち時間より遅れて失敗することがある。もう一度開けば繋がる。
 
 Noctty は試用中の端末で、WezTerm の置き換えではない。設定は `windows/noctty/config.ghostty` を `%LOCALAPPDATA%\noctty\config.ghostty` へリンクする。既定シェルは同じ `wslc-dev/wezterm.cmd`。完全に切り替えるまでは、WezTerm の `default_prog` を変えない。
 
