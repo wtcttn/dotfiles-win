@@ -646,6 +646,58 @@ function Install-CursorSkill {
     return $true
 }
 
+function Install-ClaudeConfig {
+    $claudeDir = Join-Path $UserProfile ".claude"
+    $skillsDest = Join-Path $claudeDir "skills"
+    foreach ($dir in @($claudeDir, $skillsDest)) {
+        if (!(Test-Path $dir)) {
+            New-Item -ItemType Directory -Path $dir -Force | Out-Null
+        }
+    }
+
+    # シンボリックリンクは管理者権限が要り、コピーでは dotfiles の変更が届かないので、正本を @ で読み込む1行を置く。
+    Write-ColorOutput "Writing Claude Code user instructions..." "Green"
+    $sourcePath = (Join-Path $DotfilesPath "claude\CLAUDE.md") -replace '\\', '/'
+    $destPath = Join-Path $claudeDir "CLAUDE.md"
+    $stub = "@$sourcePath"
+    try {
+        if ((Test-Path $destPath) -and ((Get-Content -Raw $destPath).Trim() -eq $stub)) {
+            Write-ColorOutput "Claude Code CLAUDE.md already imports $sourcePath" "Blue"
+        } else {
+            Backup-AndRemoveItem -Path $destPath -Description "Claude Code CLAUDE.md"
+            [System.IO.File]::WriteAllText($destPath, "$stub`n", (New-Object System.Text.UTF8Encoding $false))
+            Write-ColorOutput "Claude Code CLAUDE.md: $destPath -> $stub" "Blue"
+        }
+    } catch {
+        Write-ColorOutput "Failed to link Claude Code CLAUDE.md: $($_.Exception.Message)" "Red"
+        return $false
+    }
+
+    # cursor/skills を Claude Code でも使う。呼び出し側専用のスキルは .claude-skip を置いて外す。
+    $skillsRoot = Join-Path $DotfilesPath "cursor\skills"
+    $skills = @(Get-ChildItem -Path $skillsRoot -Directory -ErrorAction SilentlyContinue |
+        Where-Object { (Test-Path (Join-Path $_.FullName "SKILL.md")) -and !(Test-Path (Join-Path $_.FullName ".claude-skip")) } |
+        ForEach-Object { $_.Name })
+
+    foreach ($skill in $skills) {
+        Write-ColorOutput "Linking Claude Code skill $skill..." "Green"
+        $sourcePath = Join-Path $skillsRoot $skill
+        $destPath = Join-Path $skillsDest $skill
+        try {
+            Backup-AndRemoveItem -Path $destPath -Description "Claude Code skill $skill"
+            if (!(Set-SymbolicLinkOrCopy -SourcePath $sourcePath -DestinationPath $destPath -Description "Claude Code skill $skill")) {
+                return $false
+            }
+        } catch {
+            Write-ColorOutput "Failed to link Claude Code skill ${skill}: $($_.Exception.Message)" "Red"
+            return $false
+        }
+    }
+
+    Write-ColorOutput "Restart running Claude Code sessions to load the new instructions." "Yellow"
+    return $true
+}
+
 function Install-PowerShellProfile {
     Write-ColorOutput "Installing PowerShell profile..." "Green"
     
@@ -800,7 +852,7 @@ function Show-Help {
     Write-ColorOutput "PowerShell Profile Installer" "Cyan"
     Write-ColorOutput "=============================" "Cyan"
     Write-ColorOutput "" "White"
-    Write-ColorOutput "Usage: .\install-powershell.ps1 [install|uninstall|test|check|font|wezterm|noctty|fastfetch|chafa|wsl|nvim|mutagen|cursor-skill|help]" "White"
+    Write-ColorOutput "Usage: .\install-powershell.ps1 [install|uninstall|test|check|font|wezterm|noctty|fastfetch|chafa|wsl|nvim|mutagen|cursor-skill|claude|help]" "White"
     Write-ColorOutput "       .\install-powershell.ps1 install -GlazewmProfile thinkpad" "DarkGray"
     Write-ColorOutput "" "White"
     Write-ColorOutput "Options:" "Yellow"
@@ -819,6 +871,7 @@ function Show-Help {
     Write-ColorOutput "  wsl       - Install WSL config only" "White"
     Write-ColorOutput "  nvim      - Install Neovim and link windows/nvim only" "White"
     Write-ColorOutput "  cursor-skill - Link every cursor/skills/<slug> (with SKILL.md) into the user Cursor skills directory" "White"
+    Write-ColorOutput "  claude    - Link claude/CLAUDE.md and cursor/skills (except .claude-skip) into ~/.claude" "White"
     Write-ColorOutput "  mutagen   - Install Mutagen (scoop), pin MUTAGEN_SSH_PATH, register the daemon only" "White"
     Write-ColorOutput "  help      - Show this help message" "White"
     Write-ColorOutput "" "White"
@@ -883,6 +936,9 @@ switch ($Action.ToLower()) {
     }
     "cursor-skill" {
         Install-CursorSkill
+    }
+    "claude" {
+        Install-ClaudeConfig
     }
     "mutagen" {
         Install-Mutagen

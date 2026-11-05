@@ -158,6 +158,10 @@ Cursor の個人スキルの正本は `cursor/skills/` である（今は `obsid
 
 `wezterm-claude-mcp` は、Grok Bot から SUGIMOTO-PC など別マシン上の WezTerm mux セッションで動く Claude Code に指示を送り、Blender MCP や After Effects MCP を使った制作に連携するスキルである。pane id は実行時に `wezterm cli --prefer-mux list` で取得・選択する。送信前に `get-text` で現在の画面を読み、入力欄が空か、意図した pane であることを確認する。応答も `get-text` で読み、明確な完了確認のない状態を完了扱いしない。`spawn`、`kill`、`split` 等の破壊的操作は明示依頼なしに行わない。課金・公開・保存済み制作物の変更などはユーザー本人の承認を必要とする。WezTerm CLI に pane 出力を継続 subscribe する機能は無いので、無計画な頻繁ポーリングは避ける。Blender MCP はツール検出済みだが実通信は未検証、After Effects MCP は新規空プロジェクトの情報取得で確認済み。
 
+依頼の印、Claude Code がすること・しないこと、終わりの合図（`完了:`／`エラー:`）は `grokbot/claude-code.md` が正である。Grok Bot から呼ばれた Claude Code はボルトに書かず、結果を画面に返す。ノートに残すものは Grok Bot がノート管理に頼む。`wezterm-claude-mcp` は呼び出す側のスキルなので、`.claude-skip` を置いて Claude Code には入れない。
+
+Claude Code のユーザー指示（`~/.claude/CLAUDE.md`）の正本は `claude/CLAUDE.md` で、正本の索引とパスの対応表だけを置く。このリポジトリは公開なので、秘密情報や公開したくない指示は、リポジトリに入れない `~/.claude/CLAUDE.local.md` に書く（`claude/CLAUDE.md` が読み込む）。Windows は `windows/install-powershell.ps1 claude` が、`claude/CLAUDE.md` を `@` で読み込む1行を `~/.claude/CLAUDE.md` に置き（シンボリックリンクは管理者権限が要り、コピーでは変更が届かないため）、`cursor/skills/` のうち `.claude-skip` の無いスキルを `~/.claude/skills/` へリンクする。常駐中の Claude Code は起動時に読んだ内容のままなので、直したらそのペインの Claude Code を起動し直す。
+
 `daily-digest` は毎朝 7:00（JST）ごろ Grok Bot が回す情報収集である。情報源は同じフォルダの `sources.md`。原本をボルトの `digests/YYYY-MM-DD.md` に書き、日次の `## 情報収集` にリンクを足す。カードは作らない。2026-10-18 から、ボルトの書き込みは Bot「ノート管理」が一手に引き受ける。Grok Bot は原本をボックスの `/workspace/digests/YYYY-MM-DD.md` に下書きし、ボルトへの配置と日次へのリンクは「ノート管理」に頼む。ことね運用の「ことね用ネタ」への追記も同じ。ボルトを読むのは直接でよい。
 
 ## Mac
