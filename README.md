@@ -9,7 +9,9 @@ WSL/Windows統合dotfiles管理。
 ├── windows/            # WezTerm、PowerShell、GlazeWM、Windows Neovim
 ├── wslc-dev/           # WSLc 共有開発コンテナ
 ├── macos/              # Mac の Ghostty、Neovim、AeroSpace、SketchyBar
-└── grokbot/            # Grok Bot のボックスのスキルと install.sh
+├── claude/             # Claude Code のユーザー指示（~/.claude/CLAUDE.md）
+├── cursor/skills/      # Cursor・Claude Code・Grok Bot の共通スキルの正本
+└── grokbot/            # Grok Bot のボックスのスキル、install.sh、Claude Code への依頼の取り決め
 ```
 
 ## 依存パッケージ
@@ -91,6 +93,16 @@ Grok Bot のボックス（Linux）で使う。`cursor/skills/` を写したス�
 ```
 
 `cursor/skills/` を直したら、`grokbot/skills/<slug>` を消して `convert` し直す。
+
+### Claude Code
+
+`~/.claude/CLAUDE.md` に `claude/CLAUDE.md`（正本の索引とパスの対応表）を `@` で読み込む1行を置き、`cursor/skills/` のスキルを `~/.claude/skills/` にリンクする。呼び出す側専用のスキルは、フォルダに `.claude-skip` を置くと外れる。秘密情報や公開したくない指示は、リポジトリに入れない `~/.claude/CLAUDE.local.md` に書く。
+
+```
+.\windows\install-powershell.ps1 claude
+```
+
+Grok Bot から Claude Code への依頼の取り決めは `grokbot/claude-code.md`。直したら、常駐中の Claude Code を起動し直す。
 
 ## 管理
 
