@@ -96,7 +96,7 @@ printf '\r' | wezterm cli --prefer-mux send-text --pane-id 1 --no-paste
 
 1. **pane の特定**
    - `wezterm cli --prefer-mux list` で pane 一覧を取得。
-   - タブ名と cwd から、`grokbot/claude-code.md` の「ペインの割り当て」に合うペインを探す。Blender と After Effects は `cg`（cwd が `workspace\cg`）、Studio One と音素材は `music`、画像・動画の生成は `media-gen`。アプリの MCP はそのフォルダで起動した Claude Code にしか無い。
+   - タブ名と cwd から、`grokbot/claude-code.md` の「ペインの割り当て」に合うペインを探す。Blender と After Effects は `blender` か `aftereffects` のタブ（どちらも cwd が `workspace\cg`）、Studio One と音素材は `music`、画像・動画の生成は `media-gen`。アプリの MCP はそのフォルダで起動した Claude Code にしか無い。
    - 合うペインが無ければ送らず、どのフォルダで Claude Code を起動してほしいかをユーザーに伝える（`spawn` はしない）。
    - pane_id を記録する。
 
