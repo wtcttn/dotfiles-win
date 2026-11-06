@@ -6,6 +6,22 @@ Grok Bot と、オーナーの PC で動く Claude Code のあいだの取り決
 
 Claude Code は、オーナーの PC 上の手である。PC にしか無いもの（Chrome のログイン状態、Studio One、After Effects、Blender、ローカルのファイル）を使う作業を受ける。実装やリポジトリの作業は、これまでどおり Cursor のクラウドエージェントに任せる。
 
+## ペインの割り当て
+
+アプリを動かす MCP は、決まったフォルダで起動した Claude Code にだけ入っている（`claude mcp` の local スコープ。2026-11-06 から）。ほかのペインからは、アプリにも課金のある生成にも触れない。Grok Bot は、依頼に合うペインへ送る。
+
+| ペイン（タブ名） | 起動したフォルダ | 使える MCP | 送る依頼 |
+| --- | --- | --- | --- |
+| `cg` | `C:\Users\kento\workspace\cg` | blender、blender-community、after-effects | Blender、After Effects、3D 素材からの合成 |
+| `music` | `C:\Users\kento\workspace\music` | studio-one、splice、musio-studio | Studio One、音素材 |
+| `media-gen` | `C:\Users\kento\workspace\media-gen` | fal | 画像・動画の生成（課金あり） |
+| それ以外 | ホームやリポジトリ | アプリ系なし | 調べもの、ローカルのファイル、Chrome の読み取り |
+
+- どのペインがどのフォルダかは、`wezterm cli --prefer-mux list` の cwd とタブ名で確かめる。
+- 各フォルダの `CLAUDE.md` に、そのアプリの癖と、承認の要る操作が書いてある。
+- 頼まれた作業に要る MCP がそのペインに無いときは、Claude Code は手を付けずに `エラー: このペインに <MCP 名> が無い（<フォルダ> のペインに送る）` で締める。
+- ペインを増やす、別のフォルダで起動し直すのはオーナーが行う（Grok Bot は `spawn` しない）。
+
 ## 送り方
 
 依頼は、WezTerm mux で常駐している Claude Code のペインに `send-text` で送る（手順は `wezterm-claude-mcp`）。改行は送信になるので、**依頼は1行にする**。長い指示はファイルに置き、パスを渡す。
