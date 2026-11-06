@@ -3,8 +3,9 @@ name: wezterm-claude-mcp
 description: >-
   Connect from Grok Bot to Claude Code running in existing WezTerm mux
   sessions on SUGIMOTO-PC or other machines, to delegate MCP-driven work
-  (blender-mcp, after-effects MCP) to Claude running closer to the
-  application. Use when the user asks to send a task to Claude on a
+  (blender-mcp, after-effects MCP, studio-one, fal.ai) to Claude running
+  closer to the application. Each app's MCP lives only in the pane started
+  in its folder (cg, music, media-gen); see grokbot/claude-code.md. Use when the user asks to send a task to Claude on a
   specific machine, control Blender/After Effects through Claude, or
   orchestrate multi-machine creative workflows.
 ---
@@ -95,7 +96,8 @@ printf '\r' | wezterm cli --prefer-mux send-text --pane-id 1 --no-paste
 
 1. **pane の特定**
    - `wezterm cli --prefer-mux list` で pane 一覧を取得。
-   - タブ名やタイトル、cwd から、Blender 用なら `blender` タブ、After Effects 用なら `aftereffects` タブを探す。
+   - タブ名と cwd から、`grokbot/claude-code.md` の「ペインの割り当て」に合うペインを探す。Blender と After Effects は `cg`（cwd が `workspace\cg`）、Studio One と音素材は `music`、画像・動画の生成は `media-gen`。アプリの MCP はそのフォルダで起動した Claude Code にしか無い。
+   - 合うペインが無ければ送らず、どのフォルダで Claude Code を起動してほしいかをユーザーに伝える（`spawn` はしない）。
    - pane_id を記録する。
 
 2. **現在の状態を確認**
@@ -119,14 +121,20 @@ printf '\r' | wezterm cli --prefer-mux send-text --pane-id 1 --no-paste
    - Claude Code の応答をそのまま引用し、成功したか、エラーがあったかを明示。
    - 未検証の操作を成功扱いしない。
 
-## MCP ツールの状態（2026-11-05 時点）
+## MCP ツールの状態（2026-11-06 時点）
 
-### Blender MCP
-- **検出状態**: MCP ツールとして検出済み。
-- **実通信**: 未検証。実際にシーンの操作が動くかは確認できていない。
-- **利用時の注意**: 初回の指示では「Blender MCP を使って試してください」と明示し、結果を確認する。エラーが出たらユーザーに報告。
+どの MCP がどのペイン（フォルダ）にあるかは `grokbot/claude-code.md` の「ペインの割り当て」を見る。
 
-### After Effects MCP
+### Blender MCP（`cg` ペイン）
+- **中身**: 公式の Blender Lab MCP（`blender`、ポート 9877）と、コミュニティ版の mcp-for-blender（`blender-community`、ポート 9876。Poly Haven と Tripo）。Blender 5.2。
+- **実通信**: 2026-11-06 に両方で確認済み（シーンの読み取り、アドオンの状態）。
+- **利用時の注意**: Tripo の生成は API クレジットを使うので、ユーザー本人の承認が要る。
+
+### fal.ai MCP（`media-gen` ペイン）
+- **中身**: fal.ai 公式のホスト型 MCP（`https://mcp.fal.ai/mcp-relay`）。ログインはオーナーがブラウザで行う。
+- **利用時の注意**: 生成のたびに課金される。枚数か上限額の承認を依頼文に入れる。
+
+### After Effects MCP（`cg` ペイン）
 - **検出状態**: MCP ツールとして検出済み。
 - **実通信**: 新規空プロジェクトの情報取得で確認済み。基本的な通信は動く。
 - **利用時の注意**: プロジェクトの保存、レンダリング、公開などはユーザー本人の承認が必要。

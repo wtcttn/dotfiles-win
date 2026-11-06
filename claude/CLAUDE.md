@@ -12,7 +12,8 @@
 | --- | --- |
 | ノートを書く・読む | ボルト直下の `AGENTS.md` |
 | Grok Bot の役割分担 | ボルトの `maps/Grok Botのハーネス設計.md` と、そこからリンクされた地図 |
-| Grok Bot からの依頼の受け方 | dotfiles の `grokbot/claude-code.md` |
+| Grok Bot からの依頼の受け方、常駐ペインとフォルダの割り当て | dotfiles の `grokbot/claude-code.md` |
+| Blender・After Effects、Studio One、画像・動画の生成 | `C:\Users\kento\workspace\cg`、`music`、`media-gen` の `CLAUDE.md`。アプリの MCP はそのフォルダで起動したときだけ使える |
 | 共通スキル | dotfiles の `cursor/skills/`（`~/.claude/skills/` にリンクしてある） |
 | 開発環境（WSLc、WezTerm、ノートの同期） | dotfiles の `AGENTS.md` |
 | 各リポジトリ | そのリポジトリの `AGENTS.md`、`CLAUDE.md`、`README.md` |
