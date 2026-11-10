@@ -8,17 +8,29 @@ Claude Code は、オーナーの PC 上の手である。PC にしか無いも�
 
 ## ペインの割り当て
 
-アプリを動かす MCP は、決まったフォルダで起動した Claude Code にだけ入っている（`claude mcp` の local スコープ。2026-11-06 から）。ほかのペインからは、アプリにも課金のある生成にも触れない。Grok Bot は、依頼に合うペインへ送る。
+アプリを動かす MCP は、決まったフォルダで起動した Claude Code にだけ入っている。MCP の定義はそのフォルダの `.mcp.json`（project スコープ）で、正本は dotfiles の `claude/workspaces/<フォルダ名>/`（2026-11-10 から。それまでは `claude mcp` の local スコープ）。ほかのペインからは、アプリにも課金のある生成にも触れない。Grok Bot は、依頼に合うペインへ送る。
 
-| ペイン（タブ名・セッション名） | 起動したフォルダ | 使える MCP | 送る依頼 |
-| --- | --- | --- | --- |
-| `blender`、`aftereffects` | `C:\Users\kento\workspace\cg` | blender、blender-community、after-effects | Blender、After Effects、3D 素材からの合成 |
-| `music` | `C:\Users\kento\workspace\music` | studio-one、splice、musio-studio | Studio One、音素材 |
-| `media-gen` | `C:\Users\kento\workspace\media-gen` | fal | 画像・動画の生成（課金あり） |
-| それ以外 | ホームやリポジトリ | アプリ系なし | 調べもの、ローカルのファイル、Chrome の読み取り |
+### 常駐ペイン（固定の4つ）
 
-- どのペインがどのフォルダかは、`wezterm cli --prefer-mux list` の cwd とタブ名で確かめる。`blender` と `aftereffects` はどちらも `cg` で起動していて、同じ MCP を持つ。
+| ペイン（タブ名・セッション名） | 起動したフォルダ | 起動のしかた | 使える MCP | 送る依頼 |
+| --- | --- | --- | --- | --- |
+| `blender` | `C:\Users\kento\workspace\cg` | `claude -n blender` | blender、blender-community、after-effects | Blender、3D 素材 |
+| `aftereffects` | `C:\Users\kento\workspace\cg` | `claude -n aftereffects` | 同上 | After Effects、合成、字幕、書き出し |
+| `music` | `C:\Users\kento\workspace\music` | `claude -n music` | studio-one、splice、musio-studio、suno、myinstants | Studio One、BGM（Suno）、効果音、声、ミックス |
+| `media-gen` | `C:\Users\kento\workspace\media-gen` | `claude -n media-gen` | fal | 画像・動画の生成（課金あり） |
+
+- 固定の4つは、WezTerm の mux（ランチャの「(常駐)」）で、表のフォルダに移ってから起動する。フォルダが違うと MCP が入らない。
+- どのペインがどのフォルダかは、`wezterm cli --prefer-mux list` の cwd とタブ名で確かめる。cwd が表と違うペインには、アプリの依頼を送らない。
 - 各フォルダの `CLAUDE.md` に、そのアプリの癖と、承認の要る操作が書いてある。
+
+### その都度のペイン
+
+制作ごとに、固定の4つのほかにペインを足してよい（例: 取りまとめの `research`、アニメ担当の `blender-anim`）。足すのはオーナーである。
+
+- 名前は役割がわかる短い英小文字にし、`claude -n <名前>` で起動する。タブ名とセッション名をそろえる。
+- アプリの MCP が要るなら、上の表のフォルダで起動する。要らないならホームでよい。
+- 取りまとめのペインを置いた制作では、Grok Bot の依頼はそこへ送り、取りまとめが各ペインへ `SendMessage` で振り分ける。どのペインが取りまとめかは、制作フォルダの `README.md` に書く。
+- 制作が終わったら、オーナーが閉じる。
 - 頼まれた作業に要る MCP がそのペインに無いときは、Claude Code は手を付けずに `エラー: このペインに <MCP 名> が無い（<フォルダ> のペインに送る）` で締める。
 - ペインを増やす、別のフォルダで起動し直すのはオーナーが行う（Grok Bot は `spawn` しない）。
 
@@ -38,6 +50,25 @@ Claude Code 同士はメッセージの仕組み（`SendMessage`）でやりと�
 - 正本: その作業のルールが書いてあるファイル。ボックスのパスでよい（Claude Code が読み替える）。無ければ省く。
 - 書いてよい場所: 省いたときは `なし`（読むだけ、画面に返すだけ）とみなす。
 - ボルト更新: 直前にボックス側（ノート管理など）がボルトに書き、Claude Code にそれを読ませるときだけ付ける。`ボルト更新: <ボルト内のパス> <更新時刻>`。時刻は `2026-11-05T23:40+09:00` の形。複数あるときは `,` で区切る。
+
+## 制作フォルダ（大きいファイルの受け渡し）
+
+動画、音声、画像、素材一式のような大きいファイルは、ボルトに置かない。Grok Bot は SUGIMOTO-PC のファイルを読めるので、制作フォルダに置いてパスで伝える（2026-11-10 から）。
+
+場所は `C:\Users\kento\workspace\productions\<作業名>\`。作業名は英小文字とアンダースコア（例: `exitquiz_s4s9`）。中身は次のとおりで、ほかのフォルダ（`audio\`、`blender\`、`edit\`、`deliver\` など）は制作ごとに決めてよい。
+
+| 置くもの | 書く人 | 中身 |
+| --- | --- | --- |
+| `README.md` | Claude Code（取りまとめ） | 正本（台本など）、仕様、フォルダの割り当て、承認の範囲、取りまとめのペイン |
+| `inbox\` | Grok Bot | Grok Bot からの依頼文（`request_NN.md`）と、取り寄せた素材（`inbox\<日付>_<中身>\`） |
+| `outbox\` | Claude Code | Grok Bot への依頼文（`request_NN.md`）と、納品・引き継ぎ（`handoff_NN_<中身>.md`） |
+
+- 依頼の1行には、ファイルのパスだけを書く（例: `… 正本: C:\Users\kento\workspace\productions\exitquiz_s4s9\inbox\request_02.md`）。
+- 素材を `inbox\` に置いたら、Grok Bot はファイル数かハッシュの一覧を添える。Claude Code は受け取ったら照合し、結果を返す。
+- `outbox\` の引き継ぎには、完成物のパス、クレジット、出どころ、公開前に決めてほしいこと、直しの頼み方を書く。
+- どちらも、相手の書いた同じ名前のファイルを上書きしない。直すときは番号を上げる。
+- ボルトには、ノートに残す要点とパスだけを書く（書くのはノート管理）。
+- 2026-11-10 より前の制作（`C:\Users\kento\research\minecraft-style\exitquiz_s4s9\` など）は、そのままの場所に置いておく。
 
 ## ボルトの同期の遅れ
 

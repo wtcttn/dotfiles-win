@@ -1,0 +1,35 @@
+{
+  "mcpServers": {
+    "studio-one": {
+      "type": "stdio",
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "studio-one-mcp@0.3.0"],
+      "env": {
+        "STUDIO_ONE_MCP_MIDI_PORT": "studio-one-mcp",
+        "STUDIO_ONE_PROFILE": "C:\\Users\\kento\\AppData\\Roaming\\PreSonus\\Studio One 6",
+        "STUDIO_ONE_SONGS": "\\Users\\kento\\Studio One\\Songs"
+      }
+    },
+    "splice": {
+      "type": "http",
+      "url": "https://mcp.splice.com/mcp"
+    },
+    "musio-studio": {
+      "type": "http",
+      "url": "http://127.0.0.1:47823/mcp",
+      "headers": {
+        "Authorization": "${MUSIO_STUDIO_AUTH}"
+      }
+    },
+    "suno": {
+      "type": "http",
+      "url": "https://api.suno.com/mcp"
+    },
+    "myinstants": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "myinstants-mcp@1.8.2"],
+      "env": {}
+    }
+  }
+}
