@@ -11,6 +11,23 @@
 
 アプリの MCP（Blender、After Effects、Studio One、Suno、fal など）は持たない。アプリの作業は、そのフォルダのペインに頼む。
 
+## 起動したとき
+
+hub は WezTerm の mux（ウィンドウを閉じても残る）に常駐させる。起動は PowerShell の `Start-Hub`（無ければ `ccs hub` で mux に立ち上げる）か `cc hub`。
+
+起動し直した hub は新しい会話になる。最初に、このフォルダ（`C:\Users\kento\workspace\hub`）の `handoff_*.md` のうち、いちばん新しいものを読んで続きを把握する。閉じる前に引き継ぐことがあれば、`handoff_hub_<YYYYMMDD>.md` に書き足す。
+
+## ペインを立ち上げる
+
+頼みたいペインが無いとき（`ListAgents` に出ない）は、hub が PowerShell の `ccs <名前> [<フォルダ>]` で mux に立ち上げてよい（例: `ccs blender`、`ccs blender-anim cg`）。
+
+- `ccs` は、mux に同じタブ名のペインがあれば何もしない。無ければ mux にペインを足し、その中で `cc` を起動する。`cc` は引き継いだ秘密（hub の `BW_SESSION`、ブリッジの鍵など）を消してから始めるので、hub の秘密は渡らない。
+- 固定のペイン（`blender`、`aftereffects`、`music`、`media-gen`）は、要るときに hub が立ち上げてよい。立ち上げたことはオーナーに知らせる。
+- 制作ごとのペインを足すときは、オーナーに名前とフォルダを確かめてからにする。
+- Bitwarden の解錠の控えが切れていれば、新しいペインでマスターパスワードを聞かれて止まる。そのときはオーナーに、そのペインで入力してもらう。
+- ペインを閉じる（`kill-pane`）のは、オーナーが認めたときだけ。hub 自身は立ち上げない（`ccs hub` は hub の外から使う）。
+- 立ち上げたペインの Claude Code が `ListAgents` に出るまで、少しかかる。出てから `SendMessage` で頼む。
+
 ## 使える MCP
 
 | 名前 | 中身 |

@@ -124,6 +124,19 @@ function cc {
     }
     Set-Location $dir
 
+    # ほかのペイン（hub が ccs で立ち上げたときなど）から引き継いだ秘密と Claude Code の印を消してから始める。
+    # 消すのは BW_SESSION、どれかの secrets.bw に書いてある環境変数、CLAUDE で始まるもの。
+    $inherited = @("BW_SESSION")
+    foreach ($sf in @(Get-ChildItem (Join-Path $env:USERPROFILE "dotfiles\claude\workspaces\*\secrets.bw") -ErrorAction SilentlyContinue)) {
+        $inherited += @(Get-Content $sf | Where-Object { $_ -match '^\s*[A-Za-z_][A-Za-z0-9_]*\s*=' } | ForEach-Object { $_.Split("=", 2)[0].Trim() })
+    }
+    Get-ChildItem Env: | Where-Object { $_.Name -like "CLAUDE*" -or $inherited -contains $_.Name } | Remove-Item -ErrorAction SilentlyContinue
+
+    # WezTerm のタブ名を付ける（ccs がこの名前でペインを探す）。
+    if ($env:WEZTERM_PANE -and (Get-Command wezterm -ErrorAction SilentlyContinue)) {
+        wezterm cli set-tab-title --pane-id $env:WEZTERM_PANE $Name 2>$null | Out-Null
+    }
+
     # secrets.bw の1行は「環境変数=Bitwarden の項目名」（項目のパスワード欄を読む）。
     # @session の行があるフォルダ（hub）だけ、Bitwarden MCP 用に BW_SESSION を残す。
     $secretsFile = Join-Path $env:USERPROFILE "dotfiles\claude\workspaces\$Folder\secrets.bw"
@@ -170,6 +183,54 @@ function cc {
     $Host.UI.RawUI.WindowTitle = $Name
     claude @claudeArgs
 }
+
+# Claude Code の常駐ペインを WezTerm の mux（ウィンドウを閉じても残る）に用意する（例: ccs blender、ccs blender-anim cg）。
+# mux に同じ名前のペインがあれば何もしない。無ければ mux にペインを足し、その中で cc <名前> [<フォルダ>] を起動する。
+# hub はこれでほかのペインを立ち上げる（2026-11-12 に、mux の中からの spawn で mux が固まらないことを確かめた）。
+# Bitwarden の解錠の控えが切れていれば、新しいペインでマスターパスワードを聞かれるので、そのペインで入力する。
+function ccs {
+    param(
+        [Parameter(Mandatory)][string]$Name,
+        [string]$Folder
+    )
+    if (!(Get-Command wezterm -ErrorAction SilentlyContinue)) {
+        Write-Host "wezterm が見つかりません。" -ForegroundColor Red
+        return
+    }
+    # wezterm の出力は UTF-8。タイトルの記号（◑ など）を読み違えないように合わせる。
+    $prevEncoding = [Console]::OutputEncoding
+    [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+    try {
+        $panes = @(wezterm cli --prefer-mux list --format json | ConvertFrom-Json)
+    } finally {
+        [Console]::OutputEncoding = $prevEncoding
+    }
+    # タブ名（cc と ccs が付ける）で探す。タブ名の無い古いペインは、タイトルの末尾の名前で探す。
+    $pattern = "(^|\s)$([regex]::Escape($Name))$"
+    $found = $panes | Where-Object { $_.tab_title -eq $Name -or (!$_.tab_title -and $_.title -match $pattern) } | Select-Object -First 1
+    if ($found) {
+        Write-Host "$Name はもう mux にあります（pane $($found.pane_id)）。" -ForegroundColor Yellow
+        return $found.pane_id
+    }
+    $paneFolders = @{ blender = "cg"; aftereffects = "cg" }
+    if (!$Folder) { $Folder = if ($paneFolders.ContainsKey($Name)) { $paneFolders[$Name] } else { $Name } }
+    $dir = Join-Path $env:USERPROFILE "workspace\$Folder"
+    if (!(Test-Path $dir)) {
+        Write-Host "フォルダがありません: $dir" -ForegroundColor Red
+        return
+    }
+    $paneId = (wezterm cli --prefer-mux spawn --cwd $dir -- pwsh -NoLogo -NoExit -Command "cc $Name $Folder" | Out-String).Trim()
+    if (!$paneId) {
+        Write-Host "mux にペインを足せませんでした。" -ForegroundColor Red
+        return
+    }
+    wezterm cli --prefer-mux set-tab-title --pane-id $paneId $Name | Out-Null
+    Write-Host "$Name を mux に用意しました（pane $paneId、フォルダ $Folder）。" -ForegroundColor Green
+    return $paneId
+}
+
+# hub を mux に用意する（無ければ起動する）。Windows へのログインのときにも使える。
+function Start-Hub { ccs hub }
 
 # Welcome message (fastfetch config: windows/fastfetch/config.jsonc)
 if (Get-Command fastfetch -ErrorAction SilentlyContinue) {
