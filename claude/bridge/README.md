@@ -15,6 +15,13 @@ Grok Bot（参謀）と、SUGIMOTO-PC の Claude Code `hub` をつなぐブリ�
 - `send_to_hub` で届いたものは `id` で重複を除き、`inbox.jsonl` に記録して hub に押し込む。
 - hub の `reply` は `outbox.jsonl` に記録し、設定があれば参謀の webhook に POST する。参謀は `get_replies(after)` でも取りに来られる。
 - 記録は `%USERPROFILE%\workspace\hub\bridge\`（`HUB_BRIDGE_DIR` で変えられる）。秘密は書かない。
+  - `inbox.jsonl`、`outbox.jsonl`: 届いたもの、返したもの。
+  - `bridge.log`: 動きの記録（届いた要求のメソッドとパス、401 の理由、404 のパス）。Claude Code は起動のあとの標準エラーを MCP の記録に書き留めないので、調べるときはこちらを見る。
+
+## つながらないとき
+
+- Grok Bot 側で「HTTP 404 で読み込みに失敗」と出るのは、たいてい鍵が合わないとき。ブリッジが 401 で断ると、Grok Bot はログインの入口（`/.well-known/oauth-protected-resource` など）を探しに行き、それが無いので 404 になる。`bridge.log` の `401:` の行に理由（ヘッダーが無い、`Bearer ` で始まらない、長さが違う、値が違う）が出る。
+- `bridge.log` に何も出なければ、要求が PC まで届いていない（Tailscale の共有、ポリシー、ファイアウォールの規則を見る）。
 
 ## 守り
 

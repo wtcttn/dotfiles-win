@@ -38,8 +38,16 @@ fs.mkdirSync(DATA_DIR, { recursive: true });
 const INBOX = path.join(DATA_DIR, "inbox.jsonl");
 const OUTBOX = path.join(DATA_DIR, "outbox.jsonl");
 
-const log = (...a) => console.error("[hub-bridge]", ...a);
+const LOGFILE = path.join(DATA_DIR, "bridge.log");
 const now = () => new Date().toISOString();
+// Claude Code は起動のあとの標準エラーを書き留めないので、ファイルにも書く。秘密は書かない。
+const log = (...a) => {
+  const line = a.map((x) => (typeof x === "string" ? x : JSON.stringify(x))).join(" ");
+  console.error("[hub-bridge]", line);
+  try {
+    fs.appendFileSync(LOGFILE, `${now()} ${line}\n`);
+  } catch {}
+};
 
 function readJsonl(file) {
   if (!fs.existsSync(file)) return [];
@@ -252,11 +260,19 @@ function makeGrokServer() {
   return s;
 }
 
-function authorized(req) {
-  if (!TOKEN) return true;
-  const got = Buffer.from(req.headers.authorization || "");
+// 鍵を確かめる。合わないときは理由を返す（鍵の値は返さない）。
+function authProblem(req) {
+  if (!TOKEN) return null;
+  const h = req.headers.authorization;
+  if (!h) return "Authorization ヘッダーが無い";
+  const got = Buffer.from(h);
   const want = Buffer.from(`Bearer ${TOKEN}`);
-  return got.length === want.length && crypto.timingSafeEqual(got, want);
+  if (got.length === want.length && crypto.timingSafeEqual(got, want)) return null;
+  if (!/^Bearer /.test(h)) return `"Bearer " で始まらない（先頭: ${JSON.stringify(h.slice(0, 7))}）`;
+  const val = h.slice(7);
+  if (val.trim() !== val) return "値の前後に空白か改行がある";
+  if (val.length !== TOKEN.length) return `値の長さが違う（${val.length} 文字、期待は ${TOKEN.length} 文字）`;
+  return "値が違う（長さは同じ）";
 }
 
 const httpServer = http.createServer(async (req, res) => {
@@ -267,10 +283,12 @@ const httpServer = http.createServer(async (req, res) => {
       log(`404: ${req.method} ${pathname || "/"}`);
       return void res.writeHead(404).end();
     }
-    if (!authorized(req)) {
-      log("鍵が合わない要求を断った");
+    const problem = authProblem(req);
+    if (problem) {
+      log(`401: ${req.method} /mcp 鍵が合わない — ${problem}`);
       return void res.writeHead(401).end();
     }
+    log(`${req.method} /mcp`);
     if (req.method !== "POST") {
       return void res
         .writeHead(405, { "content-type": "application/json" })
