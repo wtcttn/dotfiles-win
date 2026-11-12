@@ -40,3 +40,7 @@ AI ボイスは E ドライブに入れてある（C ドライブには入れな
 - 再生中や、オートメーション・ミキサーを触った直後は「MCP Edit is not available」になる。止めてトラックを選び直す。
 - 楽器トラックのチャンネルへの `live_add_plugin` は「ambiguous」で失敗する。プラグインはオーナーに手で挿してもらう。
 - サードパーティのプラグイン（Kilohearts、ZEN）はパラメーター名が読めない。つまみの値を伝えて手で合わせてもらう。
+
+## 制作の決まり
+
+制作フォルダ（`C:\Users\kento\workspace\productions\<作業名>\`）の仕事では、制作の決まりの正本である production-kit（`C:\Users\kento\workspace\wtcttn\production-kit`）の `RULES.md` と、制作フォルダの `README.md` に従う。共通の道具は production-kit の `tools/` を使い、制作フォルダに写さない。

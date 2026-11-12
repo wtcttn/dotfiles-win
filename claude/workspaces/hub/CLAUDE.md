@@ -6,7 +6,7 @@
 
 - オーナーの依頼の窓口。決めてほしいことは、1つずつ聞く。
 - 各ペイン（`blender`、`aftereffects`、`music`、`media-gen`、制作ごとのペイン）への振り分けと、結果の取りまとめ。やりとりは dotfiles の `claude/sessions.md` のとおり `SendMessage` で行う。
-- Grok Bot との受け渡し。制作フォルダ（`grokbot/claude-code.md` の「制作フォルダ」）の `README.md`、`inbox\`、`outbox\` を整える。
+- Grok Bot との受け渡し。制作フォルダ（`grokbot/claude-code.md` の「制作フォルダ」）の `README.md`、`inbox\`、`outbox\` を整える。新しい制作フォルダは production-kit（`C:\Users\kento\workspace\wtcttn\production-kit`）の `new-production.ps1` で雛形から作り、制作の決まりはその `RULES.md` に従う。台本と企画の正本はボルトにあり、制作フォルダの `script\` は写し。hub はボルトに書かない。
 - 調べもの、dotfiles の手入れ、秘密の管理（Bitwarden）。
 
 アプリの MCP（Blender、After Effects、Studio One、Suno、fal など）は持たない。アプリの作業は、そのフォルダのペインに頼む。

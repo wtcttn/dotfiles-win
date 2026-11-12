@@ -704,8 +704,30 @@ function Install-ClaudeConfig {
         return $false
     }
 
+    Install-ProductionKit
+
     Write-ColorOutput "Restart running Claude Code sessions to load the new instructions." "Yellow"
     return $true
+}
+
+# 制作の共通の道具（非公開リポジトリ wtcttn/production-kit）のスキルを、その install.ps1 で ~/.claude/skills に入れる。
+# clone が無ければ知らせるだけで、失敗にはしない（公開の dotfiles だけでも入れ終わるように）。
+function Install-ProductionKit {
+    $kitDir = Join-Path $UserProfile "workspace\wtcttn\production-kit"
+    $installer = Join-Path $kitDir "install.ps1"
+    if (!(Test-Path $installer)) {
+        Write-ColorOutput "production-kit is not cloned (skipped): gh repo clone wtcttn/production-kit $kitDir" "Yellow"
+        return
+    }
+    Write-ColorOutput "Installing production-kit skills..." "Green"
+    try {
+        & $installer -ClaudeSkillsDir (Join-Path $UserProfile ".claude\skills")
+        if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) {
+            Write-ColorOutput "production-kit install.ps1 reported errors" "Red"
+        }
+    } catch {
+        Write-ColorOutput "Failed to install production-kit skills: $($_.Exception.Message)" "Red"
+    }
 }
 
 # アプリの MCP を持つ作業フォルダ（claude/workspaces/<名前>）を workspace\<名前> に入れる。
@@ -942,7 +964,7 @@ function Show-Help {
     Write-ColorOutput "  wsl       - Install WSL config only" "White"
     Write-ColorOutput "  nvim      - Install Neovim and link windows/nvim only" "White"
     Write-ColorOutput "  cursor-skill - Link every cursor/skills/<slug> (with SKILL.md) into the user Cursor skills directory" "White"
-    Write-ColorOutput "  claude    - Link claude/CLAUDE.md and cursor/skills (except .claude-skip) into ~/.claude, and install claude/workspaces into workspace\<name>" "White"
+    Write-ColorOutput "  claude    - Link claude/CLAUDE.md and cursor/skills (except .claude-skip) into ~/.claude, and install claude/workspaces into workspace\<name>, and production-kit skills if cloned" "White"
     Write-ColorOutput "  mutagen   - Install Mutagen (scoop), pin MUTAGEN_SSH_PATH, register the daemon only" "White"
     Write-ColorOutput "  help      - Show this help message" "White"
     Write-ColorOutput "" "White"

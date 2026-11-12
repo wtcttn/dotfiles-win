@@ -16,7 +16,8 @@
 | 別の Claude Code のセッションに頼む・報告する | dotfiles の `claude/sessions.md`（`SendMessage` で送る。`send-text` で打ち込まない） |
 | Blender・After Effects、Studio One、画像・動画の生成 | `C:\Users\kento\workspace\cg`、`music`、`media-gen` の `CLAUDE.md`（正本は dotfiles の `claude/workspaces/`）。アプリの MCP はそのフォルダで起動したときだけ使える（`.mcp.json`） |
 | 制作の受け渡し（大きいファイル、Grok Bot との依頼文と納品） | dotfiles の `grokbot/claude-code.md` の「制作フォルダ」。`C:\Users\kento\workspace\productions\<作業名>\` |
-| 共通スキル | dotfiles の `cursor/skills/`（`~/.claude/skills/` にリンクしてある） |
+| 制作の決まり（仮組みを先に見る順番、描画・音・素材・公開）、共通の道具、制作フォルダの雛形 | 非公開リポジトリ `wtcttn/production-kit`（`C:\Users\kento\workspace\wtcttn\production-kit`）の `RULES.md` と `README.md`。新しい制作フォルダは `new-production.ps1` で作る |
+| 共通スキル | dotfiles の `cursor/skills/`（`~/.claude/skills/` にリンクしてある）。制作のスキルは production-kit の `skills/`（`windows/install-powershell.ps1 claude` が、その `install.ps1` を呼んでリンクする） |
 | 開発環境（WSLc、WezTerm、ノートの同期） | dotfiles の `AGENTS.md` |
 | 各リポジトリ | そのリポジトリの `AGENTS.md`、`CLAUDE.md`、`README.md` |
 | 事象編纂室の設定とことねの運用 | jishou-hensanshitsu の `README.md` と `bot/README.md`。正典は `world/`・`organizations/`・`characters/` |
