@@ -136,6 +136,12 @@ entrypoint が `/mnt/win-ssh` の通常ファイルを、ドットファイル�
 
 1Password の `op-ssh-sign.exe` によるコミット署名は、コンテナには繋いでいない。
 
+## Tailscale
+
+SUGIMOTO-PC は Tailscale（winget の `Tailscale.Tailscale`、unattended）で tailnet に入っている。Grok Bot の箱は、Grok Bot の Tailscale のコネクタで、箱専用の利用者（Bot 用のアカウント）として入り、PC の hub のブリッジ（8788）にだけ届く。コネクタの端末に札（tag）を付けると接続が切れ、Authenticate し直すと札なしの新しい端末になるので、札では絞らない（2026-11-12 に確かめた）。
+
+tailnet のポリシー（ACL）の正本は `tailscale/policy.hujson` で、`tailscale/apply-policy.ps1` で反映する。既定は検証と差分の表示だけで、`-Apply` を付けたときだけ送る。管理画面で直されていたら（ETag が違えば）送らずに止まる。このリポジトリは公開なので、IP、tailnet 名、メールアドレスはポリシーに書かず `${名前}` の印にする。反映のときに `tailscale/secrets.bw`（「名前=Bitwarden の項目名」、`:username` でユーザー名欄）に従って Bitwarden から埋め、画面には印のまま出す。API の鍵も Bitwarden の項目（`tailscale-policy-oauth`、OAuth クライアント、Policy File の書き込みだけ）に置く。管理画面でポリシーを直したときは、`policy.hujson` にも同じ直しを入れる。
+
 ## Neovim
 
 設定は3つに分ける。
