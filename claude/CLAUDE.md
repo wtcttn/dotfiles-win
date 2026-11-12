@@ -13,6 +13,7 @@
 | ノートを書く・読む | ボルト直下の `AGENTS.md` |
 | Grok Bot の役割分担 | ボルトの `maps/Grok Botのハーネス設計.md` と、そこからリンクされた地図 |
 | Grok Bot からの依頼の受け方、常駐ペインとフォルダの割り当て | dotfiles の `grokbot/claude-code.md` |
+| Grok Bot のマーケターに直接呼ばれた調査（`C:\Users\kento\workspace\research\<YYYYMMDD>_<題名>\`） | dotfiles の `grokbot/claude-code.md` の「調査を直接呼ぶ（マーケター）」と `claude/workspaces/research/CLAUDE.md`。hub を通さない。結果は作業フォルダの `report_NN.md` に書き、ボルトに書かない |
 | 別の Claude Code のセッションに頼む・報告する | dotfiles の `claude/sessions.md`（`SendMessage` で送る。`send-text` で打ち込まない） |
 | Blender・After Effects、Studio One、画像・動画の生成 | `C:\Users\kento\workspace\cg`、`music`、`media-gen` の `CLAUDE.md`（正本は dotfiles の `claude/workspaces/`）。アプリの MCP はそのフォルダで起動したときだけ使える（`.mcp.json`） |
 | 制作の受け渡し（大きいファイル、Grok Bot との依頼文と納品） | dotfiles の `grokbot/claude-code.md` の「制作フォルダ」。`C:\Users\kento\workspace\productions\<作業名>\` |

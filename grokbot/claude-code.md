@@ -1,6 +1,6 @@
 # Grok Bot から Claude Code への依頼
 
-Grok Bot と、オーナーの PC で動く Claude Code のあいだの取り決めの正本である。両方がこれを読む。Grok Bot が送る手順はスキル `hub-bridge`、hub がいないときに用意する手順はスキル `hub-keeper`、Claude Code の入口は `claude/CLAUDE.md`（`~/.claude/CLAUDE.md`）にある。
+Grok Bot と、オーナーの PC で動く Claude Code のあいだの取り決めの正本である。両方がこれを読む。Grok Bot が送る手順はスキル `hub-bridge`、hub がいないときに用意する手順はスキル `hub-keeper`、マーケターが調査を直接呼ぶ手順はスキル `research-request`、Claude Code の入口は `claude/CLAUDE.md`（`~/.claude/CLAUDE.md`）にある。
 
 ## 役割
 
@@ -39,7 +39,7 @@ Claude Code は、オーナーの PC 上の手である。PC にしか無いも�
 
 ## ブリッジ（参謀と hub）
 
-参謀から Claude Code への依頼は、ブリッジ `hub-bridge`（dotfiles の `claude/bridge/`）で `hub` に送る。窓口は Grok Bot 側が参謀、Claude Code 側が `hub` の1組だけで、各ペインへの振り分けは hub が `SendMessage` で行う。ほかの Bot が Claude Code に頼むときは、参謀を通す。
+参謀から Claude Code への依頼は、ブリッジ `hub-bridge`（dotfiles の `claude/bridge/`）で `hub` に送る。窓口は Grok Bot 側が参謀、Claude Code 側が `hub` の1組だけで、各ペインへの振り分けは hub が `SendMessage` で行う。ほかの Bot が Claude Code に頼むときは、参謀を通す。例外は2つで、ことね運用のおすすめの読み取り（jishou-hensanshitsu の `bot/scripts/README.md`）と、マーケターの調査（下の「調査を直接呼ぶ（マーケター）」）は、PC の `claude -p` を直接呼ぶ。
 
 - 参謀は、Grok Bot に登録した MCP サーバー `hub-bridge` のツール `send_to_hub` を呼ぶ。経路は Tailscale で、PC の 8788 番 `/mcp` にだけ届く（Tailscale のつなぎ方は dotfiles の `AGENTS.md` の「Tailscale」）。
 - 引数は `body`（本文）と、下の印の項目に当たる `source`（正本）、`writable`（書いてよい場所。省くと なし）、`vault_updated`（`[{path, at}]`）。`id` を付けると、同じ id は二度届かない。`kind` は `request`（既定）、`result`、`progress`、`notice`。
@@ -58,7 +58,7 @@ Claude Code 同士はメッセージの仕組み（`SendMessage`）でやりと�
 [Grok Bot / 依頼元: <Bot 名> / 正本: <読むファイル> / 書いてよい場所: <パスか なし>] <依頼の本文>
 ```
 
-- 依頼元: `参謀`、`ことね運用`、`ノート管理` など。
+- 依頼元: `参謀`、`ことね運用`、`ノート管理`、`マーケター` など。
 - 正本: その作業のルールが書いてあるファイル。ボックスのパスでよい（Claude Code が読み替える）。無ければ省く。
 - 書いてよい場所: 省いたときは `なし`（読むだけ、画面に返すだけ）とみなす。
 - ボルト更新: 直前にノート管理がボルトに書き、Claude Code にそれを読ませるときだけ付ける。`ボルト更新: <書いた先>:<ボルト内のパス> <更新時刻>`。書いた先は、PC の `C:\Users\kento\notes` に直接書いたら `pc`、ボックスの控え（`/home/box/sync/obsidian-vault`）に書いたら `box`（例: `ボルト更新: pc:tasks/foo.md 2026-11-12T20:10+09:00`）。書いた先の無い古い書き方は `box` とみなす。時刻は `2026-11-05T23:40+09:00` の形。複数あるときは `,` で区切る。
@@ -86,6 +86,44 @@ Claude Code 同士はメッセージの仕組み（`SendMessage`）でやりと�
 
 制作の決まり（仮組みを見てから本番を描く順番、描画・音・素材・公開の決まり）、共通の道具、制作フォルダの雛形の正本は、非公開リポジトリ `wtcttn/production-kit`（`C:\Users\kento\workspace\wtcttn\production-kit`）にある。決まりは `RULES.md` を読む。新しい制作フォルダは、その `new-production.ps1` で雛形から作る。
 
+## 調査を直接呼ぶ（マーケター）
+
+2026-11-12 のオーナーの決定。Grok Bot の「マーケター」は、調査と分析の担当である。調べものは、マーケターが SUGIMOTO-PC の Claude Code を直接呼んで行う。hub と hub-bridge は通さない。形は、ことね運用のおすすめの読み取り（`C:\Users\kento\kotone-foryou`）と同じで、作業フォルダに移って `claude -p` を動かし、長いものは裏で動かして終わりの印のファイルを待つ。手順はスキル `research-request`、呼ばれた Claude Code の決まりは `claude/workspaces/research/CLAUDE.md` にある。
+
+### 作業フォルダ
+
+調査のたびに `C:\Users\kento\workspace\research\<YYYYMMDD>_<題名>\` を作る（題名は英小文字とアンダースコア。例: `20261112_shorts_trend`）。
+
+| 置くもの | 書く人 | 中身 |
+| --- | --- | --- |
+| `request_NN.md` | マーケター | 目的、問い（1〜3）、範囲、締め切り、出力の形、禁止事項。雛形は dotfiles の `claude/workspaces/research/templates/request.md` |
+| `report_NN.md` | Claude Code | 要点3行、確かなことと推測を分けた本文、出典の URL と確かめた日時。雛形は同じフォルダの `report.md` |
+| `sources\` | Claude Code | 集めた資料の写し |
+| `session_NN.txt`、`prompt_NN.txt`、`run_NN.log`、`run_NN.err`、`cleanup_NN.txt`・`cleanup_NN.log`、`report_NN.done` | 起動スクリプト | 会話の ID と起動したプロセス、渡した指示、最後の返事、エラー、Chrome の後始末、終わりの印 |
+
+- 番号 `NN` は `01` から。追加の問いややり直しは、番号を上げた `request_NN.md` で頼む。相手の書いたファイルは書き換えない。
+- 結果はボルトの inbox に入れない。作業フォルダに置いたまま、パスだけを受け渡す。Claude Code はボルトに書かない。ノートに残すものは、マーケターが要点とパスをノート管理に頼む。
+
+### 呼び方
+
+Grok Bot のデスクトップアプリで SUGIMOTO-PC を指定し、PowerShell で起動スクリプトを動かす。
+
+```powershell
+& "$env:USERPROFILE\dotfiles\claude\workspaces\research\run-research.ps1" -Dir C:\Users\kento\workspace\research\20261112_shorts_trend -N 01 -MaxMinutes 60 -Background
+```
+
+- `-Background` は裏で動かしてすぐ戻る。`report_NN.done` ができたら終わり。1行目が `done 0` なら成功、`done <0 以外>` は失敗、`timeout` は打ち切り（`report_NN.md` があれば途中までの結果）、`abandoned` は起動スクリプトが外から止められ、次の起動のときに片付けたもの。2行目以降に `report:`（あり／なし）、`tabs:`（Chrome の後始末）、`session:`（会話の ID）がある。1〜2分おきに見て、`-MaxMinutes` に10分を足しても無ければ、オーナーに知らせる。短いもの（10分ほどまで）は `-Background` を付けずに待ってよい。
+- 起動スクリプトは、作業フォルダに移り、`claude -p --chrome` を、Chrome と WebSearch・WebFetch・読み取りと、作業フォルダの中の書き込みだけを許して動かす。`-MaxMinutes`（既定60、5〜300）で打ち切る。Chrome が要らない調査は `-NoChrome`。
+- PC のコマンドには、Grok Bot の自動の安全確認（Auto-review）が入る。止められたときは、オーナーの承認カードを待つ。許可のルールは、この取り決めでは変えない。
+
+### Chrome
+
+- ログイン中の Chrome（Claude in Chrome）を使う。読むだけにする。投稿、返信、いいね、リポスト、フォロー、ブックマーク、購入・課金、設定の変更、フォームの送信はしない。
+- ことねの巡回（おすすめの読み取り）も同じ Chrome を使うが、並列で動かしてよい（2026-11-12 オーナー決定）。時刻をずらしたり、使用中の印を置いたりしない。
+- タブは調査のタブグループの中だけで使い、終わる前にすべて閉じる（最初に作られる空のタブも）。オーナーのタブは触らない。
+- 後始末: Chrome を使った調査が終わったら、正常終了でも打ち切り（`timeout`）でも、起動スクリプトが同じ会話（`--session-id` で決めた ID）を `claude -p --resume` で再開し、その会話のタブグループに残ったタブをすべて閉じる（最後のタブを閉じるとグループも消える）。Claude in Chrome から見えるのは自分の会話のグループだけなので、ことねの巡回やオーナーのタブ、ほかの調査のグループには届かない。結果は `report_NN.done` の `tabs: tabs-before: <数> tabs-after: <数>` の行に出る。`tabs-after` が 0 でない、または確かめられないと書いてあれば、オーナーに知らせる。後始末は上限 90 秒（ふだんは 10 秒ほど）。
+- 起動スクリプトそのものが外から止められると、その場では後始末できない。そのときは、次に起動スクリプトを動かしたとき（どの作業フォルダでも）、`session_NN.txt` があって `report_NN.done` が無く、記録したプロセスがもういない調査を見つけ、同じように後始末してから `report_NN.done` を `abandoned` で書く。
+
 ## ボルトの同期の遅れ
 
 2026-11-12 から、ボルトの書き込みの主な経路は次のとおり（オーナーの決定。細かいところはボルトの `AGENTS.md` が正）。
@@ -112,7 +150,7 @@ Claude Code の読み方:
 1. 印に `ボルト更新:` があれば、上の「ボルトの同期の遅れ」のとおり読む（`pc:` はすぐ、`box:` は届いたのを確かめてから）。
 2. 印の正本と、`claude/CLAUDE.md` の正本のうち関係するものを読む。パスはこの PC のものに読み替える。
 3. 依頼の範囲だけを行う。書いてよい場所の外は変更しない。
-4. hub は、ブリッジの `reply` で結果を返す（`kind: result`、`status: ok` か `error`、`reply_to` に依頼の id）。参謀はこれを見て終わったと判断する。hub が各ペインに振り分けたときは、ペインの報告をまとめてから返す。
+4. hub は、ブリッジの `reply` で結果を返す（`kind: result`、`status: ok` か `error`、`reply_to` に依頼の id）。参謀はこれを見て終わったと判断する。hub が各ペインに振り分けたときは、ペインの報告をまとめてから返す。マーケターに直接呼ばれた調査は、`report_NN.md` に書き、最後の返事はそのパスと要点3行にする（「調査を直接呼ぶ（マーケター）」）。
 
 途中でオーナーの判断が要るときは、その場で止めて `status: error` で「オーナーの判断が要る（<何を>）」と返す。オーナーが hub の画面にいて、その場で答えられるときは、hub がオーナーに直接聞いてもよい（hub の `CLAUDE.md`）。
 
