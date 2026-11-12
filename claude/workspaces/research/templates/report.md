@@ -37,3 +37,5 @@
 | 番号 | URL | 確かめた日時 | 写し |
 | --- | --- | --- | --- |
 | 1 | <https://…> | YYYY-MM-DD HH:MM | `sources\01_<中身>.md` |
+
+<!-- 動画の URL は、YouTube は `https://www.youtube.com/watch?v=<ID>` の形で書く（ショートも同じ。`/shorts/<ID>` や `youtu.be/<ID>` は使わない）。TikTok は個別の動画の URL（`https://www.tiktok.com/@<ユーザー>/video/<ID>`）で書く。ボルトに入れたあと Obsidian で埋め込むと、`/shorts/` の形は再生できないため。本文の実例も同じ。 -->

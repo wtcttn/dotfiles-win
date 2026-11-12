@@ -26,6 +26,7 @@
    - 先頭に要点を3行。
    - 本文は「確かなこと」（出典で確かめた事実。数字は出典ごと）と「推測」（自分の読み。根拠を添える）を分ける。
    - 出典は、URL と確かめた日時（`2026-11-12 21:30` の形）を並べる。`sources\` に写したものはそのパスも書く。
+   - 動画の URL は、YouTube は `https://www.youtube.com/watch?v=<ID>` の形で書く（ショートも同じ。`/shorts/<ID>` や `youtu.be/<ID>` は使わない）。TikTok は個別の動画の URL（`https://www.tiktok.com/@<ユーザー>/video/<ID>`）で書く。ボルトに入れたあと Obsidian で埋め込むと、`/shorts/` の形は再生できないため。本文の実例も出典も同じ。
 4. 最後の返事（`run_NN.log` に残る）は、`report_NN.md` のパスと要点3行だけにする。
 
 ## Chrome
