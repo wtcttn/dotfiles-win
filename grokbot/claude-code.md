@@ -99,7 +99,7 @@ Claude Code 同士はメッセージの仕組み（`SendMessage`）でやりと�
 | `request_NN.md` | マーケター | 目的、問い（1〜3）、範囲、締め切り、出力の形、禁止事項。雛形は dotfiles の `claude/workspaces/research/templates/request.md` |
 | `report_NN.md` | Claude Code | 要点3行、確かなことと推測を分けた本文、出典の URL と確かめた日時。雛形は同じフォルダの `report.md` |
 | `sources\` | Claude Code | 集めた資料の写し |
-| `prompt_NN.txt`、`run_NN.log`、`run_NN.err`、`cleanup_NN.txt`・`cleanup_NN.log`、`report_NN.done` | 起動スクリプト | 渡した指示、最後の返事、エラー、Chrome の後始末、終わりの印 |
+| `session_NN.txt`、`prompt_NN.txt`、`run_NN.log`、`run_NN.err`、`cleanup_NN.txt`・`cleanup_NN.log`、`report_NN.done` | 起動スクリプト | 会話の ID と起動したプロセス、渡した指示、最後の返事、エラー、Chrome の後始末、終わりの印 |
 
 - 番号 `NN` は `01` から。追加の問いややり直しは、番号を上げた `request_NN.md` で頼む。相手の書いたファイルは書き換えない。
 - 結果はボルトの inbox に入れない。作業フォルダに置いたまま、パスだけを受け渡す。Claude Code はボルトに書かない。ノートに残すものは、マーケターが要点とパスをノート管理に頼む。
@@ -112,7 +112,7 @@ Grok Bot のデスクトップアプリで SUGIMOTO-PC を指定し、PowerShell
 & "$env:USERPROFILE\dotfiles\claude\workspaces\research\run-research.ps1" -Dir C:\Users\kento\workspace\research\20261112_shorts_trend -N 01 -MaxMinutes 60 -Background
 ```
 
-- `-Background` は裏で動かしてすぐ戻る。`report_NN.done` ができたら終わり。1行目が `done 0` なら成功、`done <0 以外>` は失敗、`timeout` は打ち切り（`report_NN.md` があれば途中までの結果）。2行目以降に `report:`（あり／なし）、`tabs:`（Chrome の後始末）、`session:`（会話の ID）がある。1〜2分おきに見て、`-MaxMinutes` に10分を足しても無ければ、オーナーに知らせる。短いもの（10分ほどまで）は `-Background` を付けずに待ってよい。
+- `-Background` は裏で動かしてすぐ戻る。`report_NN.done` ができたら終わり。1行目が `done 0` なら成功、`done <0 以外>` は失敗、`timeout` は打ち切り（`report_NN.md` があれば途中までの結果）、`abandoned` は起動スクリプトが外から止められ、次の起動のときに片付けたもの。2行目以降に `report:`（あり／なし）、`tabs:`（Chrome の後始末）、`session:`（会話の ID）がある。1〜2分おきに見て、`-MaxMinutes` に10分を足しても無ければ、オーナーに知らせる。短いもの（10分ほどまで）は `-Background` を付けずに待ってよい。
 - 起動スクリプトは、作業フォルダに移り、`claude -p --chrome` を、Chrome と WebSearch・WebFetch・読み取りと、作業フォルダの中の書き込みだけを許して動かす。`-MaxMinutes`（既定60、5〜300）で打ち切る。Chrome が要らない調査は `-NoChrome`。
 - PC のコマンドには、Grok Bot の自動の安全確認（Auto-review）が入る。止められたときは、オーナーの承認カードを待つ。許可のルールは、この取り決めでは変えない。
 
@@ -121,7 +121,8 @@ Grok Bot のデスクトップアプリで SUGIMOTO-PC を指定し、PowerShell
 - ログイン中の Chrome（Claude in Chrome）を使う。読むだけにする。投稿、返信、いいね、リポスト、フォロー、ブックマーク、購入・課金、設定の変更、フォームの送信はしない。
 - ことねの巡回（おすすめの読み取り）も同じ Chrome を使うが、並列で動かしてよい（2026-11-12 オーナー決定）。時刻をずらしたり、使用中の印を置いたりしない。
 - タブは調査のタブグループの中だけで使い、終わる前にすべて閉じる（最初に作られる空のタブも）。オーナーのタブは触らない。
-- 後始末: Chrome を使った調査が終わったら、正常終了でも打ち切り（`timeout`）でも、起動スクリプトが同じ会話（`--session-id` で決めた ID）を `claude -p --resume` で再開し、その会話のタブグループに残ったタブをすべて閉じる（最後のタブを閉じるとグループも消える）。Claude in Chrome から見えるのは自分の会話のグループだけなので、ことねの巡回やオーナーのタブ、ほかの調査のグループには届かない。結果は `report_NN.done` の `tabs: tabs-before: <数> tabs-after: <数>` の行に出る。`tabs-after` が 0 でない、または確かめられないと書いてあれば、オーナーに知らせる。
+- 後始末: Chrome を使った調査が終わったら、正常終了でも打ち切り（`timeout`）でも、起動スクリプトが同じ会話（`--session-id` で決めた ID）を `claude -p --resume` で再開し、その会話のタブグループに残ったタブをすべて閉じる（最後のタブを閉じるとグループも消える）。Claude in Chrome から見えるのは自分の会話のグループだけなので、ことねの巡回やオーナーのタブ、ほかの調査のグループには届かない。結果は `report_NN.done` の `tabs: tabs-before: <数> tabs-after: <数>` の行に出る。`tabs-after` が 0 でない、または確かめられないと書いてあれば、オーナーに知らせる。後始末は上限 90 秒（ふだんは 10 秒ほど）。
+- 起動スクリプトそのものが外から止められると、その場では後始末できない。そのときは、次に起動スクリプトを動かしたとき（どの作業フォルダでも）、`session_NN.txt` があって `report_NN.done` が無く、記録したプロセスがもういない調査を見つけ、同じように後始末してから `report_NN.done` を `abandoned` で書く。
 
 ## ボルトの同期の遅れ
 

@@ -13,7 +13,7 @@
 | `request_NN.md` | マーケター | 目的、問い（1〜3）、範囲、締め切り、出力の形、禁止事項。雛形は `templates/request.md` |
 | `report_NN.md` | Claude Code | 要点3行、確かなことと推測を分けた本文、出典の URL と確かめた日時。雛形は `templates/report.md` |
 | `sources\` | Claude Code | 集めた資料（ページの写し、表、スクリーンショット）。ファイル名は `NN_<中身>.<拡張子>` |
-| `prompt_NN.txt`、`run_NN.log`、`run_NN.err`、`cleanup_NN.txt`・`cleanup_NN.log`、`report_NN.done` | `run-research.ps1` | 渡した指示、最後の返事、エラー、Chrome の後始末、終わりの印 |
+| `session_NN.txt`、`prompt_NN.txt`、`run_NN.log`、`run_NN.err`、`cleanup_NN.txt`・`cleanup_NN.log`、`report_NN.done` | `run-research.ps1` | 会話の ID と起動したプロセス、渡した指示、最後の返事、エラー、Chrome の後始末、終わりの印 |
 
 - 番号 `NN` は `01` から。追加の問いややり直しは、番号を上げた `request_NN.md` で受ける。前の番号のファイルは書き換えない。
 - `report_NN.md` は締め切りの前に必ず書く。調べきれなかったときも、わかったところまでと、残った問いを書く。
