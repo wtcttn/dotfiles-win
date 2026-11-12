@@ -20,3 +20,6 @@ fal.ai はモデルを動かすたびに課金される。
 ## 制作の決まり
 
 制作フォルダ（`C:\Users\kento\workspace\productions\<作業名>\`）の仕事では、制作の決まりの正本である production-kit（`C:\Users\kento\workspace\wtcttn\production-kit`）の `RULES.md` と、制作フォルダの `README.md` に従う。共通の道具は production-kit の `tools/` を使い、制作フォルダに写さない。
+
+- 動かす前に、毎回 `C:\Users\kento\workspace\productions\_shared\venv\Scripts\Activate.ps1` で venv を有効にする。使い方の正本は `tools/README.md`（各道具は `-h`）。道具には `--root <制作フォルダ>` を渡す。
+- 生成したクリップは、`tools/blender/conform.py` で制作の fps にそろえ、`tools/luma.py` で明るさの段差を確かめる。生成のバッチの道具は、まだ `tools/` に無い。

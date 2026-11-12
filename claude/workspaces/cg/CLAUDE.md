@@ -38,3 +38,7 @@
 ## 制作の決まり
 
 制作フォルダ（`C:\Users\kento\workspace\productions\<作業名>\`）の仕事では、制作の決まりの正本である production-kit（`C:\Users\kento\workspace\wtcttn\production-kit`）の `RULES.md` と、制作フォルダの `README.md` に従う。共通の道具は production-kit の `tools/` を使い、制作フォルダに写さない。
+
+- 動かす前に、毎回 `C:\Users\kento\workspace\productions\_shared\venv\Scripts\Activate.ps1` で venv を有効にする。使い方の正本は `tools/README.md`（各道具は `-h`）。道具には `--root <制作フォルダ>` を渡す。
+- Blender と連番（`tools/blender/`）: `run_blender`、`render_queue`・`render_blend`（描画キュー）、`post`（連番 → mp4・ProRes）、`conform`、`calib_cuts`、`chunk_transition`、`luma_steps`。GPU を使う本番の描画は、同時に1つだけ。
+- 編集（After Effects の外の組み立て）: `assemble`（final・rough・frames・test）、`luma`（明るさの確認）、`check_master`、`lines_to_subs`・`render_subs`（字幕）、`ui_layer`。
