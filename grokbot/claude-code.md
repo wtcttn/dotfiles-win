@@ -10,26 +10,28 @@ Claude Code は、オーナーの PC 上の手である。PC にしか無いも�
 
 アプリを動かす MCP は、決まったフォルダで起動した Claude Code にだけ入っている。MCP の定義はそのフォルダの `.mcp.json`（project スコープ）で、正本は dotfiles の `claude/workspaces/<フォルダ名>/`（2026-11-10 から。それまでは `claude mcp` の local スコープ）。ほかのペインからは、アプリにも課金のある生成にも触れない。Grok Bot は、依頼に合うペインへ送る。
 
-### 常駐ペイン（固定の4つ）
+### 常駐ペイン（固定）
 
 | ペイン（タブ名・セッション名） | 起動したフォルダ | 起動のしかた | 使える MCP | 送る依頼 |
 | --- | --- | --- | --- | --- |
-| `blender` | `C:\Users\kento\workspace\cg` | `claude -n blender` | blender、blender-community、after-effects | Blender、3D 素材 |
-| `aftereffects` | `C:\Users\kento\workspace\cg` | `claude -n aftereffects` | 同上 | After Effects、合成、字幕、書き出し |
-| `music` | `C:\Users\kento\workspace\music` | `claude -n music` | studio-one、splice、musio-studio、suno、myinstants | Studio One、BGM（Suno）、効果音、声、ミックス |
-| `media-gen` | `C:\Users\kento\workspace\media-gen` | `claude -n media-gen` | fal | 画像・動画の生成（課金あり） |
+| `hub` | `C:\Users\kento\workspace\hub` | `cc hub` | bitwarden | オーナーの右腕。依頼の窓口、各ペインへの振り分けと取りまとめ、制作フォルダの整備、調べもの |
+| `blender` | `C:\Users\kento\workspace\cg` | `cc blender` | blender、blender-community、after-effects | Blender、3D 素材 |
+| `aftereffects` | `C:\Users\kento\workspace\cg` | `cc aftereffects` | 同上 | After Effects、合成、字幕、書き出し |
+| `music` | `C:\Users\kento\workspace\music` | `cc music` | studio-one、splice、musio-studio、suno、myinstants | Studio One、BGM（Suno）、効果音、声、ミックス |
+| `media-gen` | `C:\Users\kento\workspace\media-gen` | `cc media-gen` | fal | 画像・動画の生成（課金あり） |
 
-- 固定の4つは、WezTerm の mux（ランチャの「(常駐)」）で、表のフォルダに移ってから起動する。フォルダが違うと MCP が入らない。
+- 固定のペインは、WezTerm の mux（ランチャの「PowerShell (常駐)」）で `cc <名前>` から起動する。`cc` は dotfiles の PowerShell プロファイルにあり、表のフォルダに移り、要る秘密を Bitwarden から読んでこのペインにだけ渡し（`claude/workspaces/<フォルダ>/secrets.bw`）、`claude -n <名前>` を起動する。フォルダが違うと MCP が入らない。
 - どのペインがどのフォルダかは、`wezterm cli --prefer-mux list` の cwd とタブ名で確かめる。cwd が表と違うペインには、アプリの依頼を送らない。
 - 各フォルダの `CLAUDE.md` に、そのアプリの癖と、承認の要る操作が書いてある。
+- どこへ送ればよいか迷う依頼、複数のペインにまたがる依頼は `hub` に送る。
 
 ### その都度のペイン
 
-制作ごとに、固定の4つのほかにペインを足してよい（例: 取りまとめの `research`、アニメ担当の `blender-anim`）。足すのはオーナーである。
+制作ごとに、固定のペインのほかにペインを足してよい（例: アニメ担当の `blender-anim`）。足すのはオーナーである。
 
-- 名前は役割がわかる短い英小文字にし、`claude -n <名前>` で起動する。タブ名とセッション名をそろえる。
-- アプリの MCP が要るなら、上の表のフォルダで起動する。要らないならホームでよい。
-- 取りまとめのペインを置いた制作では、Grok Bot の依頼はそこへ送り、取りまとめが各ペインへ `SendMessage` で振り分ける。どのペインが取りまとめかは、制作フォルダの `README.md` に書く。
+- 名前は役割がわかる短い英小文字にし、`cc <名前> <フォルダ>` で起動する（例: `cc blender-anim cg`）。タブ名とセッション名がそろう。
+- アプリの MCP が要るなら、上の表のフォルダで起動する。
+- 制作の取りまとめは、ふだんは `hub` が行う。Grok Bot の依頼は `hub` へ送り、`hub` が各ペインへ `SendMessage` で振り分ける。取りまとめを別のペインに任せる制作では、制作フォルダの `README.md` にそのペインを書く。
 - 制作が終わったら、オーナーが閉じる。
 - 頼まれた作業に要る MCP がそのペインに無いときは、Claude Code は手を付けずに `エラー: このペインに <MCP 名> が無い（<フォルダ> のペインに送る）` で締める。
 - ペインを増やす、別のフォルダで起動し直すのはオーナーが行う（Grok Bot は `spawn` しない）。

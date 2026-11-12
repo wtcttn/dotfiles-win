@@ -10,7 +10,7 @@
 | --- | --- |
 | `studio-one` | NeanderthalMan/studio-one-mcp v0.3.0。Studio One 6.6.4 |
 | `splice` | Splice の公式 MCP（素材の検索、スタック） |
-| `musio-studio` | ローカルの HTTP サーバー（127.0.0.1:47823）。起動していないとつながらない。認証ヘッダはユーザー環境変数 `MUSIO_STUDIO_AUTH` から読む（値は git に入れない） |
+| `musio-studio` | ローカルの HTTP サーバー（127.0.0.1:47823）。起動していないとつながらない。認証ヘッダは環境変数 `MUSIO_STUDIO_AUTH` から読む。`cc music` で起動すると、Bitwarden の項目 `musio-studio-mcp` から入る（`secrets.bw`。値は git に入れない） |
 | `suno` | Suno の公式 MCP（`https://api.suno.com/mcp`、2026-11-08 から）。プレミアプラン。初回は `/mcp` からオーナーがログインする |
 | `myinstants` | myinstants-mcp 1.8.2。Myinstants の効果音の検索と取得（2026-11-09 から） |
 
