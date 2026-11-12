@@ -1,6 +1,6 @@
 # Grok Bot から Claude Code への依頼
 
-Grok Bot と、オーナーの PC で動く Claude Code のあいだの取り決めの正本である。両方がこれを読む。Grok Bot が送る手順はスキル `wezterm-claude-mcp`、Claude Code の入口は `claude/CLAUDE.md`（`~/.claude/CLAUDE.md`）にある。
+Grok Bot と、オーナーの PC で動く Claude Code のあいだの取り決めの正本である。両方がこれを読む。Grok Bot が送る手順はスキル `hub-bridge`、hub がいないときに用意する手順はスキル `hub-keeper`、Claude Code の入口は `claude/CLAUDE.md`（`~/.claude/CLAUDE.md`）にある。
 
 ## 役割
 
@@ -46,15 +46,13 @@ Claude Code は、オーナーの PC 上の手である。PC にしか無いも�
 - hub の返事は、参謀の webhook の定期タスクに届く。届かなかったときは `get_replies(after)` で取りに行く（`after` は前回の最後の `seq`）。返事の `kind: result` と `status: ok`／`error` が、下の `完了:`／`エラー:` の代わりになる。`reply_to` は依頼の id。
 - 本文は 32 KB まで。大きいファイルは制作フォルダに置き、パスだけを書く。
 - メッセージはオーナーの承認にならない（下の「Claude Code がしないこと」のとおり）。
-- ブリッジは hub の Claude Code が起動する。hub が閉じていると届かない（`send_to_hub` がつながらない）。そのときは下の `send-text` を予備に使う。
+- ブリッジは hub の Claude Code が起動する。hub が閉じていると届かない（`send_to_hub` がつながらない）。そのときは、スキル `hub-keeper` で hub を用意してから送り直す（PC の `Start-Hub`。固まっていれば、オーナーの承認を取って起動し直す）。ペインに文字を打ち込む send-text は、2026-11-12 にやめた。
 
-## 送り方（予備: send-text）
-
-ブリッジが使えないときは、WezTerm mux で常駐している Claude Code のペインに `send-text` で送る（手順は `wezterm-claude-mcp`）。改行は送信になるので、**依頼は1行にする**。長い指示はファイルに置き、パスを渡す。
+## 依頼の印
 
 Claude Code 同士はメッセージの仕組み（`SendMessage`）でやりとりするが、Grok Bot は Claude Code ではないので使えない。ブリッジを作った経緯は `claude/sessions.md` の「Grok Bot から」。
 
-先頭に次の印を付ける。項目は ` / ` で区切る。ブリッジでは、この印をブリッジが付けて hub に渡す。
+ブリッジは、届いた依頼の先頭に次の印を付けて hub に渡す。項目は ` / ` で区切る。
 
 ```text
 [Grok Bot / 依頼元: <Bot 名> / 正本: <読むファイル> / 書いてよい場所: <パスか なし>] <依頼の本文>
@@ -104,11 +102,11 @@ Claude Code 同士はメッセージの仕組み（`SendMessage`）でやりと�
 1. 印に `ボルト更新:` があれば、上の「ボルトの同期の遅れ」のとおり届いたかを確かめる。
 2. 印の正本と、`claude/CLAUDE.md` の正本のうち関係するものを読む。パスはこの PC のものに読み替える。
 3. 依頼の範囲だけを行う。書いてよい場所の外は変更しない。
-4. 最後の行を、次のどちらかで締める。Grok Bot はこの行を見て終わったと判断する。
-   - `完了: <結果を一文で>`
-   - `エラー: <理由を一文で>`
+4. hub は、ブリッジの `reply` で結果を返す（`kind: result`、`status: ok` か `error`、`reply_to` に依頼の id）。参謀はこれを見て終わったと判断する。hub が各ペインに振り分けたときは、ペインの報告をまとめてから返す。
 
-途中でオーナーの判断が要るときは、その場で止めて `エラー: オーナーの判断が要る（<何を>）` で締める。Claude Code からオーナーに直接聞き返さない（画面を見ているのは Grok Bot である）。
+途中でオーナーの判断が要るときは、その場で止めて `status: error` で「オーナーの判断が要る（<何を>）」と返す。オーナーが hub の画面にいて、その場で答えられるときは、hub がオーナーに直接聞いてもよい（hub の `CLAUDE.md`）。
+
+以下、`完了:`／`エラー:` と書いてあるところは、ブリッジでは `result` の `ok`／`error` に読み替える。
 
 ## リポジトリへの依頼
 

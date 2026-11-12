@@ -26,5 +26,5 @@
 
 - 参謀 → hub: Grok Bot に登録した MCP サーバー（Tailscale 経由、PC の 8788 番）に送ると、ブリッジが **Channels**（研究プレビュー。自作のチャネルは `--dangerously-load-development-channels` が要る）で hub の会話に押し込む。Node で動き、Windows でも動くことを確かめた。
 - hub → 参謀: hub がブリッジの `reply` を呼ぶと、参謀の webhook の定期タスクに届く。
-- 取り決めは `grokbot/claude-code.md` の「ブリッジ」。hub が閉じているときの予備として、`wezterm-claude-mcp` の `send-text` を残す。
+- 取り決めは `grokbot/claude-code.md` の「ブリッジ」。hub が閉じているときは、参謀がスキル `hub-keeper` で hub を用意する（PC の `Start-Hub`）。ペインに打ち込む `send-text`（旧 `wezterm-claude-mcp`）は 2026-11-12 にやめた。
 - 箱のコマンド（curl など）は tailnet に出られず、tailnet に届くのは Grok Bot に登録した MCP サーバーだけだった。だからブリッジは MCP サーバーにした。
