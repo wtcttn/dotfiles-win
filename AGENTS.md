@@ -154,6 +154,8 @@ tailnet のポリシー（ACL）の正本は `tailscale/policy.hujson` で、`ta
 
 ボルトは `C:\Users\kento\notes`。コンテナ内は `/mnt/notes`。同期は Syncthing で、Windows、Mac、Android は vps-wtcttn とだけペアにする。ボルト本体はこのリポジトリに置かない。無視リストのテンプレートは `wslc-dev/notes/stignore.txt` で、各端末の `.stignore` は `#include stignore.txt`。VPS 側の手順は vps-wtcttn の `~/ops/README.md` が正である。
 
+書き込みの経路（2026-11-12 から。細かいところはボルトの `AGENTS.md` が正）: Grok Bot の「ノート管理」は、SUGIMOTO-PC の `C:\Users\kento\notes` に Grok Bot のデスクトップアプリから直接書くのを主にする（Auto-review のルールで、`~/notes` の中の読み書きだけ確認なしで通す。削除はしない）。PC がオフのときだけ、ボックスの控え `/home/box/sync/obsidian-vault` に書いて同期を待つ（ボックスと kento-server の間の同期は黙って止まることがある）。削除・名前の変更・移動は、オーナーに確かめてから PC で承認カードを通して行う。PC の Claude Code（hub と、Grok Bot に呼ばれたもの）はボルトに書かない。`task-board` の `sync_boards.py` はボックスで動かす。
+
 転記と島づくりは、ボルト直下の `AGENTS.md` が正である。ノートを書く前にそれを読む。Windows は `C:\Users\kento\notes\AGENTS.md`、コンテナは `/mnt/notes/AGENTS.md`、Mac は `~/notes/AGENTS.md`。
 
 日次は2枚ある。本体は `daily/YYYY-MM-DD.md` で、エージェントの追記先はここだけ。人の日次は `daily/YYYY-MM-DD-mine.md` で、本体へリンクする。Neovim の `:Obsidian today` は、無いほうだけ作り、人の日次を開く。
@@ -162,7 +164,7 @@ Cursor の個人スキルの正本は `cursor/skills/` である（今は `obsid
 
 スキルを足すときは `cursor/skills/<slug>/SKILL.md` を置くだけでよい。そのあと各 OS のインストール（Windows は `windows/install-powershell.ps1 cursor-skill`、Mac は `macos/install.sh`、Grok Bot は `grokbot/install.sh convert` と `grokbot/install.sh install`）を実行する。スクリプトにスキル名を書き足さない。スキルが運用方針やパスの説明を要するなら、このファイルにも書き足す。
 
-`task-board` は、Grok Bot の「ノート管理」が定期に動かすスキルである。ボルトの `tasks/`（タスク1件1ノート）から、Obsidian の Kanban プラグインのボード `boards/全体.md`（表示用）と `boards/オーナー.md`（オーナーが動かせる）を作り直す。オーナー担当分の状態はボードを正にしてノートへ書き戻し、ボードに書き足されたカードはノートにする。作り直しは同梱の `sync_boards.py`（Python 3、標準ライブラリだけ）が行う。決まりの正本はボルトの `AGENTS.md` の「タスク」の節で、変えたらスクリプトも合わせる。`.claude-skip` があるので Claude Code には入れない。
+`task-board` は、Grok Bot の「ノート管理」が定期に動かすスキルである。ボルトの `tasks/`（タスク1件1ノート）から、Obsidian の Kanban プラグインのボード `boards/全体.md`（表示用）と `boards/オーナー.md`（オーナーが動かせる）を作り直す。オーナー担当分の状態はボードを正にしてノートへ書き戻し、ボードに書き足されたカードはノートにする。作り直しは同梱の `sync_boards.py`（Python 3、標準ライブラリだけ）が行う。2026-11-12 から、`sync_boards.py` はいつもボックスの控えで動かし、動かす前と後に Syncthing の同期が 100% か確かめ、そろわなければその回は飛ばして報告する。PC で動かすと `~/notes` の外の Python を使うので、Grok Bot のデスクトップアプリの Auto-review のルールの外になる。決まりの正本はボルトの `AGENTS.md` の「タスク」の節で、変えたらスクリプトも合わせる。`.claude-skip` があるので Claude Code には入れない。
 
 `hub-bridge` は、Grok Bot の「参謀」が SUGIMOTO-PC の Claude Code `hub` に依頼を送り、返事を受け取るスキルである（2026-11-12 から）。MCP サーバー `hub-bridge`（`claude/bridge/`）の `send_to_hub`・`get_replies`・`ping` と、webhook の定期タスク「hub からの返事を受け取る」を使う。取り決めの正本は `grokbot/claude-code.md` の「ブリッジ」。`.claude-skip` があるので Claude Code には入れない。
 

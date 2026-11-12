@@ -74,7 +74,7 @@ Neovim は `wslc-dev/home/.config/nvim` のコピー。Obsidian のボルトは 
 
 ### Grok Bot
 
-Grok Bot のボックス（Linux）で使う。`cursor/skills/` を写したスキルを `grokbot/skills/` に置き、`/home/box/agent-data/workflows/<slug>/SKILL.md` へコピーする。ボルトは Syncthing で `/home/box/sync/obsidian-vault` に同期し、`~/notes` をそこへリンクする。Grok Bot が書くノートの `source` は `grok-bot`。
+Grok Bot のボックス（Linux）で使う。`cursor/skills/` を写したスキルを `grokbot/skills/` に置き、`/home/box/agent-data/workflows/<slug>/SKILL.md` へコピーする。ボルトは Syncthing で `/home/box/sync/obsidian-vault` に同期し、`~/notes` をそこへリンクする。ボルトへの書き込みは、2026-11-12 から SUGIMOTO-PC の `C:\Users\kento\notes` に直接書くのが主で、ボックスの控えに書くのは PC がオフのときだけ（`AGENTS.md` の「ノート」）。Grok Bot が書くノートの `source` は `grok-bot`。
 
 ```bash
 ./grokbot/install.sh install   # ~/notes、スキル、Syncthing

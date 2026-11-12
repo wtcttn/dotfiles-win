@@ -34,7 +34,7 @@ Grok Bot の「参謀」が、SUGIMOTO-PC の Claude Code `hub` に依頼を送�
 - `reply_to`: hub の返事や問いに答えるときだけ、その返事の id。
 - `source`: 正本（その作業のルールが書いてあるファイル）。ボックスのパスでよい（hub が読み替える）。
 - `writable`: 書いてよい場所の配列。省くと「なし」（読むだけ、返すだけ）。
-- `vault_updated`: 直前にノート管理にボルトへ書かせ、hub にそれを読ませるときだけ。`[{path, at}]`、`at` は `2026-11-12T23:40+09:00` の形。
+- `vault_updated`: 直前にノート管理にボルトへ書かせ、hub にそれを読ませるときだけ。`[{path, at}]`、`at` は `2026-11-12T23:40+09:00` の形。`path` の頭に、書いた先を `pc:` か `box:` で付ける（例: `{"path": "pc:tasks/foo.md", "at": "2026-11-12T20:10+09:00"}`）。PC の `C:\Users\kento\notes` に直接書いたら `pc:`（hub はすぐ読む）、PC がオフでボックスの控えに書いたら `box:`（hub は Syncthing で届くのを待つ。止まっていれば `progress` で知らせてくる）。ブリッジの形（schema）は変えず、書き方の取り決めだけである。付けないと `box:` とみなされる。経路の決まりは `grokbot/claude-code.md` の「ボルトの同期の遅れ」と、ボルトの `AGENTS.md`。
 - `body`: 本文。32 KB まで。
 
 本文の決まり:
