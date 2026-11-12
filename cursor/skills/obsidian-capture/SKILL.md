@@ -19,6 +19,8 @@ Cursor からボルトへ書くときの入口である。書く前にボルト�
 - コンテナ: `/mnt/notes`
 - Mac: `~/notes`
 
+Grok Bot から使うとき、書くのは「ノート管理」だけである。書く先は、ボルトの `AGENTS.md` の書き込みの経路に従う（PC の `C:\Users\kento\notes` を優先し、PC がオフのときだけボックスの控え）。
+
 `source` は `cursor`。承認後のカードはファイルとして書く。貼り付け用のフェンスは返さない。Obsidian の検索、グラフ、Bases、キャンバスは使わない。受信箱は `notes/` の `status: inbox` を読む。
 
 ## 指示をそのまま書かない

@@ -20,9 +20,17 @@ Grok Bot の「ノート管理」が定期に行う作業である。決まり�
 - Mac: `~/notes`
 - Grok Bot: `/home/box/sync/obsidian-vault`（`~/notes` はここへのリンク）
 
+## どこで動かすか（2026-11-12 から）
+
+- `sync_boards.py` は、いつもボックス（ボルトの控え `/home/box/sync/obsidian-vault`）で動かす。PC の `C:\Users\kento\notes` では動かさない。PC で動かすと `~/notes` の外の Python を使うので、Grok Bot のデスクトップアプリの Auto-review のルール（`~/notes` の中の読み書きだけを確認なしで通す）の外になる。
+- ノート管理はふだん PC のボルトに直接書くので、ボックスの控えは同期で遅れていることがある（ボックスと kento-server の間の同期は、黙って止まることがある）。動かす前と後に、ボックスの Syncthing で `notes` フォルダの同期が 100% か確かめる。
+  - 前: ボックスの `notes` が idle で、取り込み待ち（needFiles など）が 0。あわせて、kento-server から見た完了度（`/rest/db/completion`）が 100%。
+  - 後: 書いたボードとノートが kento-server に届き、完了度が 100% に戻る。
+  - そろわなければ、その回は動かさずに飛ばし（動かしたあとなら、そろうまで待って結果を見る）、「同期がそろわないので飛ばした」と報告する。次の回にもう一度確かめる。
+
 ## 手順
 
-1. このスキルのフォルダにある `sync_boards.py` を動かす。Python 3 の標準ライブラリだけで動く。
+1. 上の「どこで動かすか」の前の確かめをしてから、このスキルのフォルダにある `sync_boards.py` を動かす。Python 3 の標準ライブラリだけで動く。
 
    ```sh
    python3 <このスキルのフォルダ>/sync_boards.py --vault <ボルト>
@@ -37,7 +45,9 @@ Grok Bot の「ノート管理」が定期に行う作業である。決まり�
    - `warnings`: 下の「知らせること」
    - `stopped`: 止めた理由（終了コード 2）
 
-3. 報告する。変化が無い回（`status_updates`・`created`・`warnings` がどれも空）は、報告しなくてよい。
+3. 後の確かめ（同期が 100% に戻ったか）をする。
+
+4. 報告する。変化が無い回（`status_updates`・`created`・`warnings` がどれも空）は、報告しなくてよい。同期がそろわずに飛ばした回は、必ず報告する。
 
 ## 知らせること
 
