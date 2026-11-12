@@ -1,0 +1,31 @@
+// Tailscale の tailnet のポリシー（ACL）。反映は tailscale/apply-policy.ps1 で行う。
+// このリポジトリは公開なので、IP、tailnet 名、メールアドレスは書かない。
+// 見せたくない値は ${名前} の印にし、apply-policy.ps1 が tailscale/secrets.bw に従って Bitwarden から埋める。
+{
+	// 札。tag:grokbot は Grok Bot の箱のコネクタに付ける（認証キーで付ける）。
+	"tagOwners": {
+		"tag:grokbot": ["autogroup:admin"],
+	},
+
+	"hosts": {
+		"sugimoto-pc": "${TS_HOST_SUGIMOTO_PC}",
+	},
+
+	"grants": [
+		// オーナー本人の端末どうしは、今までどおり全部届く。
+		{"src": ["autogroup:member"], "dst": ["*"], "ip": ["*"]},
+
+		// Grok Bot の箱は、PC の hub のブリッジ（8788）にだけ届く。ほかの端末やポートには届かない。
+		{"src": ["tag:grokbot"], "dst": ["sugimoto-pc"], "ip": ["tcp:8788"]},
+	],
+
+	// Tailscale SSH は既定のまま（自分の端末にだけ、確認つき）。
+	"ssh": [
+		{
+			"action": "check",
+			"src":    ["autogroup:member"],
+			"dst":    ["autogroup:self"],
+			"users":  ["autogroup:nonroot", "root"],
+		},
+	],
+}
