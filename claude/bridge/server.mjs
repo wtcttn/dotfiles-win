@@ -261,7 +261,12 @@ function authorized(req) {
 
 const httpServer = http.createServer(async (req, res) => {
   try {
-    if (req.url !== "/mcp") return void res.writeHead(404).end();
+    // クエリと末尾のスラッシュは無視する（/mcp/、/mcp?… も通す）。
+    const pathname = new URL(req.url || "/", "http://bridge").pathname.replace(/\/+$/, "");
+    if (pathname !== "/mcp") {
+      log(`404: ${req.method} ${pathname || "/"}`);
+      return void res.writeHead(404).end();
+    }
     if (!authorized(req)) {
       log("鍵が合わない要求を断った");
       return void res.writeHead(401).end();
