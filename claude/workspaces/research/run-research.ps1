@@ -57,7 +57,9 @@ if (-not $Worker) {
 
 # ここから本体（前で動かすときと、裏の -Worker）。
 $deadline = $now.AddMinutes($MaxMinutes)
-$chromeLine = if ($NoChrome) { 'Chrome は使わない（WebSearch と WebFetch で調べる）。' } else { 'ログイン中の Chrome（Claude in Chrome）を読むだけに使ってよい。tabs_context_mcp で作られる空のタブを使い、終わる前にこの調査のタブグループのタブをすべて閉じる（最初の空のタブも）。' }
+# 会話の ID を決めておく。Chrome のタブグループはこの会話のものなので、後始末で同じ会話を再開して閉じる。
+$sessionId = [guid]::NewGuid().ToString()
+$chromeLine = if ($NoChrome) { 'Chrome は使わない（WebSearch と WebFetch で調べる）。' } else { 'ログイン中の Chrome（Claude in Chrome）を読むだけに使ってよい。tabs_context_mcp（createIfEmpty: true）で作られる空のタブを使い、終わる前にこの調査のタブグループのタブをすべて閉じる（最初の空のタブも）。' }
 $prompt = @"
 [Grok Bot / 依頼元: マーケター / 正本: $Rules / 書いてよい場所: $Dir]
 このフォルダの request_$N.md を読み、調査して report_$N.md を書いてください。集めた資料は sources\ に置きます。$chromeLine
@@ -69,29 +71,47 @@ New-Item -ItemType Directory -Force -Path (Join-Path $Dir 'sources') | Out-Null
 $tools = 'WebSearch,WebFetch,Read,Glob,Grep,Edit(./**)'
 $chromeArgs = '--no-chrome'
 if (-not $NoChrome) { $tools = "mcp__claude-in-chrome,$tools"; $chromeArgs = '--chrome' }
-$cmd = "Get-Content -Raw -Encoding utf8 prompt_$N.txt | claude -p $chromeArgs --allowedTools '$tools' --output-format text > run_$N.log 2> run_$N.err; exit `$LASTEXITCODE"
+$cmd = "Get-Content -Raw -Encoding utf8 prompt_$N.txt | claude -p --session-id $sessionId $chromeArgs --allowedTools '$tools' --output-format text > run_$N.log 2> run_$N.err; exit `$LASTEXITCODE"
 
-$status = 'done 1'
-try {
+# pwsh -Command を、待つ時間を決めて動かす。時間切れなら子のプロセスごと止めて $null を返す。
+function Invoke-Timed([string]$Command, [int]$Seconds) {
     $psi = New-Object System.Diagnostics.ProcessStartInfo
     $psi.FileName = (Get-Process -Id $PID).Path
-    foreach ($a in @('-NoProfile', '-NonInteractive', '-Command', $cmd)) { $psi.ArgumentList.Add($a) }
+    foreach ($a in @('-NoProfile', '-NonInteractive', '-Command', $Command)) { $psi.ArgumentList.Add($a) }
     $psi.WorkingDirectory = $Dir
     $psi.UseShellExecute = $false
     $psi.CreateNoWindow = $true
     $proc = [System.Diagnostics.Process]::Start($psi)
-    if ($proc.WaitForExit($MaxMinutes * 60 * 1000)) {
-        $status = "done $($proc.ExitCode)"
-    } else {
-        $proc.Kill($true)
-        $status = 'timeout'
-    }
+    if ($proc.WaitForExit($Seconds * 1000)) { return $proc.ExitCode }
+    $proc.Kill($true)
+    return $null
+}
+
+$status = 'done 1'
+$tabs = 'tabs: Chrome を使っていない'
+try {
+    $code = Invoke-Timed $cmd ($MaxMinutes * 60)
+    $status = if ($null -eq $code) { 'timeout' } else { "done $code" }
 } catch {
-    Write-Utf8 (Join-Path $Dir "run_$N.err") "$($_.Exception.Message)`n"
+    Add-Content -Encoding utf8 -LiteralPath (Join-Path $Dir "run_$N.err") "$($_.Exception.Message)"
     $status = 'done 1'
 } finally {
+    if (-not $NoChrome) {
+        # 後始末: 同じ会話を再開し、その会話のタブグループのタブをすべて閉じる（最後のタブを閉じるとグループも消える）。
+        # 見えるのはこの会話のグループだけなので、ことねの巡回やオーナーのタブには届かない。正常終了でも時間切れでも動かす。
+        $cleanupPrompt = 'run-research.ps1 の後始末です。ページは開かず、ほかのことはしないでください。tabs_context_mcp を createIfEmpty なしで呼び、この会話のタブグループに残っているタブをすべて tabs_close_mcp で閉じてください。そのあと tabs_context_mcp をもう一度呼び、最後に「tabs-before: <閉じる前の数> tabs-after: <閉じた後の数>」の1行だけを返してください。グループが無ければ数は 0 です。'
+        Write-Utf8 (Join-Path $Dir "cleanup_$N.txt") $cleanupPrompt
+        $cleanupCmd = "Get-Content -Raw -Encoding utf8 cleanup_$N.txt | claude -p --resume $sessionId --chrome --allowedTools 'mcp__claude-in-chrome__tabs_context_mcp,mcp__claude-in-chrome__tabs_close_mcp' --output-format text > cleanup_$N.log 2>&1; exit `$LASTEXITCODE"
+        try {
+            $null = Invoke-Timed $cleanupCmd 180
+            $line = Get-Content -Encoding utf8 -LiteralPath (Join-Path $Dir "cleanup_$N.log") -ErrorAction SilentlyContinue | Select-String 'tabs-before:\s*\d+\s+tabs-after:\s*\d+' | Select-Object -Last 1
+            $tabs = if ($line) { "tabs: $($line.Matches[0].Value)" } else { "tabs: 後始末を確かめられない（cleanup_$N.log を見る）" }
+        } catch {
+            $tabs = "tabs: 後始末に失敗（$($_.Exception.Message)）"
+        }
+    }
     $reportState = if (Test-Path $report) { 'report: あり' } else { 'report: なし' }
     # done は最後に書く（呼び出す側はこれを待つ）。
-    Write-Utf8 $done "$status`n$reportState`nfinished: $((Get-Date).ToString('s'))`n"
+    Write-Utf8 $done "$status`n$reportState`n$tabs`nsession: $sessionId`nfinished: $((Get-Date).ToString('s'))`n"
 }
 if ($status -eq 'done 0') { exit 0 } else { exit 1 }
