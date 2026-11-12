@@ -194,6 +194,11 @@ function cc {
 
     $Host.UI.RawUI.WindowTitle = $Name
     claude @claudeArgs
+
+    # Claude Code が終わったら、タブ名を外す（残っていると ccs が「もうある」と勘違いする）。
+    if ($env:WEZTERM_PANE -and (Get-Command wezterm -ErrorAction SilentlyContinue)) {
+        wezterm cli set-tab-title --pane-id $env:WEZTERM_PANE "" 2>$null | Out-Null
+    }
 }
 
 # mux の中から、タブ名（cc と ccs が付ける）が <名前> のペインを探す。タブ名の無い古いペインは、タイトルの末尾の名前で探す。
@@ -252,14 +257,41 @@ function ccs {
     # 呼び出し元のペインには頼らず、mux の既存のウィンドウを指定する（ふつうのタブのペインは mux に無いため）。
     $windowId = Get-MuxPanes | Select-Object -ExpandProperty window_id -First 1
     $where = if ($null -ne $windowId) { @("--window-id", "$windowId") } else { @("--new-window") }
-    $paneId = (wezterm cli --prefer-mux spawn @where --cwd $dir -- pwsh -NoLogo -NoExit -Command $ccCommand | Out-String).Trim()
-    if (!$paneId) {
-        Write-Host "mux にペインを足せませんでした。" -ForegroundColor Red
-        return
+    $out = @(wezterm cli --prefer-mux spawn @where --cwd $dir -- pwsh -NoLogo -NoExit -Command $ccCommand 2>&1 | ForEach-Object { "$_" })
+    $paneId = $out | Where-Object { $_ -match '^\s*\d+\s*$' } | Select-Object -Last 1
+    if ($paneId) {
+        $paneId = $paneId.Trim()
+        wezterm cli --prefer-mux set-tab-title --pane-id $paneId $Name | Out-Null
+        Write-Host "$Name を mux に用意しました（pane $paneId、フォルダ $Folder）。" -ForegroundColor Green
+        return $paneId
     }
-    wezterm cli --prefer-mux set-tab-title --pane-id $paneId $Name | Out-Null
-    Write-Host "$Name を mux に用意しました（pane $paneId、フォルダ $Folder）。" -ForegroundColor Green
-    return $paneId
+    Write-CcsLog "spawn $($where -join ' ') に失敗: $($out -join ' / ')"
+
+    # mux にウィンドウが1つも無く、新しいウィンドウも作れなかったとき（2026-11-12、hub を閉じて mux が空になったときに起きた）。
+    # WezTerm の画面を1つ開いて mux につなぎ、その最初のタブで cc を起動する。画面が開くのはこのときだけ。
+    if ($null -eq $windowId) {
+        Start-Process wezterm -ArgumentList (@("connect", "mux", "--", "pwsh", "-NoLogo", "-NoExit", "-Command", "Set-Location '$dir'; $ccCommand"))
+        for ($i = 0; $i -lt 20; $i++) {
+            Start-Sleep -Seconds 1
+            $found = Find-CcPane $Name
+            if ($found) {
+                Write-Host "$Name を WezTerm の画面を開いて mux に用意しました（pane $($found.pane_id)、フォルダ $Folder）。" -ForegroundColor Green
+                return $found.pane_id
+            }
+        }
+        Write-CcsLog "wezterm connect mux のあと 20 秒たっても $Name のペインが見えない"
+    }
+    Write-Host "mux にペインを足せませんでした（記録: $(Join-Path $env:LOCALAPPDATA 'cc\ccs.log')）。" -ForegroundColor Red
+    Write-Host ($out -join "`n") -ForegroundColor DarkGray
+    return
+}
+
+# ccs の失敗を %LOCALAPPDATA%\cc\ccs.log に残す（Grok Bot から呼んだときなど、画面が見えないときに原因を追うため）。
+function Write-CcsLog {
+    param([string]$Message)
+    $dir = Join-Path $env:LOCALAPPDATA "cc"
+    if (!(Test-Path $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }
+    Add-Content -Path (Join-Path $dir "ccs.log") -Value "$(Get-Date -Format o) $Message" -Encoding utf8
 }
 
 # mux の常駐ペインを、タブ名で探して閉じる（例: ccx blender-anim）。中の Claude Code も終わる。
