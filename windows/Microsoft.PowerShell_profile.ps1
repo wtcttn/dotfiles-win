@@ -111,10 +111,23 @@ function Get-BwSession {
     return $key
 }
 
+# フォルダ（$Directory）で名前 $Name を付けて動かした Claude Code の会話のうち、いちばん新しいものの ID を返す。
+# 会話は ~/.claude/projects/<フォルダのパスの記号を - にしたもの>/<ID>.jsonl にあり、名前は "agentName" に入る。
+function Get-LatestClaudeSessionId {
+    param([string]$Directory, [string]$Name)
+    $projectDir = Join-Path $env:USERPROFILE (".claude\projects\" + ($Directory -replace '[^A-Za-z0-9]', '-'))
+    if (!(Test-Path $projectDir)) { return $null }
+    $pattern = '"agentName":"' + $Name + '"'
+    foreach ($f in @(Get-ChildItem $projectDir -Filter *.jsonl -File | Sort-Object LastWriteTime -Descending)) {
+        if (Select-String -Path $f.FullName -SimpleMatch $pattern -List -Quiet) { return $f.BaseName }
+    }
+    return $null
+}
+
 # Claude Code の常駐ペインを起動する（例: cc music、cc blender、cc blender-anim cg）。
 # フォルダに移り、dotfiles の claude/workspaces/<フォルダ>/secrets.bw にある秘密を Bitwarden から読んで、
 # このペインの環境変数にだけ渡してから claude -n <名前> を起動する。値はレジストリにもファイルにも残さない。
-# -Resume で同じ名前の前の会話を、-ResumeId <会話の ID か名前> でその会話を再開する。
+# -Resume で同じ名前のいちばん新しい会話を、-ResumeId <会話の ID か名前> でその会話を再開する。
 # Remote Control は既定でオン（セッション名は <名前>）。-NoRemoteControl で切る。
 function cc {
     param(
@@ -183,7 +196,17 @@ function cc {
     # 自作のチャネルは研究プレビューの間、--dangerously-load-development-channels でしか読み込めない。
     $claudeArgs = @("-n", $Name)
     if ($ResumeId) { $claudeArgs += @("--resume", $ResumeId) }
-    elseif ($Resume) { $claudeArgs += @("--resume", $Name) }
+    elseif ($Resume) {
+        # --resume <名前> は、同じ名前の会話がいくつもあると選ぶ画面で止まる。いちばん新しい会話の ID を渡す。
+        $latest = Get-LatestClaudeSessionId -Directory $dir -Name $Name
+        if ($latest) {
+            Write-Host "$Name のいちばん新しい会話から再開します（$latest）。" -ForegroundColor Cyan
+            $claudeArgs += @("--resume", $latest)
+        } else {
+            Write-Host "$Name の前の会話が見つからないので、名前で探します（選ぶ画面が出ることがある）。" -ForegroundColor Yellow
+            $claudeArgs += @("--resume", $Name)
+        }
+    }
     if (!$NoRemoteControl) { $claudeArgs += @("--remote-control", $Name) }
     $channelsFile = Join-Path $env:USERPROFILE "dotfiles\claude\workspaces\$Folder\channels"
     if (Test-Path $channelsFile) {
