@@ -6,8 +6,8 @@ description: >-
   hub-bridge. Creates the work folder C:\Users\kento\workspace\research\<YYYYMMDD>_<title>\,
   writes request_NN.md from the template, starts run-research.ps1 in the
   background through the Grok Bot desktop app, waits for report_NN.done, and
-  passes on the path of report_NN.md. Chrome is read-only and shared with
-  ことね's patrol, so the script avoids patrol hours and uses chrome.lock. Use
+  passes on the path of report_NN.md. Chrome is read-only and may run in
+  parallel with ことね's patrol. Use
   when the マーケター needs web or logged-in research. Never writes results to
   the vault inbox; the path goes to ノート管理 only when something should be kept.
 ---
@@ -30,21 +30,12 @@ Grok Bot の「マーケター」（調査と分析の担当）が、SUGIMOTO-PC
 
 ## 2. 起動する
 
-Chrome を使うなら、先に始められるかを見る（ことねの巡回と取り合わないため）。
-
-```powershell
-& "$env:USERPROFILE\dotfiles\claude\workspaces\research\run-research.ps1" -CheckOnly -MaxMinutes 60
-```
-
-`ok:` なら起動する。`wait:` は書いてある時刻まで待つ。`busy:` はほかの調査が終わるのを待つ。
-
 ```powershell
 & "$env:USERPROFILE\dotfiles\claude\workspaces\research\run-research.ps1" -Dir C:\Users\kento\workspace\research\20261112_shorts_trend -N 01 -MaxMinutes 60 -Background
 ```
 
-- Chrome が要らないときは `-NoChrome`（巡回の時間帯でも始められる）。
-- 昼に Chrome を使う調査は、偶数時の30分から70分以内に収める（例: 10:30〜11:40）。長いものは 0:30〜7:20 に回すか、問いを分ける。
-- 終了コード 3（巡回の時間帯）と 4（Chrome を使用中）は、待ってから同じコマンドで呼び直す。
+- Chrome が要らないときは `-NoChrome`。
+- Chrome を使う調査も、ことねの巡回と並列で動かしてよい。時刻をずらさなくてよい。
 
 ## 3. 待つ
 
@@ -61,6 +52,5 @@ Chrome を使うなら、先に始められるかを見る（ことねの巡回�
 ## しないこと
 
 - Chrome で書き込むこと（投稿、返信、いいね、リポスト、フォロー、ブックマーク、購入・課金、設定の変更、フォームの送信）を頼まない。
-- `chrome.lock` を消したり書き換えたりしない（起動スクリプトが扱う）。ことねの巡回の時間帯に、Chrome を使う調査を無理に始めない。
 - hub や hub-bridge 経由で調査を頼まない（それは参謀の窓口）。
 - 依頼文、報告、メッセージに、秘密の値（パスワード、トークン、鍵、IP）を書かない。
