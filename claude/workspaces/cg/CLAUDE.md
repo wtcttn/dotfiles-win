@@ -34,3 +34,7 @@
 - AE 2026 だけ設定済み。ウィンドウメニューから `mcp-bridge-auto.jsx` のパネルを開いておく。
 - 環境設定の「スクリプトとエクスプレッション」で「スクリプトによるファイルへの書き込みとネットワークへのアクセスを許可」をオンにする。
 - サーバーと AE は `Documents\ae-mcp-bridge` のファイルでやりとりする。
+
+## 制作の決まり
+
+制作フォルダ（`C:\Users\kento\workspace\productions\<作業名>\`）の仕事では、制作の決まりの正本である production-kit（`C:\Users\kento\workspace\wtcttn\production-kit`）の `RULES.md` と、制作フォルダの `README.md` に従う。共通の道具は production-kit の `tools/` を使い、制作フォルダに写さない。

@@ -82,6 +82,10 @@ Claude Code 同士はメッセージの仕組み（`SendMessage`）でやりと�
 - ボルトには、ノートに残す要点とパスだけを書く（書くのはノート管理）。
 - 2026-11-10 より前の制作（`C:\Users\kento\research\minecraft-style\exitquiz_s4s9\` など）は、そのままの場所に置いておく。
 
+### 制作の決まりと道具（正本は production-kit）
+
+制作の決まり（仮組みを見てから本番を描く順番、描画・音・素材・公開の決まり）、共通の道具、制作フォルダの雛形の正本は、非公開リポジトリ `wtcttn/production-kit`（`C:\Users\kento\workspace\wtcttn\production-kit`）にある。決まりは `RULES.md` を読む。新しい制作フォルダは、その `new-production.ps1` で雛形から作る。
+
 ## ボルトの同期の遅れ
 
 ボルトは Syncthing で揃うので、ボックスで書いた内容がこの PC に届くまで、おおよそ1分かかることがある。

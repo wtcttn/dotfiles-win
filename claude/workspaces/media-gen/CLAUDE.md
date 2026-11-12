@@ -16,3 +16,7 @@ fal.ai はモデルを動かすたびに課金される。
 
 - 生成物は `outputs\YYYY-MM-DD\<作業名>\` に保存し、使ったモデル、指示文、参考画像、料金を同じフォルダの `README.md` に残す。
 - キャラクターの正典は `C:\Users\kento\workspace\wtcttn\jishou-hensanshitsu\characters\` と `sources\images\`。正典の画像は読むだけで、書き換えない。
+
+## 制作の決まり
+
+制作フォルダ（`C:\Users\kento\workspace\productions\<作業名>\`）の仕事では、制作の決まりの正本である production-kit（`C:\Users\kento\workspace\wtcttn\production-kit`）の `RULES.md` と、制作フォルダの `README.md` に従う。共通の道具は production-kit の `tools/` を使い、制作フォルダに写さない。
