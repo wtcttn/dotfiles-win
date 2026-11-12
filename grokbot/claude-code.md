@@ -102,6 +102,7 @@ Claude Code 同士はメッセージの仕組み（`SendMessage`）でやりと�
 | `session_NN.txt`、`prompt_NN.txt`、`run_NN.log`、`run_NN.err`、`cleanup_NN.txt`・`cleanup_NN.log`、`report_NN.done` | 起動スクリプト | 会話の ID と起動したプロセス、渡した指示、最後の返事、エラー、Chrome の後始末、終わりの印 |
 
 - 番号 `NN` は `01` から。追加の問いややり直しは、番号を上げた `request_NN.md` で頼む。相手の書いたファイルは書き換えない。
+- `report_NN.md` の動画の URL は、YouTube は `https://www.youtube.com/watch?v=<ID>`（ショートも同じ。`/shorts/` や `youtu.be` は使わない）、TikTok は `https://www.tiktok.com/@<ユーザー>/video/<ID>` の形で書く（2026-11-13 オーナー決定）。Obsidian で埋め込むと `/shorts/` の形は再生できないため。
 - 結果はボルトの inbox に入れない。作業フォルダに置いたまま、パスだけを受け渡す。Claude Code はボルトに書かない。ノートに残すものは、マーケターが要点とパスをノート管理に頼む。
 
 ### 呼び方
