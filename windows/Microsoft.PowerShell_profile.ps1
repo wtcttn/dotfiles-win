@@ -71,6 +71,42 @@ Set-Alias -Name reload -Value Import-Profile
 # Environment variables
 $env:EDITOR = "code"
 
+# Bitwarden の解錠した鍵（BW_SESSION）を返す。鍵は DPAPI（この Windows ユーザーだけが戻せる）で暗号化して
+# %LOCALAPPDATA%\cc\bw-session.json に 12 時間だけ置き、ペインを起動するたびにマスターパスワードを聞かないようにする。
+# 期限が過ぎたら bw lock で鍵を無効にして聞き直す。手で bw lock したときも、鍵が効かないので聞き直す。
+function Get-BwSession {
+    $cacheDir = Join-Path $env:LOCALAPPDATA "cc"
+    $cacheFile = Join-Path $cacheDir "bw-session.json"
+    $ttlHours = 12
+
+    if (Test-Path $cacheFile) {
+        try {
+            $cache = Get-Content -Raw $cacheFile | ConvertFrom-Json
+            if ([datetime]$cache.expires -gt (Get-Date)) {
+                $secure = ConvertTo-SecureString $cache.key
+                $key = [System.Net.NetworkCredential]::new("", $secure).Password
+                if ((bw status --session $key | ConvertFrom-Json).status -eq "unlocked") {
+                    return $key
+                }
+            } else {
+                bw lock | Out-Null
+            }
+        } catch {
+        }
+        Remove-Item $cacheFile -Force -ErrorAction SilentlyContinue
+    }
+
+    $key = bw unlock --raw
+    if (!$key) { return $null }
+    if (!(Test-Path $cacheDir)) { New-Item -ItemType Directory -Path $cacheDir -Force | Out-Null }
+    @{
+        expires = (Get-Date).AddHours($ttlHours).ToString("o")
+        key = ConvertTo-SecureString $key -AsPlainText -Force | ConvertFrom-SecureString
+    } | ConvertTo-Json | Set-Content -Path $cacheFile -Encoding utf8
+    Write-Host "Bitwarden を解錠しました（$ttlHours 時間、ほかのペインはパスワードなしで起動できます）。" -ForegroundColor Green
+    return $key
+}
+
 # Claude Code の常駐ペインを起動する（例: cc music、cc blender、cc blender-anim cg）。
 # フォルダに移り、dotfiles の claude/workspaces/<フォルダ>/secrets.bw にある秘密を Bitwarden から読んで、
 # このペインの環境変数にだけ渡してから claude -n <名前> を起動する。値はレジストリにもファイルにも残さない。
@@ -100,7 +136,7 @@ function cc {
             Write-Host "Bitwarden にログインしていません。先に bw login を実行してください。" -ForegroundColor Red
             return
         }
-        if (!$env:BW_SESSION) { $env:BW_SESSION = bw unlock --raw }
+        $env:BW_SESSION = Get-BwSession
         if (!$env:BW_SESSION) {
             Write-Host "Bitwarden の解錠に失敗しました。" -ForegroundColor Red
             return
