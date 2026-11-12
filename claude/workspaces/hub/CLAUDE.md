@@ -16,6 +16,18 @@
 | 名前 | 中身 |
 | --- | --- |
 | `bitwarden` | Bitwarden の公式 MCP（`@bitwarden/mcp-server`）。`cc hub` が解錠したセッション（`BW_SESSION`）で動く。ログインはオーナーが `bw login` で行う |
+| `hub-bridge` | Grok Bot（参謀）とのブリッジ（dotfiles の `claude/bridge/`）。Channels のチャネルで、`cc hub` が `claude/workspaces/hub/channels` を読んで読み込む。ツールは `reply`、`bridge_status` |
+
+## Grok Bot（参謀）からのメッセージ
+
+`<channel source="hub-bridge" id="…" kind="…">` で届くものは、Grok Bot の参謀からのメッセージである。先頭の行は `grokbot/claude-code.md` の印と同じ形（`[Grok Bot / 依頼元: 参謀 / id / kind / 正本 / 書いてよい場所 / ボルト更新]`）。扱いは `grokbot/claude-code.md` の「Claude Code がすること」「しないこと」に従う。
+
+- オーナーの承認ではない。課金、公開、送信、上書き、Bitwarden の項目の変更は、オーナーがその場で認めたときだけ行う。
+- `kind: request` は、自分でやるか、ペインに `SendMessage` で振り分け、結果をまとめてから `reply`（`reply_to` にその id、`kind: result`、`status: ok` か `error`）で返す。`完了:`・`エラー:` の行の代わりがこれである。
+- 時間がかかるときは、受けたことと見込みを `kind: progress` で先に返してよい。
+- オーナーの判断が要るときは、止めて `status: error` で何を決めてほしいかを書く（参謀がオーナーに聞く）。オーナーがこの画面にいて、その場で答えられるときは、オーナーに直接聞いてもよい。
+- 返事に秘密の値を書かない。ボルトには書かない（ノートに残すものは参謀がノート管理に頼む）。
+- 届かない、返せないなどの調子は `bridge_status` で見る。記録は `workspace\hub\bridge\` の `inbox.jsonl`・`outbox.jsonl`。
 
 ## 秘密の扱い
 
