@@ -4,6 +4,10 @@
 # Set execution policy for current user (if needed)
 # Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
+# 入出力が端末でないとき（Grok Bot のデスクトップアプリやタスクスケジューラから pwsh -Command で呼ばれたとき）は、
+# 画面まわりの設定（PSReadLine、fastfetch）を飛ばして、関数（cc、ccs、ccx、Start-Hub など）だけを読み込む。
+$script:InteractiveShell = -not ([Console]::IsInputRedirected -or [Console]::IsOutputRedirected)
+
 # Import modules
 Import-Module PSReadLine -ErrorAction SilentlyContinue
 Import-Module Terminal-Icons -ErrorAction SilentlyContinue
@@ -24,7 +28,7 @@ try {
 }
 
 # PSReadLine configuration
-if (Get-Module -ListAvailable -Name PSReadLine) {
+if ($script:InteractiveShell -and (Get-Module -ListAvailable -Name PSReadLine)) {
     # Enable prediction
     Set-PSReadLineOption -PredictionSource History
     Set-PSReadLineOption -PredictionViewStyle ListView
@@ -283,7 +287,9 @@ function ccx {
 function Start-Hub { ccs hub }
 
 # Welcome message (fastfetch config: windows/fastfetch/config.jsonc)
-if (Get-Command fastfetch -ErrorAction SilentlyContinue) {
+if (!$script:InteractiveShell) {
+    # 端末でないときは何も表示しない
+} elseif (Get-Command fastfetch -ErrorAction SilentlyContinue) {
     fastfetch
 } else {
     Write-Host "🚀 PowerShell Profile Loaded!" -ForegroundColor Green
