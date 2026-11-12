@@ -44,3 +44,7 @@ AI ボイスは E ドライブに入れてある（C ドライブには入れな
 ## 制作の決まり
 
 制作フォルダ（`C:\Users\kento\workspace\productions\<作業名>\`）の仕事では、制作の決まりの正本である production-kit（`C:\Users\kento\workspace\wtcttn\production-kit`）の `RULES.md` と、制作フォルダの `README.md` に従う。共通の道具は production-kit の `tools/` を使い、制作フォルダに写さない。
+
+- 動かす前に、毎回 `C:\Users\kento\workspace\productions\_shared\venv\Scripts\Activate.ps1` で venv を有効にする。使い方の正本は `tools/README.md`（各道具は `-h`）。道具には `--root <制作フォルダ>` を渡す。
+- 音: `build_voice`（声）、`build_sfx`（効果音）、`build_mix`（ミックスとステム）、`check_audio`（音圧・ピーク・クリック・継ぎ目）。制作ごとの設定は `voice_plan.json` などで、`tools/examples/exitquiz/` を写して直す。
+- 声のキャスト表、効果音の目録と素材、ミックスの既定値は `C:\Users\kento\workspace\productions\_shared\`（git に入れない）。音圧は目標値で、届かなければ警告になる。
