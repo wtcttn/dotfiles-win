@@ -269,8 +269,10 @@ function ccs {
 
     # mux にウィンドウが1つも無く、新しいウィンドウも作れなかったとき（2026-11-12、hub を閉じて mux が空になったときに起きた）。
     # WezTerm の画面を1つ開いて mux につなぎ、その最初のタブで cc を起動する。画面が開くのはこのときだけ。
+    # scoop の shim（wezterm.exe）はコンソールのプログラムなので、Start-Process すると Windows ターミナルの窓が
+    # もう1つ開いて残る（2026-11-12）。GUI のプログラム wezterm-gui.exe を直接呼ぶ。
     if ($null -eq $windowId) {
-        Start-Process wezterm -ArgumentList (@("connect", "mux", "--", "pwsh", "-NoLogo", "-NoExit", "-Command", "Set-Location '$dir'; $ccCommand"))
+        Start-Process (Get-WeztermGuiPath) -ArgumentList (@("connect", "mux", "--", "pwsh", "-NoLogo", "-NoExit", "-Command", "Set-Location '$dir'; $ccCommand"))
         for ($i = 0; $i -lt 20; $i++) {
             Start-Sleep -Seconds 1
             $found = Find-CcPane $Name
@@ -284,6 +286,21 @@ function ccs {
     Write-Host "mux にペインを足せませんでした（記録: $(Join-Path $env:LOCALAPPDATA 'cc\ccs.log')）。" -ForegroundColor Red
     Write-Host ($out -join "`n") -ForegroundColor DarkGray
     return
+}
+
+# wezterm-gui.exe の本体のパスを返す。scoop の shim は .shim ファイルの path = "..." に本体を書いているので、それを読む。
+function Get-WeztermGuiPath {
+    $cmd = Get-Command wezterm-gui -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+    if (!$cmd) { return "wezterm-gui" }
+    $shim = [System.IO.Path]::ChangeExtension($cmd.Source, ".shim")
+    if (Test-Path $shim) {
+        $line = Get-Content $shim | Where-Object { $_ -match '^\s*path\s*=' } | Select-Object -First 1
+        if ($line) {
+            $target = $line.Split("=", 2)[1].Trim().Trim('"')
+            if (Test-Path $target) { return $target }
+        }
+    }
+    return $cmd.Source
 }
 
 # ccs の失敗を %LOCALAPPDATA%\cc\ccs.log に残す（Grok Bot から呼んだときなど、画面が見えないときに原因を追うため）。
