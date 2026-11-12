@@ -13,6 +13,9 @@
 	"grants": [
 		// オーナー本人の端末からは、全部届く。
 		{"src": ["${TS_USER_OWNER}"], "dst": ["*"], "ip": ["*"]},
+
+		// Grok Bot の箱専用の利用者は、PC の hub のブリッジ（8788）にだけ届く。ほかの端末やポートには届かない。
+		{"src": ["${TS_USER_GROKBOT}"], "dst": ["sugimoto-pc"], "ip": ["tcp:8788"]},
 	],
 
 	// Tailscale SSH は、オーナー本人が自分の端末にだけ（確認つき）。
