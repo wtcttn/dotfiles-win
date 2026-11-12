@@ -12,6 +12,8 @@ description: >-
 
 # WezTerm mux 経由の Claude Code への連携
 
+**2026-11-12 から、ふだんの依頼はスキル `hub-bridge`（MCP サーバー `hub-bridge` の `send_to_hub`）で `hub` に送る。このスキルは予備で、hub が閉じていて `hub-bridge` に `ping` が届かないときだけ使う。** 401 や「HTTP 404 で読み込みに失敗」のような設定の問題では、このスキルに切り替えず、オーナーに報告する。
+
 Grok Bot から、SUGIMOTO-PC など別のマシン上の WezTerm mux セッションで既に起動している Claude Code に指示を送るスキルである。Blender MCP や After Effects MCP など、アプリに近い Claude が持つツールを使った制作に連携する。
 
 ## 原則
