@@ -141,6 +141,8 @@ function cc {
             Write-Host "Bitwarden の解錠に失敗しました。" -ForegroundColor Red
             return
         }
+        # 別の端末やアプリで直した値を読むため、手元の控えを先に同期する。
+        bw sync --session $env:BW_SESSION 2>$null | Out-Null
         $keepSession = $false
         foreach ($line in $lines) {
             if ($line.Trim() -eq "@session") { $keepSession = $true; continue }
