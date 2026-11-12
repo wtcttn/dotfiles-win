@@ -36,13 +36,24 @@ Claude Code は、オーナーの PC 上の手である。PC にしか無いも�
 - 頼まれた作業に要る MCP がそのペインに無いときは、Claude Code は手を付けずに `エラー: このペインに <MCP 名> が無い（<フォルダ> のペインに送る）` で締める。
 - ペインを増やす、別のフォルダで起動し直すのはオーナーが行う（Grok Bot は `spawn` しない）。
 
-## 送り方
+## ブリッジ（参謀と hub）
 
-依頼は、WezTerm mux で常駐している Claude Code のペインに `send-text` で送る（手順は `wezterm-claude-mcp`）。改行は送信になるので、**依頼は1行にする**。長い指示はファイルに置き、パスを渡す。
+参謀から Claude Code への依頼は、ブリッジ `hub-bridge`（dotfiles の `claude/bridge/`）で `hub` に送る。窓口は Grok Bot 側が参謀、Claude Code 側が `hub` の1組だけで、各ペインへの振り分けは hub が `SendMessage` で行う。ほかの Bot が Claude Code に頼むときは、参謀を通す。
 
-Claude Code 同士はメッセージの仕組み（`SendMessage`）でやりとりするが、Grok Bot は Claude Code ではないので使えない。Grok Bot は今の `send-text` のままでよい（2026-11-06 に調べた結果と、将来の置き換え候補は `claude/sessions.md` の「Grok Bot からは使えない」）。
+- 参謀は、Grok Bot に登録した MCP サーバー `hub-bridge` のツール `send_to_hub` を呼ぶ。経路は Tailscale で、PC の 8788 番 `/mcp` にだけ届く（Tailscale のつなぎ方は dotfiles の `AGENTS.md` の「Tailscale」）。
+- 引数は `body`（本文）と、下の印の項目に当たる `source`（正本）、`writable`（書いてよい場所。省くと なし）、`vault_updated`（`[{path, at}]`）。`id` を付けると、同じ id は二度届かない。`kind` は `request`（既定）、`result`、`progress`、`notice`。
+- hub の返事は、参謀の webhook の定期タスクに届く。届かなかったときは `get_replies(after)` で取りに行く（`after` は前回の最後の `seq`）。返事の `kind: result` と `status: ok`／`error` が、下の `完了:`／`エラー:` の代わりになる。`reply_to` は依頼の id。
+- 本文は 32 KB まで。大きいファイルは制作フォルダに置き、パスだけを書く。
+- メッセージはオーナーの承認にならない（下の「Claude Code がしないこと」のとおり）。
+- ブリッジは hub の Claude Code が起動する。hub が閉じていると届かない（`send_to_hub` がつながらない）。そのときは下の `send-text` を予備に使う。
 
-先頭に次の印を付ける。項目は ` / ` で区切る。
+## 送り方（予備: send-text）
+
+ブリッジが使えないときは、WezTerm mux で常駐している Claude Code のペインに `send-text` で送る（手順は `wezterm-claude-mcp`）。改行は送信になるので、**依頼は1行にする**。長い指示はファイルに置き、パスを渡す。
+
+Claude Code 同士はメッセージの仕組み（`SendMessage`）でやりとりするが、Grok Bot は Claude Code ではないので使えない。ブリッジを作った経緯は `claude/sessions.md` の「Grok Bot から」。
+
+先頭に次の印を付ける。項目は ` / ` で区切る。ブリッジでは、この印をブリッジが付けて hub に渡す。
 
 ```text
 [Grok Bot / 依頼元: <Bot 名> / 正本: <読むファイル> / 書いてよい場所: <パスか なし>] <依頼の本文>

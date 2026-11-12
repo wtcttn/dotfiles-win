@@ -155,8 +155,18 @@ function cc {
         if (!$keepSession) { Remove-Item Env:BW_SESSION -ErrorAction SilentlyContinue }
     }
 
+    # claude/workspaces/<フォルダ>/channels にあるチャネル（1行に1つ。hub の hub-bridge など）を読み込む。
+    # 自作のチャネルは研究プレビューの間、--dangerously-load-development-channels でしか読み込めない。
+    $claudeArgs = @("-n", $Name)
+    $channelsFile = Join-Path $env:USERPROFILE "dotfiles\claude\workspaces\$Folder\channels"
+    if (Test-Path $channelsFile) {
+        foreach ($ch in @(Get-Content $channelsFile | ForEach-Object { $_.Trim() } | Where-Object { $_ -and !$_.StartsWith("#") })) {
+            $claudeArgs += @("--dangerously-load-development-channels", $ch)
+        }
+    }
+
     $Host.UI.RawUI.WindowTitle = $Name
-    claude -n $Name
+    claude @claudeArgs
 }
 
 # Welcome message (fastfetch config: windows/fastfetch/config.jsonc)

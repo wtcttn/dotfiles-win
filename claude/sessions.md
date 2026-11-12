@@ -18,11 +18,13 @@
 - 依頼に要る MCP がこのセッションに無いときは、手を付けずに、どのセッションに送るべきかを返す。
 - 終わったら、送り主に `SendMessage` で結果を返す（送り主の名前は、届いたメッセージの `from` にある）。
 
-## Grok Bot からは使えない
+## Grok Bot から
 
-メッセージの仕組み（2026-11-06 に公式ドキュメント「Message your other Claude Code sessions」で確認）は、Claude Code のセッション同士のためのもので、Grok Bot のような Claude Code でないものからは送れない。Grok Bot からの依頼は、今までどおり `wezterm-claude-mcp` の `send-text` で送る。
+メッセージの仕組み（2026-11-06 に公式ドキュメント「Message your other Claude Code sessions」で確認）は、Claude Code のセッション同士のためのもので、Grok Bot のような Claude Code でないものからは送れない。
 
-将来、根本から置き換える候補は次の2つ。どちらも今は使っていない。
+そこで 2026-11-12 に、参謀と `hub` をつなぐブリッジ `hub-bridge`（`claude/bridge/`）を作った。
 
-- **Channels**（研究プレビュー）: MCP サーバーとして、外部のシステムから常駐中のセッションへメッセージを押し込み、返事も同じ経路で返せる。Discord や Telegram のプラグインがあり、自作の Webhook も作れる（自作は開発用のフラグが要る）。Bun が要る。Grok Bot がいる場所（Discord など）とつなげられれば、`send-text` と画面の読み取りが要らなくなる。
-- **中継の Claude Code**: Grok Bot が SSH でこの PC の `claude -p` を起こし、その中から `SendMessage` で常駐セッションに渡す。返事は `-p` が動いている間しか受け取れないので、結果はファイルに書かせることになる。
+- 参謀 → hub: Grok Bot に登録した MCP サーバー（Tailscale 経由、PC の 8788 番）に送ると、ブリッジが **Channels**（研究プレビュー。自作のチャネルは `--dangerously-load-development-channels` が要る）で hub の会話に押し込む。Node で動き、Windows でも動くことを確かめた。
+- hub → 参謀: hub がブリッジの `reply` を呼ぶと、参謀の webhook の定期タスクに届く。
+- 取り決めは `grokbot/claude-code.md` の「ブリッジ」。hub が閉じているときの予備として、`wezterm-claude-mcp` の `send-text` を残す。
+- 箱のコマンド（curl など）は tailnet に出られず、tailnet に届くのは Grok Bot に登録した MCP サーバーだけだった。だからブリッジは MCP サーバーにした。

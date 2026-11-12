@@ -748,6 +748,19 @@ function Install-ClaudeWorkspaces {
         }
     }
 
+    # hub の hub-bridge（claude/bridge）の依存を、package-lock.json のとおりに入れる。
+    $bridgeDir = Join-Path $DotfilesPath "claude\bridge"
+    if ((Test-Path (Join-Path $bridgeDir "package-lock.json")) -and (Get-Command npm -ErrorAction SilentlyContinue)) {
+        Write-ColorOutput "Installing hub-bridge dependencies (npm ci)..." "Green"
+        Push-Location $bridgeDir
+        try {
+            npm ci --no-audit --no-fund --ignore-scripts | Out-Null
+            if ($LASTEXITCODE -ne 0) { Write-ColorOutput "npm ci failed in $bridgeDir" "Red" }
+        } finally {
+            Pop-Location
+        }
+    }
+
     $productions = Join-Path $workspaceDir "productions"
     if (!(Test-Path $productions)) {
         New-Item -ItemType Directory -Path $productions -Force | Out-Null

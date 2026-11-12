@@ -1,0 +1,3 @@
+# cc hub が claude の起動に足すチャネル。1行に1つ。研究プレビューの間は、自作のチャネルを
+# --dangerously-load-development-channels で読み込む（cc がこのファイルを読んで付ける）。
+server:hub-bridge

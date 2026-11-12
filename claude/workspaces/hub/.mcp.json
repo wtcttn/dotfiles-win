@@ -7,6 +7,17 @@
       "env": {
         "BW_SESSION": "${BW_SESSION}"
       }
+    },
+    "hub-bridge": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["${USERPROFILE}/dotfiles/claude/bridge/server.mjs"],
+      "env": {
+        "HUB_BRIDGE_TOKEN": "${HUB_BRIDGE_TOKEN:-}",
+        "GROKBOT_WEBHOOK_URL": "${GROKBOT_WEBHOOK_URL:-}",
+        "GROKBOT_WEBHOOK_KEY": "${GROKBOT_WEBHOOK_KEY:-}",
+        "GROKBOT_WEBHOOK_HEADER": "${GROKBOT_WEBHOOK_HEADER:-}"
+      }
     }
   }
 }
