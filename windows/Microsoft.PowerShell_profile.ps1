@@ -192,26 +192,31 @@ function cc {
     claude @claudeArgs
 }
 
-# Claude Code の常駐ペインを WezTerm の mux（ウィンドウを閉じても残る）に用意する（例: ccs blender、ccs blender-anim cg）。
-# mux に同じ名前のペインがあれば何もしない。無ければ mux にペインを足し、その中で cc <名前> [<フォルダ>] を起動する。
-# hub はこれでほかのペインを立ち上げる（2026-11-12 に、mux の中からの spawn で mux が固まらないことを確かめた）。
-# Bitwarden の解錠の控えが切れていれば、新しいペインでマスターパスワードを聞かれるので、そのペインで入力する。
 # mux の中から、タブ名（cc と ccs が付ける）が <名前> のペインを探す。タブ名の無い古いペインは、タイトルの末尾の名前で探す。
-function Find-CcPane {
-    param([Parameter(Mandatory)][string]$Name)
-    if (!(Get-Command wezterm -ErrorAction SilentlyContinue)) { return $null }
+# mux のサーバーが動いていなければ、wezterm cli が起動する（画面は開かない）。
+function Get-MuxPanes {
+    if (!(Get-Command wezterm -ErrorAction SilentlyContinue)) { return @() }
     # wezterm の出力は UTF-8。タイトルの記号（◑ など）を読み違えないように合わせる。
     $prevEncoding = [Console]::OutputEncoding
     [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
     try {
-        $panes = @(wezterm cli --prefer-mux list --format json | ConvertFrom-Json)
+        return @(wezterm cli --prefer-mux list --format json | ConvertFrom-Json)
     } finally {
         [Console]::OutputEncoding = $prevEncoding
     }
-    $pattern = "(^|\s)$([regex]::Escape($Name))$"
-    return $panes | Where-Object { $_.tab_title -eq $Name -or (!$_.tab_title -and $_.title -match $pattern) } | Select-Object -First 1
 }
 
+function Find-CcPane {
+    param([Parameter(Mandatory)][string]$Name)
+    $pattern = "(^|\s)$([regex]::Escape($Name))$"
+    return Get-MuxPanes | Where-Object { $_.tab_title -eq $Name -or (!$_.tab_title -and $_.title -match $pattern) } | Select-Object -First 1
+}
+
+# Claude Code の常駐ペインを WezTerm の mux（ウィンドウを閉じても残る）に用意する（例: ccs blender、ccs blender-anim cg）。
+# mux に同じ名前のペインがあれば何もしない。無ければ mux の既存のウィンドウにタブを足し、その中で cc <名前> [<フォルダ>] を起動する。
+# mux にウィンドウが1つも無いときだけ、ウィンドウを1つ作る。呼び出し元（hub のペイン、ふつうのタブ、Grok Bot、タスクスケジューラ）に関係なく、
+# ウィンドウは増えない（2026-11-12 に、mux の中からも外からも、spawn で mux が固まらないことを確かめた）。
+# Bitwarden の解錠の控えが切れていれば、新しいペインでマスターパスワードを聞かれるので、そのペインで入力する。
 function ccs {
     param(
         [Parameter(Mandatory)][string]$Name,
@@ -240,7 +245,10 @@ function ccs {
     if ($ResumeId) { $ccCommand += " -ResumeId '$($ResumeId -replace "'", "''")'" }
     elseif ($Resume) { $ccCommand += " -Resume" }
     if ($NoRemoteControl) { $ccCommand += " -NoRemoteControl" }
-    $paneId = (wezterm cli --prefer-mux spawn --cwd $dir -- pwsh -NoLogo -NoExit -Command $ccCommand | Out-String).Trim()
+    # 呼び出し元のペインには頼らず、mux の既存のウィンドウを指定する（ふつうのタブのペインは mux に無いため）。
+    $windowId = Get-MuxPanes | Select-Object -ExpandProperty window_id -First 1
+    $where = if ($null -ne $windowId) { @("--window-id", "$windowId") } else { @("--new-window") }
+    $paneId = (wezterm cli --prefer-mux spawn @where --cwd $dir -- pwsh -NoLogo -NoExit -Command $ccCommand | Out-String).Trim()
     if (!$paneId) {
         Write-Host "mux にペインを足せませんでした。" -ForegroundColor Red
         return
