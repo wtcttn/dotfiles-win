@@ -110,10 +110,15 @@ function Get-BwSession {
 # Claude Code の常駐ペインを起動する（例: cc music、cc blender、cc blender-anim cg）。
 # フォルダに移り、dotfiles の claude/workspaces/<フォルダ>/secrets.bw にある秘密を Bitwarden から読んで、
 # このペインの環境変数にだけ渡してから claude -n <名前> を起動する。値はレジストリにもファイルにも残さない。
+# -Resume で同じ名前の前の会話を、-ResumeId <会話の ID か名前> でその会話を再開する。
+# Remote Control は既定でオン（セッション名は <名前>）。-NoRemoteControl で切る。
 function cc {
     param(
         [Parameter(Mandatory)][string]$Name,
-        [string]$Folder
+        [string]$Folder,
+        [switch]$Resume,
+        [string]$ResumeId,
+        [switch]$NoRemoteControl
     )
     $paneFolders = @{ blender = "cg"; aftereffects = "cg" }
     if (!$Folder) { $Folder = if ($paneFolders.ContainsKey($Name)) { $paneFolders[$Name] } else { $Name } }
@@ -173,6 +178,9 @@ function cc {
     # claude/workspaces/<フォルダ>/channels にあるチャネル（1行に1つ。hub の hub-bridge など）を読み込む。
     # 自作のチャネルは研究プレビューの間、--dangerously-load-development-channels でしか読み込めない。
     $claudeArgs = @("-n", $Name)
+    if ($ResumeId) { $claudeArgs += @("--resume", $ResumeId) }
+    elseif ($Resume) { $claudeArgs += @("--resume", $Name) }
+    if (!$NoRemoteControl) { $claudeArgs += @("--remote-control", $Name) }
     $channelsFile = Join-Path $env:USERPROFILE "dotfiles\claude\workspaces\$Folder\channels"
     if (Test-Path $channelsFile) {
         foreach ($ch in @(Get-Content $channelsFile | ForEach-Object { $_.Trim() } | Where-Object { $_ -and !$_.StartsWith("#") })) {
@@ -188,15 +196,10 @@ function cc {
 # mux に同じ名前のペインがあれば何もしない。無ければ mux にペインを足し、その中で cc <名前> [<フォルダ>] を起動する。
 # hub はこれでほかのペインを立ち上げる（2026-11-12 に、mux の中からの spawn で mux が固まらないことを確かめた）。
 # Bitwarden の解錠の控えが切れていれば、新しいペインでマスターパスワードを聞かれるので、そのペインで入力する。
-function ccs {
-    param(
-        [Parameter(Mandatory)][string]$Name,
-        [string]$Folder
-    )
-    if (!(Get-Command wezterm -ErrorAction SilentlyContinue)) {
-        Write-Host "wezterm が見つかりません。" -ForegroundColor Red
-        return
-    }
+# mux の中から、タブ名（cc と ccs が付ける）が <名前> のペインを探す。タブ名の無い古いペインは、タイトルの末尾の名前で探す。
+function Find-CcPane {
+    param([Parameter(Mandatory)][string]$Name)
+    if (!(Get-Command wezterm -ErrorAction SilentlyContinue)) { return $null }
     # wezterm の出力は UTF-8。タイトルの記号（◑ など）を読み違えないように合わせる。
     $prevEncoding = [Console]::OutputEncoding
     [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
@@ -205,9 +208,23 @@ function ccs {
     } finally {
         [Console]::OutputEncoding = $prevEncoding
     }
-    # タブ名（cc と ccs が付ける）で探す。タブ名の無い古いペインは、タイトルの末尾の名前で探す。
     $pattern = "(^|\s)$([regex]::Escape($Name))$"
-    $found = $panes | Where-Object { $_.tab_title -eq $Name -or (!$_.tab_title -and $_.title -match $pattern) } | Select-Object -First 1
+    return $panes | Where-Object { $_.tab_title -eq $Name -or (!$_.tab_title -and $_.title -match $pattern) } | Select-Object -First 1
+}
+
+function ccs {
+    param(
+        [Parameter(Mandatory)][string]$Name,
+        [string]$Folder,
+        [switch]$Resume,
+        [string]$ResumeId,
+        [switch]$NoRemoteControl
+    )
+    if (!(Get-Command wezterm -ErrorAction SilentlyContinue)) {
+        Write-Host "wezterm が見つかりません。" -ForegroundColor Red
+        return
+    }
+    $found = Find-CcPane $Name
     if ($found) {
         Write-Host "$Name はもう mux にあります（pane $($found.pane_id)）。" -ForegroundColor Yellow
         return $found.pane_id
@@ -219,7 +236,11 @@ function ccs {
         Write-Host "フォルダがありません: $dir" -ForegroundColor Red
         return
     }
-    $paneId = (wezterm cli --prefer-mux spawn --cwd $dir -- pwsh -NoLogo -NoExit -Command "cc $Name $Folder" | Out-String).Trim()
+    $ccCommand = "cc $Name $Folder"
+    if ($ResumeId) { $ccCommand += " -ResumeId '$($ResumeId -replace "'", "''")'" }
+    elseif ($Resume) { $ccCommand += " -Resume" }
+    if ($NoRemoteControl) { $ccCommand += " -NoRemoteControl" }
+    $paneId = (wezterm cli --prefer-mux spawn --cwd $dir -- pwsh -NoLogo -NoExit -Command $ccCommand | Out-String).Trim()
     if (!$paneId) {
         Write-Host "mux にペインを足せませんでした。" -ForegroundColor Red
         return
@@ -227,6 +248,27 @@ function ccs {
     wezterm cli --prefer-mux set-tab-title --pane-id $paneId $Name | Out-Null
     Write-Host "$Name を mux に用意しました（pane $paneId、フォルダ $Folder）。" -ForegroundColor Green
     return $paneId
+}
+
+# mux の常駐ペインを、タブ名で探して閉じる（例: ccx blender-anim）。中の Claude Code も終わる。
+# 閉じる前に、そのペインの Claude Code に引き継ぎメモを書いてもらう（hub の CLAUDE.md の「ペインを閉じる」）。
+# hub は -Force を付けたときだけ閉じる（hub の中から実行すると、hub 自身が終わる）。
+function ccx {
+    param(
+        [Parameter(Mandatory)][string]$Name,
+        [switch]$Force
+    )
+    if ($Name -eq "hub" -and !$Force) {
+        Write-Host "hub を閉じるときは -Force を付けてください。" -ForegroundColor Yellow
+        return
+    }
+    $found = Find-CcPane $Name
+    if (!$found) {
+        Write-Host "$Name は mux にありません。" -ForegroundColor Yellow
+        return
+    }
+    wezterm cli --prefer-mux kill-pane --pane-id $found.pane_id | Out-Null
+    Write-Host "$Name を閉じました（pane $($found.pane_id)）。" -ForegroundColor Green
 }
 
 # hub を mux に用意する（無ければ起動する）。Windows へのログインのときにも使える。
