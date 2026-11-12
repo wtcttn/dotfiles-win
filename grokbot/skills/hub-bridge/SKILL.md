@@ -6,7 +6,7 @@ description: >-
   (send_to_hub, get_replies, ping) and the webhook routine 「hub からの返事を受け取る」.
   Use whenever 参謀 (or another Bot through 参謀) needs PC-side work: Blender,
   After Effects, Studio One, Suno, fal, local files, or anything for the hub.
-  Falls back to wezterm-claude-mcp (send-text) only when hub is closed.
+  When hub cannot be reached, use hub-keeper to start or restart hub.
 ---
 
 # hub-bridge で hub とやりとりする
@@ -23,7 +23,7 @@ Grok Bot の「参謀」が、SUGIMOTO-PC の Claude Code `hub` に依頼を送�
 | MCP `hub-bridge` の `send_to_hub` | hub に送る（依頼、結果、途中の知らせ、知らせ） |
 | MCP `hub-bridge` の `get_replies` | hub の返事を取りに行く（`after` に最後に受け取った `seq`） |
 | 定期タスク「hub からの返事を受け取る」 | hub の返事が webhook で届くと起きる（担当は参謀） |
-| スキル `wezterm-claude-mcp` | 予備。hub が閉じているときだけ |
+| スキル `hub-keeper` | hub がいないとき、固まっているときに、hub を用意する |
 
 ## 送る
 
@@ -75,8 +75,8 @@ hub の返事は2つの道で届く。どちらも同じ中身（`seq`、`id`、
 
 ## つながらないとき
 
-- `ping` が失敗する、または `hub-bridge` が読み込めない（接続のエラー）とき: hub が閉じている。予備の `wezterm-claude-mcp`（send-text）に切り替える。手順はそのスキルのとおり（印付きの1行の依頼、最後の行は `完了:`／`エラー:`、Enter は別に送る）。
-- 「HTTP 404 で読み込みに失敗」、401 など、設定の問題のとき: send-text に切り替えず、オーナーに報告する。404 は、たいてい登録の鍵（`Authorization` ヘッダー）が合っていないとき（ブリッジが 401 で断り、Grok Bot がログインの入口を探しに行って 404 になる）。PC 側の記録 `workspace\hub\bridge\bridge.log` に理由が出るので、hub に見てもらう。
+- `ping` が失敗する、または `hub-bridge` が読み込めない（接続のエラー）とき: hub がいない（閉じている、起動中、固まっている）。スキル `hub-keeper` で hub を用意してから、同じ id で送り直す。
+- 「HTTP 404 で読み込みに失敗」、401 など、設定の問題のとき: `hub-keeper` は使わず（hub は動いている）、オーナーに報告する。404 は、たいてい登録の鍵（`Authorization` ヘッダー）が合っていないとき（ブリッジが 401 で断り、Grok Bot がログインの入口を探しに行って 404 になる）。PC 側の記録 `workspace\hub\bridge\bridge.log` に理由が出るので、hub に見てもらう。
 
 ## 守ること
 
