@@ -683,6 +683,12 @@ function Install-ClaudeConfig {
         Write-ColorOutput "Linking Claude Code skill $skill..." "Green"
         $sourcePath = Join-Path $skillsRoot $skill
         $destPath = Join-Path $skillsDest $skill
+        # 張り済みのリンクを .backup に写すと、~/.claude/skills に同じスキルが2つ並ぶ。
+        $existing = Get-Item $destPath -Force -ErrorAction SilentlyContinue
+        if ($existing -and $existing.LinkType -and (@($existing.Target) -contains $sourcePath)) {
+            Write-ColorOutput "Claude Code skill $skill already linked" "Blue"
+            continue
+        }
         try {
             Backup-AndRemoveItem -Path $destPath -Description "Claude Code skill $skill"
             if (!(Set-SymbolicLinkOrCopy -SourcePath $sourcePath -DestinationPath $destPath -Description "Claude Code skill $skill")) {
@@ -694,7 +700,59 @@ function Install-ClaudeConfig {
         }
     }
 
+    if (!(Install-ClaudeWorkspaces)) {
+        return $false
+    }
+
     Write-ColorOutput "Restart running Claude Code sessions to load the new instructions." "Yellow"
+    return $true
+}
+
+# アプリの MCP を持つ作業フォルダ（claude/workspaces/<名前>）を workspace\<名前> に入れる。
+# CLAUDE.md は正本を @ で読み込む1行にする。.mcp.json は読み込みの仕組みが無いのでコピーし、直したら入れ直す。
+function Install-ClaudeWorkspaces {
+    $workspacesRoot = Join-Path $DotfilesPath "claude\workspaces"
+    $workspaceDir = Join-Path $UserProfile "workspace"
+    $utf8 = New-Object System.Text.UTF8Encoding $false
+
+    foreach ($source in @(Get-ChildItem -Path $workspacesRoot -Directory -ErrorAction SilentlyContinue)) {
+        $name = $source.Name
+        $dest = Join-Path $workspaceDir $name
+        if (!(Test-Path $dest)) {
+            New-Item -ItemType Directory -Path $dest -Force | Out-Null
+        }
+
+        Write-ColorOutput "Installing Claude Code workspace $name..." "Green"
+        try {
+            $claudeSource = (Join-Path $source.FullName "CLAUDE.md") -replace '\\', '/'
+            $claudeDest = Join-Path $dest "CLAUDE.md"
+            $stub = "@$claudeSource"
+            if (!((Test-Path $claudeDest) -and ((Get-Content -Raw $claudeDest).Trim() -eq $stub))) {
+                Backup-AndRemoveItem -Path $claudeDest -Description "workspace $name CLAUDE.md"
+                [System.IO.File]::WriteAllText($claudeDest, "$stub`n", $utf8)
+                Write-ColorOutput "CLAUDE.md: $claudeDest -> $stub" "Blue"
+            }
+
+            $mcpSource = Join-Path $source.FullName ".mcp.json"
+            $mcpDest = Join-Path $dest ".mcp.json"
+            if (Test-Path $mcpSource) {
+                if (!((Test-Path $mcpDest) -and ((Get-FileHash $mcpDest).Hash -eq (Get-FileHash $mcpSource).Hash))) {
+                    Backup-AndRemoveItem -Path $mcpDest -Description "workspace $name .mcp.json"
+                    Copy-Item $mcpSource $mcpDest -Force
+                    Write-ColorOutput ".mcp.json: $mcpSource -> $mcpDest" "Blue"
+                }
+            }
+        } catch {
+            Write-ColorOutput "Failed to install Claude Code workspace ${name}: $($_.Exception.Message)" "Red"
+            return $false
+        }
+    }
+
+    $productions = Join-Path $workspaceDir "productions"
+    if (!(Test-Path $productions)) {
+        New-Item -ItemType Directory -Path $productions -Force | Out-Null
+        Write-ColorOutput "Created $productions" "Blue"
+    }
     return $true
 }
 
@@ -871,7 +929,7 @@ function Show-Help {
     Write-ColorOutput "  wsl       - Install WSL config only" "White"
     Write-ColorOutput "  nvim      - Install Neovim and link windows/nvim only" "White"
     Write-ColorOutput "  cursor-skill - Link every cursor/skills/<slug> (with SKILL.md) into the user Cursor skills directory" "White"
-    Write-ColorOutput "  claude    - Link claude/CLAUDE.md and cursor/skills (except .claude-skip) into ~/.claude" "White"
+    Write-ColorOutput "  claude    - Link claude/CLAUDE.md and cursor/skills (except .claude-skip) into ~/.claude, and install claude/workspaces into workspace\<name>" "White"
     Write-ColorOutput "  mutagen   - Install Mutagen (scoop), pin MUTAGEN_SSH_PATH, register the daemon only" "White"
     Write-ColorOutput "  help      - Show this help message" "White"
     Write-ColorOutput "" "White"

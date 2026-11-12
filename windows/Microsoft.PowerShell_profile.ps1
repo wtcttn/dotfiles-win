@@ -71,6 +71,94 @@ Set-Alias -Name reload -Value Import-Profile
 # Environment variables
 $env:EDITOR = "code"
 
+# Bitwarden の解錠した鍵（BW_SESSION）を返す。鍵は DPAPI（この Windows ユーザーだけが戻せる）で暗号化して
+# %LOCALAPPDATA%\cc\bw-session.json に 12 時間だけ置き、ペインを起動するたびにマスターパスワードを聞かないようにする。
+# 期限が過ぎたら bw lock で鍵を無効にして聞き直す。手で bw lock したときも、鍵が効かないので聞き直す。
+function Get-BwSession {
+    $cacheDir = Join-Path $env:LOCALAPPDATA "cc"
+    $cacheFile = Join-Path $cacheDir "bw-session.json"
+    $ttlHours = 12
+
+    if (Test-Path $cacheFile) {
+        try {
+            $cache = Get-Content -Raw $cacheFile | ConvertFrom-Json
+            if ([datetime]$cache.expires -gt (Get-Date)) {
+                $secure = ConvertTo-SecureString $cache.key
+                $key = [System.Net.NetworkCredential]::new("", $secure).Password
+                if ((bw status --session $key | ConvertFrom-Json).status -eq "unlocked") {
+                    return $key
+                }
+            } else {
+                bw lock | Out-Null
+            }
+        } catch {
+        }
+        Remove-Item $cacheFile -Force -ErrorAction SilentlyContinue
+    }
+
+    $key = bw unlock --raw
+    if (!$key) { return $null }
+    if (!(Test-Path $cacheDir)) { New-Item -ItemType Directory -Path $cacheDir -Force | Out-Null }
+    @{
+        expires = (Get-Date).AddHours($ttlHours).ToString("o")
+        key = ConvertTo-SecureString $key -AsPlainText -Force | ConvertFrom-SecureString
+    } | ConvertTo-Json | Set-Content -Path $cacheFile -Encoding utf8
+    Write-Host "Bitwarden を解錠しました（$ttlHours 時間、ほかのペインはパスワードなしで起動できます）。" -ForegroundColor Green
+    return $key
+}
+
+# Claude Code の常駐ペインを起動する（例: cc music、cc blender、cc blender-anim cg）。
+# フォルダに移り、dotfiles の claude/workspaces/<フォルダ>/secrets.bw にある秘密を Bitwarden から読んで、
+# このペインの環境変数にだけ渡してから claude -n <名前> を起動する。値はレジストリにもファイルにも残さない。
+function cc {
+    param(
+        [Parameter(Mandatory)][string]$Name,
+        [string]$Folder
+    )
+    $paneFolders = @{ blender = "cg"; aftereffects = "cg" }
+    if (!$Folder) { $Folder = if ($paneFolders.ContainsKey($Name)) { $paneFolders[$Name] } else { $Name } }
+    $dir = Join-Path $env:USERPROFILE "workspace\$Folder"
+    if (!(Test-Path $dir)) {
+        Write-Host "フォルダがありません: $dir" -ForegroundColor Red
+        return
+    }
+    Set-Location $dir
+
+    # secrets.bw の1行は「環境変数=Bitwarden の項目名」（項目のパスワード欄を読む）。
+    # @session の行があるフォルダ（hub）だけ、Bitwarden MCP 用に BW_SESSION を残す。
+    $secretsFile = Join-Path $env:USERPROFILE "dotfiles\claude\workspaces\$Folder\secrets.bw"
+    $lines = @()
+    if (Test-Path $secretsFile) {
+        $lines = @(Get-Content $secretsFile | Where-Object { $_.Trim() -and !$_.Trim().StartsWith("#") })
+    }
+    if ($lines.Count -gt 0) {
+        if ((bw status | ConvertFrom-Json).status -eq "unauthenticated") {
+            Write-Host "Bitwarden にログインしていません。先に bw login を実行してください。" -ForegroundColor Red
+            return
+        }
+        $env:BW_SESSION = Get-BwSession
+        if (!$env:BW_SESSION) {
+            Write-Host "Bitwarden の解錠に失敗しました。" -ForegroundColor Red
+            return
+        }
+        $keepSession = $false
+        foreach ($line in $lines) {
+            if ($line.Trim() -eq "@session") { $keepSession = $true; continue }
+            $var, $item = $line.Split("=", 2) | ForEach-Object { $_.Trim() }
+            $value = bw get password $item 2>$null
+            if (!$value) {
+                Write-Host "Bitwarden の項目 $item のパスワード欄が読めません（$var は空のまま）。" -ForegroundColor Yellow
+                continue
+            }
+            Set-Item -Path "Env:$var" -Value $value
+        }
+        if (!$keepSession) { Remove-Item Env:BW_SESSION -ErrorAction SilentlyContinue }
+    }
+
+    $Host.UI.RawUI.WindowTitle = $Name
+    claude -n $Name
+}
+
 # Welcome message (fastfetch config: windows/fastfetch/config.jsonc)
 if (Get-Command fastfetch -ErrorAction SilentlyContinue) {
     fastfetch

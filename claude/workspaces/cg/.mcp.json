@@ -1,0 +1,28 @@
+{
+  "mcpServers": {
+    "blender": {
+      "type": "stdio",
+      "command": "uv",
+      "args": ["--directory", "C:\\Users\\kento\\blender_mcp\\mcp", "run", "blender-mcp"],
+      "env": {
+        "BLENDER_MCP_PORT": "9877",
+        "BLENDER_PATH": "C:\\Program Files\\Blender Foundation\\Blender 5.2\\blender.exe"
+      }
+    },
+    "blender-community": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": ["mcp-for-blender@latest"],
+      "env": {
+        "BLENDER_PORT": "9876",
+        "DISABLE_TELEMETRY": "true"
+      }
+    },
+    "after-effects": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["C:/Users/kento/after-effects-mcp/build/index.js"],
+      "env": {}
+    }
+  }
+}
